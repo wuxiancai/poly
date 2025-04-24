@@ -3162,6 +3162,8 @@ class CryptoTrader:
             self.close_windows()
             # 切换回当前窗口
             self.driver.switch_to.window(current_handle)
+            # 获取并设置金额
+            self.set_yes_no_cash()
             self.start_url_monitoring()
             self.refresh_page()
         except Exception as e:
