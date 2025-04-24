@@ -3115,7 +3115,7 @@ class CryptoTrader:
         """安排每天0点2分执行自动找币"""
         now = datetime.now()
         # 计算下一个0点2分的时间
-        next_run = now.replace(hour=0, minute=02, second=0, microsecond=0)
+        next_run = now.replace(hour=0, minute=2, second=0, microsecond=0)
         if now >= next_run:
             next_run += timedelta(days=1)
         
