@@ -2208,7 +2208,7 @@ class CryptoTrader:
                                 no_entry.insert(0, "0.00")
 
                         # 在所有操作完成后,重置交易
-                        self.root.after(2000, self.reset_trade)    
+                        self.root.after(20000, self.reset_trade)    
                         break
                     else:
                         self.logger.warning("卖出sell_yes验证失败,重试")
@@ -2278,7 +2278,7 @@ class CryptoTrader:
                                 no_entry.insert(0, "0.00")
 
                         # 在所有操作完成后,重置交易
-                        self.root.after(2000, self.reset_trade)                  
+                        self.root.after(20000, self.reset_trade)                  
                         break
                     else:
                         self.logger.warning("卖出sell_no验证失败,重试")
