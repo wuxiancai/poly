@@ -2185,7 +2185,7 @@ class CryptoTrader:
 
                 # 检查Yes5价格匹配
                 if 0 <= (yes_price - yes5_target) <= 0.03 and yes5_target > 0:
-                    self.logger.info("\033[34m✅ Up 5价格匹配,执行自动卖出\033[0m")
+                    self.logger.info("Up 5价格匹配,执行自动卖出")
                     while True:
                         # 执行卖出YES操作
                         self.only_sell_yes()
@@ -2255,7 +2255,7 @@ class CryptoTrader:
             
                 # 检查No5价格匹配
                 if 0 <= (no_price - no5_target) <= 0.03 and no5_target > 0:
-                    self.logger.info("\033[34m✅ Down 5价格匹配,执行自动卖出\033[0m")
+                    self.logger.info("Down 5价格匹配,执行自动卖出")
                     while True:
                         # 卖完 Down 后，自动再卖 Up                      
                         self.only_sell_no()
