@@ -1623,7 +1623,7 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Up1",
-                                price=yes_price,
+                                price=self.buy_yes_price,
                                 amount=float(self.yes1_amount_entry.get()),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value
@@ -1683,7 +1683,7 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Down1",
-                                price=no_price,
+                                price=self.buy_no_price,
                                 amount=float(self.no1_amount_entry.get()),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value
@@ -1795,7 +1795,7 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Up2",
-                                price=yes_price,
+                                price=self.buy_yes_price,
                                 amount=float(self.buy_yes_amount),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value
@@ -1846,7 +1846,7 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Down2",
-                                price=no_price,
+                                price=self.buy_no_price,
                                 amount=float(self.buy_no_amount),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value
@@ -1937,7 +1937,7 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Up3",
-                                price=yes_price,
+                                price=self.buy_yes_price,
                                 amount=float(self.buy_yes_amount),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value
@@ -1988,7 +1988,7 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Down3",
-                                price=no_price,
+                                price=self.buy_no_price,
                                 amount=float(self.buy_no_amount),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value
@@ -2082,7 +2082,7 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Up4",
-                                price=yes_price,
+                                price=self.buy_yes_price,
                                 amount=float(self.buy_yes_amount),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value
@@ -2135,7 +2135,7 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Down4",
-                                price=no_price,
+                                price=self.buy_no_price,
                                 amount=float(self.buy_no_amount),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value
@@ -2353,7 +2353,8 @@ class CryptoTrader:
             # 发送交易邮件 - 卖出YES
             self.send_trade_email(
                 trade_type="Sell Up",
-                price=yes_price,
+                price=self.buy_yes_price,
+                profit_rate=f"{self.calculate_profit_rate() * 100:.2f}%",
                 amount=self.position_yes_cash(),  # 卖出时金额为总持仓
                 trade_count=self.sell_count,
                 cash_value=self.cash_value
@@ -2403,11 +2404,12 @@ class CryptoTrader:
         if self.Verify_sold_no():
             # 增加卖出计数
             self.sell_count += 1
-                
+            
             # 发送交易邮件 - 卖出NO
             self.send_trade_email(
                 trade_type="Sell Down",
-                price=no_price,
+                price=self.buy_no_price,
+                profit_rate=f"{self.calculate_profit_rate() * 100:.2f}%",
                 amount=self.position_no_cash(),  # 卖出时金额为总持仓
                 trade_count=self.sell_count,
                 cash_value=self.cash_value
@@ -2416,6 +2418,14 @@ class CryptoTrader:
         else:
             self.logger.warning("卖出only_sell_no验证失败,重试")
             return self.only_sell_no()
+
+    def calculate_profit_rate(self):
+        """计算亏损率,先买 UP1:(UP1+UP3)+(DOWN2+DOWN4)-(UP5+DOWN5)/self.cash
+        """
+        profit = ((float(self.yes1_amount_entry.get()) + float(self.yes3_amount_entry.get()) + float(self.no2_amount_entry.get()) + float(self.no4_amount_entry.get())) - (float(self.buy_yes_amount) + float(self.buy_no_amount)))
+        self.logger.info(f"利润: {profit}")
+        self.profit_rate = profit / self.cash
+        return self.profit_rate
     
     def is_sell_accept(self):
         """检查是否存在"Accept"按钮"""
@@ -2693,12 +2703,14 @@ class CryptoTrader:
             trade_type = re.search(r'\b(Bought)\b', text)  # 匹配单词 Bought
             yes_match = re.search(r'\b(Up)\b', text)  # 匹配单词 Up
             amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-            
+            price_match = re.search(r'(\d+)¢', text)  # 匹配 价格 
+
             if trade_type.group(1) == "Bought" and yes_match.group(1) == "Up":
                 self.trade_type = trade_type.group(1)  # 获取 "Bought"
                 self.buy_yes_value = yes_match.group(1)  # 获取 "Up"
                 self.buy_yes_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
-                self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_yes_value}-${self.buy_yes_amount}")
+                self.buy_yes_price = float(price_match.group(0))  # 获取价格部分并转为浮点数
+                self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_yes_value}-${self.buy_yes_amount}-{self.buy_yes_price}")
                 return True
             return False       
         except Exception as e:
@@ -2730,12 +2742,13 @@ class CryptoTrader:
             trade_type = re.search(r'\b(Bought)\b', text)  # 匹配单词 Bought
             no_match = re.search(r'\b(Down)\b', text)  # 匹配单词 Down
             amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-
+            price_match = re.search(r'(\d+)¢', text)  # 匹配 价格 
             if trade_type.group(1) == "Bought" and no_match.group(1) == "Down":
                 self.trade_type = trade_type.group(1)  # 获取 "Bought"
                 self.buy_no_value = no_match.group(1)  # 获取 "Down"
                 self.buy_no_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
-                self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_no_value}-${self.buy_no_amount}")
+                self.buy_no_price = float(price_match.group(0))  # 获取价格部分并转为浮点数
+                self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_no_value}-${self.buy_no_amount}-{self.buy_no_price}")
                 return True
             return False        
         except Exception as e:
@@ -2796,12 +2809,13 @@ class CryptoTrader:
             trade_type = re.search(r'\b(Sold)\b', text)  # 匹配单词 Sold
             yes_match = re.search(r'\b(Up)\b', text)  # 匹配单词 Up
             amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-            
+            price_match = re.search(r'(\d+)¢', text)  # 匹配 价格 
             if trade_type.group(1) == "Sold" and yes_match.group(1) == "Up":
                 self.trade_type = trade_type.group(1)  # 获取 "Sold"
                 self.buy_yes_value = yes_match.group(1)  # 获取 "Up"
                 self.buy_yes_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
-                self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_yes_value}-${self.buy_yes_amount}")
+                self.buy_yes_price = float(price_match.group(0))  # 获取价格部分并转为浮点数
+                self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_yes_value}-${self.buy_yes_amount}-{self.buy_yes_price}")
                 return True
             return False       
         except Exception as e:
@@ -2832,12 +2846,13 @@ class CryptoTrader:
             trade_type = re.search(r'\b(Sold)\b', text)  # 匹配单词 Sold
             no_match = re.search(r'\b(Down)\b', text)  # 匹配单词 Down
             amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-
+            price_match = re.search(r'(\d+)¢', text)  # 匹配 价格 
             if trade_type.group(1) == "Sold" and no_match.group(1) == "Down":
                 self.trade_type = trade_type.group(1)  # 获取 "Sold"
                 self.buy_no_value = no_match.group(1)  # 获取 "Down"
                 self.buy_no_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
-                self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_no_value}-${self.buy_no_amount}")
+                self.buy_no_price = float(price_match.group(0))  # 获取价格部分并转为浮点数
+                self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_no_value}-${self.buy_no_amount}-{self.buy_no_price}")
                 return True
             return False        
         except Exception as e:
@@ -2895,7 +2910,7 @@ class CryptoTrader:
         except ValueError:
             self.logger.error("价格设置无效，请输入有效数字")
 
-    def send_trade_email(self, trade_type, price, amount, trade_count, cash_value):
+    def send_trade_email(self, trade_type, price, amount, trade_count, cash_value, profit_rate):
         """发送交易邮件"""
         max_retries = 2
         retry_delay = 2
@@ -2926,6 +2941,7 @@ class CryptoTrader:
                 content = f"""
                 交易价格: ${price:.2f}
                 交易金额: ${amount:.2f}
+                本次交易利润率: {self.profit_rate:.2f}%
                 当前买入次数: {self.trade_count}
                 当前卖出次数: {self.sell_count}
                 当前 CASH 值: {self.cash}
