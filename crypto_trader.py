@@ -2698,7 +2698,7 @@ class CryptoTrader:
         验证交易是否成功完成Returns:bool: 交易是否成功
         """
         max_retries = 3
-        retry_delay = 1
+        retry_delay = 2
         
         for attempt in range(max_retries):
             try:
@@ -2744,7 +2744,7 @@ class CryptoTrader:
         bool: 交易是否成功
         """
         max_retries = 3
-        retry_delay = 1
+        retry_delay = 2
         
         for attempt in range(max_retries):
             try:
@@ -2820,7 +2820,7 @@ class CryptoTrader:
         验证交易是否成功完成Returns:bool: 交易是否成功
         """
         max_retries = 3
-        retry_delay = 1
+        retry_delay = 2
         
         for attempt in range(max_retries):
             time.sleep(1)
@@ -2866,7 +2866,7 @@ class CryptoTrader:
         bool: 交易是否成功
         """
         max_retries = 3
-        retry_delay = 1
+        retry_delay = 2
         
         for attempt in range(max_retries):
             time.sleep(1)
@@ -3098,7 +3098,7 @@ class CryptoTrader:
     def find_position_label_yes(self):
         """查找Yes持仓标签"""
         max_retries = 2
-        retry_delay = 1
+        retry_delay = 2
         
         for attempt in range(max_retries):
             try:
