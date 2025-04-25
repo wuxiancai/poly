@@ -1626,7 +1626,8 @@ class CryptoTrader:
                                 price=self.buy_yes_price,
                                 amount=float(self.yes1_amount_entry.get()),
                                 trade_count=self.trade_count,
-                                cash_value=self.cash_value
+                                cash_value=self.cash_value,
+                                portfolio_value=self.portfolio_value
                             )
                             # 重置Yes1和No1价格为0.00
                             self.yes1_price_entry.delete(0, tk.END)
@@ -1686,7 +1687,8 @@ class CryptoTrader:
                                 price=self.buy_no_price,
                                 amount=float(self.no1_amount_entry.get()),
                                 trade_count=self.trade_count,
-                                cash_value=self.cash_value
+                                cash_value=self.cash_value,
+                                portfolio_value=self.portfolio_value
                             )
                             # 重置Yes1和No1价格为0.00
                             self.yes1_price_entry.delete(0, tk.END)
@@ -1798,7 +1800,8 @@ class CryptoTrader:
                                 price=self.buy_yes_price,
                                 amount=float(self.buy_yes_amount),
                                 trade_count=self.trade_count,
-                                cash_value=self.cash_value
+                                cash_value=self.cash_value,
+                                portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Second_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -1849,7 +1852,8 @@ class CryptoTrader:
                                 price=self.buy_no_price,
                                 amount=float(self.buy_no_amount),
                                 trade_count=self.trade_count,
-                                cash_value=self.cash_value
+                                cash_value=self.cash_value,
+                                portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Second_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -1940,7 +1944,8 @@ class CryptoTrader:
                                 price=self.buy_yes_price,
                                 amount=float(self.buy_yes_amount),
                                 trade_count=self.trade_count,
-                                cash_value=self.cash_value
+                                cash_value=self.cash_value,
+                                portfolio_value=self.portfolio_value
                             )   
                             self.logger.info("\033[34m✅ Third_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -1991,7 +1996,8 @@ class CryptoTrader:
                                 price=self.buy_no_price,
                                 amount=float(self.buy_no_amount),
                                 trade_count=self.trade_count,
-                                cash_value=self.cash_value
+                                cash_value=self.cash_value,
+                                portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Third_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -2085,7 +2091,8 @@ class CryptoTrader:
                                 price=self.buy_yes_price,
                                 amount=float(self.buy_yes_amount),
                                 trade_count=self.trade_count,
-                                cash_value=self.cash_value
+                                cash_value=self.cash_value,
+                                portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -2138,7 +2145,8 @@ class CryptoTrader:
                                 price=self.buy_no_price,
                                 amount=float(self.buy_no_amount),
                                 trade_count=self.trade_count,
-                                cash_value=self.cash_value
+                                cash_value=self.cash_value,
+                                portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -2357,7 +2365,8 @@ class CryptoTrader:
                 profit_rate=f"{self.calculate_profit_rate() * 100:.2f}%",
                 amount=self.position_yes_cash(),  # 卖出时金额为总持仓
                 trade_count=self.sell_count,
-                cash_value=self.cash_value
+                cash_value=self.cash_value,
+                portfolio_value=self.portfolio_value
             )
             
         else:
@@ -2412,7 +2421,8 @@ class CryptoTrader:
                 profit_rate=f"{self.calculate_profit_rate() * 100:.2f}%",
                 amount=self.position_no_cash(),  # 卖出时金额为总持仓
                 trade_count=self.sell_count,
-                cash_value=self.cash_value
+                cash_value=self.cash_value,
+                portfolio_value=self.portfolio_value
             )
             
         else:
@@ -2946,7 +2956,7 @@ class CryptoTrader:
         except ValueError:
             self.logger.error("价格设置无效，请输入有效数字")
 
-    def send_trade_email(self, trade_type, price, amount, trade_count, cash_value, profit_rate):
+    def send_trade_email(self, trade_type, price, amount, trade_count, cash_value, profit_rate, portfolio_value):
         """发送交易邮件"""
         max_retries = 2
         retry_delay = 2
@@ -2981,6 +2991,7 @@ class CryptoTrader:
                 当前买入次数: {self.trade_count}
                 当前卖出次数: {self.sell_count}
                 当前 CASH 值: {self.cash}
+                当前PORTFOLIO 值: {self.portfolio_value}
                 交易时间: {current_time}
                 """
                 msg.attach(MIMEText(content, 'plain', 'utf-8'))
