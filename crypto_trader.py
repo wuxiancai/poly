@@ -2712,7 +2712,7 @@ class CryptoTrader:
                     self.buy_yes_value = yes_match.group(1)  # 获取 "Up"
                     self.buy_yes_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
                     
-                    self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_yes_value}-${self.buy_yes_amount}-{self.buy_yes_price}")
+                    self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_yes_value}-${self.buy_yes_amount}")
                     return True
                 return False       
             except Exception as e:
