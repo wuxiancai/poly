@@ -2717,7 +2717,7 @@ class CryptoTrader:
                 trade_type = re.search(r'\b(Bought)\b', text)  # 匹配单词 Bought
                 yes_match = re.search(r'\b(Up)\b', text)  # 匹配单词 Up
                 amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-                price_match = re.search(r'(\d+)¢', text)  # 匹配 价格 
+                price_match = re.search(r'\b52\b(?=¢)', text)  # 匹配 价格 
 
                 if trade_type.group(1) == "Bought" and yes_match.group(1) == "Up":
                     self.trade_type = trade_type.group(1)  # 获取 "Bought"
@@ -2765,7 +2765,8 @@ class CryptoTrader:
                 trade_type = re.search(r'\b(Bought)\b', text)  # 匹配单词 Bought
                 no_match = re.search(r'\b(Down)\b', text)  # 匹配单词 Down
                 amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-                price_match = re.search(r'(\d+)¢', text)  # 匹配 价格 
+                price_match = re.search(r'\b52\b(?=¢)', text)  # 匹配 价格 
+
                 if trade_type.group(1) == "Bought" and no_match.group(1) == "Down":
                     self.trade_type = trade_type.group(1)  # 获取 "Bought"
                     self.buy_no_value = no_match.group(1)  # 获取 "Down"
@@ -2840,7 +2841,8 @@ class CryptoTrader:
                 trade_type = re.search(r'\b(Sold)\b', text)  # 匹配单词 Sold
                 yes_match = re.search(r'\b(Up)\b', text)  # 匹配单词 Up
                 amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-                price_match = re.search(r'(\d+)¢', text)  # 匹配 价格 
+                price_match = re.search(r'\b52\b(?=¢)', text)  # 匹配 价格 
+                
                 if trade_type.group(1) == "Sold" and yes_match.group(1) == "Up":
                     self.trade_type = trade_type.group(1)  # 获取 "Sold"
                     self.buy_yes_value = yes_match.group(1)  # 获取 "Up"
@@ -2887,7 +2889,8 @@ class CryptoTrader:
                 trade_type = re.search(r'\b(Sold)\b', text)  # 匹配单词 Sold
                 no_match = re.search(r'\b(Down)\b', text)  # 匹配单词 Down
                 amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-                price_match = re.search(r'(\d+)¢', text)  # 匹配 价格 
+                price_match = re.search(r'\b52\b(?=¢)', text)  # 匹配 价格 
+
                 if trade_type.group(1) == "Sold" and no_match.group(1) == "Down":
                     self.trade_type = trade_type.group(1)  # 获取 "Sold"
                     self.buy_no_value = no_match.group(1)  # 获取 "Down"
