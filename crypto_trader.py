@@ -96,7 +96,7 @@ class CryptoTrader:
         # 添加交易次数计数器
         self.trade_count = 0
         self.sell_count = 0  # 添加卖出计数器
-        self.reset_trade_count = 1 # 添加重置计数器
+        self.reset_trade_count = 0 # 添加重置计数器
         # 添加定时器
         self.refresh_page_timer = None  # 用于存储定时器ID
         self.url_check_timer = None
