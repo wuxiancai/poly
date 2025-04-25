@@ -96,7 +96,7 @@ class CryptoTrader:
         # 添加交易次数计数器
         self.trade_count = 0
         self.sell_count = 0  # 添加卖出计数器
-
+        self.reset_trade_count = 0 # 添加重置计数器
         # 添加定时器
         self.refresh_page_timer = None  # 用于存储定时器ID
         self.url_check_timer = None
@@ -2066,11 +2066,11 @@ class CryptoTrader:
                             # 设置 Yes5和No5价格为0.85
                             self.yes5_price_entry = self.yes_frame.grid_slaves(row=8, column=1)[0]
                             self.yes5_price_entry.delete(0, tk.END)
-                            self.yes5_price_entry.insert(0, "0.98")
+                            self.yes5_price_entry.insert(0, "0.51")
                             self.yes5_price_entry.configure(foreground='red')  # 添加红色设置
                             self.no5_price_entry = self.no_frame.grid_slaves(row=8, column=1)[0]
                             self.no5_price_entry.delete(0, tk.END)
-                            self.no5_price_entry.insert(0, "0.53")
+                            self.no5_price_entry.insert(0, "0.02")
                             self.no5_price_entry.configure(foreground='red')  # 添加红色设置
 
                             # 增加交易次数
@@ -2118,11 +2118,11 @@ class CryptoTrader:
                             # 设置 Yes5和No5价格为0.98
                             self.yes5_price_entry = self.yes_frame.grid_slaves(row=8, column=1)[0]
                             self.yes5_price_entry.delete(0, tk.END)
-                            self.yes5_price_entry.insert(0, "0.53")
+                            self.yes5_price_entry.insert(0, "0.02")
                             self.yes5_price_entry.configure(foreground='red')  # 添加红色设置
                             self.no5_price_entry = self.no_frame.grid_slaves(row=8, column=1)[0]
                             self.no5_price_entry.delete(0, tk.END)
-                            self.no5_price_entry.insert(0, "0.98")
+                            self.no5_price_entry.insert(0, "0.51")
                             self.no5_price_entry.configure(foreground='red')  # 添加红色设置
                             
                             # 增加交易次数
@@ -2184,7 +2184,7 @@ class CryptoTrader:
                 self.trading = True  # 开始交易
 
                 # 检查Yes5价格匹配
-                if 0 <= (yes_price - yes5_target) <= 0.03 and yes5_target > 0:
+                if 0 <= (yes_price - yes5_target) <= 0.01 and yes5_target > 0:
                     self.logger.info("Up 5价格匹配,执行自动卖出")
                     while True:
                         # 执行卖出YES操作
@@ -2254,7 +2254,7 @@ class CryptoTrader:
                 self.trading = True  # 开始交易
             
                 # 检查No5价格匹配
-                if 0 <= (no_price - no5_target) <= 0.03 and no5_target > 0:
+                if 0 <= (no_price - no5_target) <= 0.01 and no5_target > 0:
                     self.logger.info("Down 5价格匹配,执行自动卖出")
                     while True:
                         # 卖完 Down 后，自动再卖 Up                      
@@ -2289,7 +2289,20 @@ class CryptoTrader:
             self.update_status(f"Sell_no执行失败: {str(e)}")
         finally:
             self.trading = False
-            
+
+    def reset_trade(self):
+        """重置交易"""
+        # 在所有操作完成后,重置交易
+        time.sleep(2)
+        
+        self.set_yes_no_cash()
+        # 重置Yes1和No1价格为0.53
+        self.reset_trade_count += 1
+        self.sell_count = 0
+        self.trade_count = 0
+        self.set_yes_no_default_target_price()
+        self.logger.info(f"第\033[32m{self.reset_trade_count}\033[0m次重置交易")
+
     def only_sell_yes(self):
         """只卖出YES"""
         # 获取当前价格
@@ -2395,17 +2408,6 @@ class CryptoTrader:
         else:
             self.logger.warning("卖出only_sell_no验证失败,重试")
             return self.only_sell_no()
-    
-    def reset_trade(self):
-        """重置交易"""
-        self.logger.info("\033[34m✅ 重置交易,把 YES1/NO1 价格设置为目标价格\033[0m")
-        # 在所有操作完成后,重置交易
-        time.sleep(2)
-        
-        self.set_yes_no_cash()
-        # 重置Yes1和No1价格为0.53
-        
-        self.set_yes_no_default_target_price()
     
     def is_sell_accept(self):
         """检查是否存在"Accept"按钮"""
@@ -2908,7 +2910,7 @@ class CryptoTrader:
                 
                 msg = MIMEMultipart()
                 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                subject = f'{hostname}第{count_in_subject}次{trade_type}-{trading_pair}'
+                subject = f'{hostname}重启{self.reset_trade_count}次第{count_in_subject}次{trade_type}-{trading_pair}'
                 msg['Subject'] = Header(subject, 'utf-8')
                 msg['From'] = sender
                 msg['To'] = receiver
