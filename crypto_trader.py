@@ -2760,7 +2760,7 @@ class CryptoTrader:
                     self.buy_no_value = no_match.group(1)  # 获取 "Down"
                     self.buy_no_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
                     
-                    self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_no_value}-${self.buy_no_amount}-{self.buy_no_price}")
+                    self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_no_value}-${self.buy_no_amount}")
                     return True
                 return False        
             except Exception as e:
