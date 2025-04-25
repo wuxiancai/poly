@@ -1081,11 +1081,10 @@ class CryptoTrader:
                 try:
                     cash_element = self.driver.find_element(By.XPATH, XPathConfig.CASH_VALUE[0])
                     self.cash_value = cash_element.text
-                    
                 except NoSuchElementException:
                     cash_element = self._find_element_with_retry(XPathConfig.CASH_VALUE, timeout=3, silent=True)
                     self.cash_value = cash_element.text
-                
+                    
                 # 更新Portfolio和Cash显示
                 self.portfolio_label.config(text=f"Portfolio: {self.portfolio_value}")
                 self.cash_label.config(text=f"Cash: {self.cash_value}")
@@ -1170,7 +1169,7 @@ class CryptoTrader:
             #设置重试参数
             max_retry = 15
             retry_count = 0
-            cash_value = None
+            self.cash = 0
 
             while retry_count < max_retry:
                 try:
@@ -1182,8 +1181,8 @@ class CryptoTrader:
                     if not cash_match:
                         raise ValueError("无法从Cash值中提取数字")
                     # 移除逗号并转换为浮点数
-                    cash_value = float(cash_match.group(1).replace(',', ''))
-                    self.logger.info(f"\033[34m提取到Cash值: {cash_value}\033[0m")
+                    self.cash = float(cash_match.group(1).replace(',', ''))
+                    self.logger.info(f"\033[34m提取到Cash值: {self.cash}\033[0m")
                     break
                 except Exception as e:
                     retry_count += 1
@@ -1191,7 +1190,7 @@ class CryptoTrader:
                         time.sleep(2)
                     else:
                         raise ValueError("获取Cash值失败")
-            if cash_value is None:
+            if self.cash is None:
                 raise ValueError("获取Cash值失败")
             
             # 获取金额设置中的百分比值
@@ -1200,7 +1199,7 @@ class CryptoTrader:
             n_rebound_percent = float(self.n_rebound_entry.get()) / 100  # 反水N次百分比
 
             # 设置 Yes1 和 No1金额
-            base_amount = cash_value * initial_percent
+            base_amount = self.cash * initial_percent
             self.yes1_entry = self.yes_frame.grid_slaves(row=1, column=1)[0]
             self.yes1_amount_entry.delete(0, tk.END)
             self.yes1_amount_entry.insert(0, f"{base_amount:.2f}")
@@ -1236,7 +1235,6 @@ class CryptoTrader:
             self.no4_entry.insert(0, f"{self.yes4_amount:.2f}")
         
             self.logger.info("\033[34m✅ YES/NO 金额设置完成\033[0m")
-            self.update_status("金额设置成功")
             
         except Exception as e:
             self.logger.error(f"设置金额失败: {str(e)}")
@@ -2897,7 +2895,7 @@ class CryptoTrader:
         except ValueError:
             self.logger.error("价格设置无效，请输入有效数字")
 
-    def send_trade_email(self, trade_type, price, amount, trade_count,cash_value):
+    def send_trade_email(self, trade_type, price, amount, trade_count, cash_value):
         """发送交易邮件"""
         max_retries = 2
         retry_delay = 2
@@ -2928,10 +2926,10 @@ class CryptoTrader:
                 content = f"""
                 交易价格: ${price:.2f}
                 交易金额: ${amount:.2f}
-                交易时间: {current_time}
                 当前买入次数: {self.trade_count}
                 当前卖出次数: {self.sell_count}
-                当前 CASH 值: {self.cash_value:.2f}
+                当前 CASH 值: {self.cash}
+                交易时间: {current_time}
                 """
                 msg.attach(MIMEText(content, 'plain', 'utf-8'))
                 
