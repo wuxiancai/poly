@@ -758,7 +758,7 @@ class CryptoTrader:
         self.set_amount_button['state'] = 'normal'
         # 启动页面刷新
         self.root.after(40000, self.refresh_page)
-        self.logger.info("\033[34m✅ 页面自动刷新启动成功\033[0m")
+        self.logger.info("\033[34m✅ 启动页面刷新成功!\033[0m")
         # 启动登录状态监控
         self.root.after(8000, self.start_login_monitoring)
         # 启动URL监控
@@ -1446,7 +1446,6 @@ class CryptoTrader:
     # 添加刷新方法
     def refresh_page(self):
         """定时刷新页面"""
-        self.logger.info("\033[34m✅ 启动页面刷新成功!\033[0m")
         # 生成随机的5-10分钟（以毫秒为单位）
         random_minutes = random.uniform(5, 10)
         self.refresh_interval = int(random_minutes * 60000)  # 转换为毫秒
