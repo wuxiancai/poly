@@ -1101,7 +1101,9 @@ class CryptoTrader:
                 self.logger.error(f"获取资金信息失败: {str(e)}")
                 self.portfolio_label.config(text="Portfolio: Fail")
                 self.cash_label.config(text="Cash: Fail")
+                self.driver.refresh()
                 self.root.after(3000, self.check_balance)
+                
         except Exception as e:
             self.logger.error(f"检查资金失败: {str(e)}")
             time.sleep(1)   
@@ -1586,6 +1588,8 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
+                                sell_profit_rate=self.sell_profit_rate(),
+                                buy_profit_rate=self.buy_profit_rate()
                                
                             )
                             # 重置Yes1和No1价格为0.00
@@ -1648,7 +1652,8 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                
+                                sell_profit_rate=self.sell_profit_rate(),
+                                buy_profit_rate=self.buy_profit_rate()
                             )
                             # 重置Yes1和No1价格为0.00
                             self.yes1_price_entry.delete(0, tk.END)
@@ -1762,7 +1767,8 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                
+                                sell_profit_rate=self.sell_profit_rate(),
+                                buy_profit_rate=self.buy_profit_rate()
                             )
                             self.logger.info("\033[34m✅ Second_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -1815,7 +1821,8 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                
+                                sell_profit_rate=self.sell_profit_rate(),
+                                buy_profit_rate=self.buy_profit_rate()
                             )
                             self.logger.info("\033[34m✅ Second_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -1908,7 +1915,8 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                
+                                sell_profit_rate=self.sell_profit_rate(),
+                                buy_profit_rate=self.buy_profit_rate()
                             )   
                             self.logger.info("\033[34m✅ Third_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -1961,7 +1969,8 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                
+                                sell_profit_rate=self.sell_profit_rate(),
+                                buy_profit_rate=self.buy_profit_rate()
                             )
                             self.logger.info("\033[34m✅ Third_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -2057,7 +2066,8 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                
+                                sell_profit_rate=self.sell_profit_rate(),
+                                buy_profit_rate=self.buy_profit_rate()
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -2112,7 +2122,8 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                
+                                sell_profit_rate=self.sell_profit_rate(),
+                                buy_profit_rate=self.buy_profit_rate()
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -2332,7 +2343,8 @@ class CryptoTrader:
                 trade_count=self.sell_count,
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value,
-                profit_rate=self.profit_rate()
+                sell_profit_rate=self.sell_profit_rate(),
+                buy_profit_rate=self.buy_profit_rate()
             )
             
         else:
@@ -2388,15 +2400,20 @@ class CryptoTrader:
                 trade_count=self.sell_count,
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value,
-                profit_rate=self.profit_rate()
+                sell_profit_rate=self.sell_profit_rate(),
+                buy_profit_rate=self.buy_profit_rate()
             )
             
         else:
             self.logger.warning("卖出only_sell_no验证失败,重试")
             return self.only_sell_no()
-
-    def profit_rate(self):
-        """计算利润率"""
+        
+    def buy_profit_rate(self):
+        """计算买入利润率"""
+        return 0.0
+    
+    def sell_profit_rate(self):
+        """计算卖出利润率"""
         try:
             # 计算买入总额
             buy_up_total = 0
@@ -2420,8 +2437,12 @@ class CryptoTrader:
             sell_total = 0
             try:
                 # 获取卖出总额,UP OR NO 卖出价格为 0.51
-                sell_up_total = self.sell_up_price * buy_up_total # 卖出 UP 总额
-                sell_down_total = self.sell_down_price * buy_down_total # 卖出 DOWN 总额
+                # 使用getattr获取属性，如果不存在则使用默认值0.0
+                sell_up_price = getattr(self, 'sell_up_price', 0.0)
+                sell_down_price = getattr(self, 'sell_down_price', 0.0)
+
+                sell_up_total = sell_up_price * buy_up_total # 卖出 UP 总额
+                sell_down_total = sell_down_price * buy_down_total # 卖出 DOWN 总额
                 
                 sell_total = sell_down_total + sell_up_total
 
@@ -2435,8 +2456,9 @@ class CryptoTrader:
             if buy_up_total + buy_down_total == 0:
                 self.logger.warning("买入总额为零，无法计算利润率")
                 return 0.0
-                
-            profit_rate_value = profit / (buy_up_total + buy_down_total)
+            
+            total_cash = yes1_amount / 0.02
+            profit_rate_value = profit / total_cash
             
             # 记录利润信息
             self.logger.info(f"利润计算：卖出 ${sell_total:.2f} - 买入 ${buy_up_total:.2f} - ${buy_down_total:.2f} = ${profit:.2f}, 利润率: {profit_rate_value*100:.2f}%")
@@ -2969,7 +2991,7 @@ class CryptoTrader:
         except ValueError:
             self.logger.error("价格设置无效，请输入有效数字")
 
-    def send_trade_email(self, trade_type, price, amount, trade_count, cash_value, portfolio_value, profit_rate):
+    def send_trade_email(self, trade_type, price, amount, trade_count, cash_value, portfolio_value, sell_profit_rate, buy_profit_rate):
         """发送交易邮件"""
         max_retries = 2
         retry_delay = 2
@@ -3008,7 +3030,8 @@ class CryptoTrader:
                 当前卖出次数: {self.sell_count}
                 当前 CASH 值: {str_cash_value}
                 当前 PORTFOLIO 值: {str_portfolio_value}
-                利润率: {profit_rate:.2f}
+                卖出利润率: {sell_profit_rate:.2f}%
+                买入利润率: {buy_profit_rate:.2f}%
                 交易时间: {current_time}
                 """
                 msg.attach(MIMEText(content, 'plain', 'utf-8'))
