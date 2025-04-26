@@ -2458,10 +2458,7 @@ class CryptoTrader:
                 return 0.0
             
             total_cash = yes1_amount / 0.02
-            profit_rate_value = profit / total_cash
-            
-            # 记录利润信息
-            self.logger.info(f"利润计算：卖出 ${sell_total:.2f} - 买入 ${buy_up_total:.2f} - ${buy_down_total:.2f} = ${profit:.2f}, 利润率: {profit_rate_value*100:.2f}%")
+            profit_rate_value = (profit / total_cash) * 100
             
             return profit_rate_value
             
