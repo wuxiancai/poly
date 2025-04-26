@@ -1582,11 +1582,12 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Up1",
-                                price=yes_price,
+                                price=self.buy_up_price,
                                 amount=float(self.yes1_amount_entry.get()),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
-                                
+                                portfolio_value=self.portfolio_value,
+                                profit_rate=self.profit_rate
                             )
                             # 重置Yes1和No1价格为0.00
                             self.yes1_price_entry.delete(0, tk.END)
@@ -1643,10 +1644,12 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Down1",
-                                price=no_price,
+                                price=self.buy_down_price,
                                 amount=float(self.no1_amount_entry.get()),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
+                                portfolio_value=self.portfolio_value,
+                                profit_rate=self.profit_rate
                             )
                             # 重置Yes1和No1价格为0.00
                             self.yes1_price_entry.delete(0, tk.END)
@@ -1755,11 +1758,12 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Up2",
-                                price=yes_price,
+                                price=self.buy_up_price,
                                 amount=float(self.buy_yes_amount),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
-                                
+                                portfolio_value=self.portfolio_value,
+                                profit_rate=self.profit_rate
                             )
                             self.logger.info("\033[34m✅ Second_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -1807,11 +1811,12 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Down2",
-                                price=no_price,
+                                price=self.buy_down_price,
                                 amount=float(self.buy_no_amount),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
-                                
+                                portfolio_value=self.portfolio_value,
+                                profit_rate=self.profit_rate
                             )
                             self.logger.info("\033[34m✅ Second_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -1899,11 +1904,12 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Up3",
-                                price=yes_price,
+                                price=self.buy_up_price,
                                 amount=float(self.buy_yes_amount),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
-                                
+                                portfolio_value=self.portfolio_value,
+                                profit_rate=self.profit_rate
                             )   
                             self.logger.info("\033[34m✅ Third_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -1951,11 +1957,12 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Down3",
-                                price=no_price,
+                                price=self.buy_down_price,
                                 amount=float(self.buy_no_amount),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
-                                
+                                portfolio_value=self.portfolio_value,
+                                profit_rate=self.profit_rate
                             )
                             self.logger.info("\033[34m✅ Third_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -2046,11 +2053,12 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Up4",
-                                price=yes_price,
+                                price=self.buy_up_price,
                                 amount=float(self.buy_yes_amount),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
-                                
+                                portfolio_value=self.portfolio_value,
+                                profit_rate=self.profit_rate
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -2100,11 +2108,12 @@ class CryptoTrader:
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Down4",
-                                price=no_price,
+                                price=self.buy_down_price,
                                 amount=float(self.buy_no_amount),
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
-                                
+                                portfolio_value=self.portfolio_value,
+                                profit_rate=self.profit_rate
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -2319,11 +2328,12 @@ class CryptoTrader:
             # 发送交易邮件 - 卖出YES
             self.send_trade_email(
                 trade_type="Sell Up",
-                price=yes_price,
+                price=self.sell_up_price,
                 amount=self.position_yes_cash(),  # 卖出时金额为总持仓
                 trade_count=self.sell_count,
                 cash_value=self.cash_value,
-                
+                portfolio_value=self.portfolio_value,
+                profit_rate=self.profit_rate()
             )
             
         else:
@@ -2374,17 +2384,70 @@ class CryptoTrader:
             # 发送交易邮件 - 卖出NO
             self.send_trade_email(
                 trade_type="Sell Down",
-                price=no_price,
+                price=self.sell_down_price,
                 amount=self.position_no_cash(),  # 卖出时金额为总持仓
                 trade_count=self.sell_count,
                 cash_value=self.cash_value,
-                
+                portfolio_value=self.portfolio_value,
+                profit_rate=self.profit_rate()
             )
             
         else:
             self.logger.warning("卖出only_sell_no验证失败,重试")
             return self.only_sell_no()
 
+    def profit_rate(self):
+        """计算利润率"""
+        try:
+            # 计算买入总额
+            buy_up_total = 0
+            buy_down_total = 0
+            
+            # 获取各个买入金额并转换为浮点数
+            try:
+                yes1_amount = float(self.yes1_amount_entry.get() or 0)
+                no2_amount = float(self.no2_amount_entry.get() or 0)
+                yes3_amount = float(self.yes3_amount_entry.get() or 0)
+                no4_amount = float(self.no4_amount_entry.get() or 0)
+                
+                buy_up_total = yes1_amount + yes3_amount
+                buy_down_total = no2_amount + no4_amount
+
+            except (ValueError, AttributeError) as e:
+                self.logger.warning(f"计算买入总额时出错: {str(e)}")
+                
+            
+            # 计算卖出总额
+            sell_total = 0
+            try:
+                # 获取卖出总额,UP OR NO 卖出价格为 0.51
+                sell_up_total = self.sell_up_price * buy_up_total # 卖出 UP 总额
+                sell_down_total = self.sell_down_price * buy_down_total # 卖出 DOWN 总额
+                
+                sell_total = sell_down_total + sell_up_total
+
+            except (ValueError, AttributeError) as e:
+                self.logger.warning(f"计算卖出总额时出错: {str(e)}")
+            
+            # 计算利润和利润率
+            profit = sell_total - buy_up_total - buy_down_total    
+            
+            # 防止除以零
+            if buy_up_total + buy_down_total == 0:
+                self.logger.warning("买入总额为零，无法计算利润率")
+                return 0.0
+                
+            profit_rate_value = profit / (buy_up_total + buy_down_total)
+            
+            # 记录利润信息
+            self.logger.info(f"利润计算：卖出 ${sell_total:.2f} - 买入 ${buy_up_total:.2f} - ${buy_down_total:.2f} = ${profit:.2f}, 利润率: {profit_rate_value*100:.2f}%")
+            
+            return profit_rate_value
+            
+        except Exception as e:
+            self.logger.error(f"计算利润率时出错: {str(e)}")
+            return 0.0
+            
     def is_sell_accept(self):
         """检查是否存在"Accept"按钮"""
         try:
@@ -2665,12 +2728,13 @@ class CryptoTrader:
                 trade_type = re.search(r'\b(Bought)\b', text)  # 匹配单词 Bought
                 yes_match = re.search(r'\b(Up)\b', text)  # 匹配单词 Up
                 amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-                
+                price_match = re.search(r'(\d+)¢', text)  # 匹配 数字¢ 格式
+
                 if trade_type.group(1) == "Bought" and yes_match.group(1) == "Up":
                     self.trade_type = trade_type.group(1)  # 获取 "Bought"
                     self.buy_yes_value = yes_match.group(1)  # 获取 "Up"
                     self.buy_yes_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
-                    
+                    self.buy_up_price = float(price_match.group(1)) / 100 # 获取数字部分并转为浮点数
                     self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_yes_value}-${self.buy_yes_amount}")
                     return True
                 return False       
@@ -2712,13 +2776,13 @@ class CryptoTrader:
                 trade_type = re.search(r'\b(Bought)\b', text)  # 匹配单词 Bought
                 no_match = re.search(r'\b(Down)\b', text)  # 匹配单词 Down
                 amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-                
+                price_match = re.search(r'(\d+)¢', text)  # 匹配 数字¢ 格式
 
                 if trade_type.group(1) == "Bought" and no_match.group(1) == "Down":
                     self.trade_type = trade_type.group(1)  # 获取 "Bought"
                     self.buy_no_value = no_match.group(1)  # 获取 "Down"
                     self.buy_no_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
-                    
+                    self.buy_down_price = float(price_match.group(1)) / 100 # 获取数字部分并转为浮点数
                     self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_no_value}-${self.buy_no_amount}")
                     return True
                 return False        
@@ -2730,38 +2794,6 @@ class CryptoTrader:
                 return False
             finally:
                 self.driver.refresh()
-        
-    def position_yes_cash(self):
-        """获取当前持仓YES的金额"""
-        try:
-            yes_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
-        except NoSuchElementException:
-            yes_element = self._find_element_with_retry(
-                XPathConfig.HISTORY,
-                timeout=3,
-                silent=True
-            )
-        text = yes_element.text
-        amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-        yes_value = float(amount_match.group(1))
-        self.logger.info(f"当前持仓YES的金额: {yes_value}")
-        return yes_value
-    
-    def position_no_cash(self):
-        """获取当前持仓NO的金额"""
-        try:
-            no_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
-        except NoSuchElementException:
-            no_element = self._find_element_with_retry(
-                XPathConfig.HISTORY,
-                timeout=3,
-                silent=True
-            )
-        text = no_element.text
-        amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-        no_value = float(amount_match.group(1))
-        self.logger.info(f"当前持仓NO的金额: {no_value}")
-        return no_value
     
     def Verify_sold_yes(self):
         """
@@ -2788,13 +2820,13 @@ class CryptoTrader:
                 trade_type = re.search(r'\b(Sold)\b', text)  # 匹配单词 Sold
                 yes_match = re.search(r'\b(Up)\b', text)  # 匹配单词 Up
                 amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-                
+                price_match = re.search(r'(\d+)¢', text)  # 匹配 数字¢ 格式
 
                 if trade_type.group(1) == "Sold" and yes_match.group(1) == "Up":
                     self.trade_type = trade_type.group(1)  # 获取 "Sold"
                     self.buy_yes_value = yes_match.group(1)  # 获取 "Up"
                     self.buy_yes_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
-                    
+                    self.sell_up_price = float(price_match.group(1)) / 100 # 获取数字部分并转为浮点数
                     self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_yes_value}-${self.buy_yes_amount}")
                     return True
                 return False       
@@ -2836,13 +2868,13 @@ class CryptoTrader:
                 trade_type = re.search(r'\b(Sold)\b', text)  # 匹配单词 Sold
                 no_match = re.search(r'\b(Down)\b', text)  # 匹配单词 Down
                 amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-                
+                price_match = re.search(r'(\d+)¢', text)  # 匹配 数字¢ 格式
 
                 if trade_type.group(1) == "Sold" and no_match.group(1) == "Down":
                     self.trade_type = trade_type.group(1)  # 获取 "Sold"
                     self.buy_no_value = no_match.group(1)  # 获取 "Down"
                     self.buy_no_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
-                    
+                    self.sell_down_price = float(price_match.group(1)) / 100 # 获取数字部分并转为浮点数
                     self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_no_value}-${self.buy_no_amount}")
                     return True
                 return False        
@@ -2854,6 +2886,38 @@ class CryptoTrader:
                 return False
             finally:
                 self.driver.refresh()
+
+    def position_yes_cash(self):
+        """获取当前持仓YES的金额"""
+        try:
+            yes_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
+        except NoSuchElementException:
+            yes_element = self._find_element_with_retry(
+                XPathConfig.HISTORY,
+                timeout=3,
+                silent=True
+            )
+        text = yes_element.text
+        amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
+        yes_value = float(amount_match.group(1))
+        self.logger.info(f"当前持仓YES的金额: {yes_value}")
+        return yes_value
+    
+    def position_no_cash(self):
+        """获取当前持仓NO的金额"""
+        try:
+            no_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
+        except NoSuchElementException:
+            no_element = self._find_element_with_retry(
+                XPathConfig.HISTORY,
+                timeout=3,
+                silent=True
+            )
+        text = no_element.text
+        amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
+        no_value = float(amount_match.group(1))
+        self.logger.info(f"当前持仓NO的金额: {no_value}")
+        return no_value
 
     def auto_start_monitor(self):
         """自动点击开始监控按钮"""
@@ -2906,7 +2970,7 @@ class CryptoTrader:
         except ValueError:
             self.logger.error("价格设置无效，请输入有效数字")
 
-    def send_trade_email(self, trade_type, price, amount, trade_count, cash_value):
+    def send_trade_email(self, trade_type, price, amount, trade_count, cash_value, portfolio_value, profit_rate):
         """发送交易邮件"""
         max_retries = 2
         retry_delay = 2
@@ -2939,7 +3003,9 @@ class CryptoTrader:
                 交易金额: ${amount:.2f}
                 当前买入次数: {self.trade_count}
                 当前卖出次数: {self.sell_count}
-                当前 CASH 值: {self.cash}
+                当前 CASH 值: {cash_value}
+                当前 PORTFOLIO 值: {portfolio_value}
+                利润率: {profit_rate:.2f}%
                 交易时间: {current_time}
                 """
                 msg.attach(MIMEText(content, 'plain', 'utf-8'))

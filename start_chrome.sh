@@ -16,11 +16,18 @@ check_driver() {
     CHROME_VERSION=$(get_chrome_version)
     CHROME_MAJOR_MINOR=$(echo "$CHROME_VERSION" | cut -d'.' -f1-2)
 
-    # 创建必要的目录
-    sudo rm /usr/local/bin
-    sudo mkdir -p /usr/local/bin
-    sudo chown $(whoami):admin /usr/local/bin
-    sudo chmod 755 /usr/local/bin
+    # 检查并创建必要的目录
+    if [ ! -d "/usr/local/bin" ]; then
+        echo "目录 /usr/local/bin 不存在，正在创建..."
+        sudo mkdir -p /usr/local/bin
+        sudo chown $(whoami):admin /usr/local/bin
+        sudo chmod 755 /usr/local/bin
+    else
+        echo "目录 /usr/local/bin 已存在，跳过创建步骤"
+        # 如果你仍然希望确保权限正确，可以取消下面两行的注释
+        # sudo chown $(whoami):admin /usr/local/bin
+        # sudo chmod 755 /usr/local/bin
+    fi
 
     # 查找 chromedriver 路径
     DRIVER_PATH=""
@@ -32,7 +39,7 @@ check_driver() {
     done
 
     if [ -z "$DRIVER_PATH" ]; then
-        echo -e "${RED}未找到 chromedriver 安装路径${NC}"
+        echo -e "${RED}chromedriver 未安装${NC}"
         return 1
     fi
 
@@ -58,16 +65,12 @@ install_driver() {
     BASE_VERSION=$(echo "$CHROME_VERSION" | cut -d'.' -f1-3)
     PATCH_VERSION=$(echo "$CHROME_VERSION" | cut -d'.' -f4)
 
-    # 创建必要的目录
-    sudo mkdir -p /usr/local/bin
-    sudo chown $(whoami):admin /usr/local/bin
-    sudo chmod 755 /usr/local/bin
 
     TMP_DIR="/tmp/chromedriver_update"
     mkdir -p "$TMP_DIR"
     cd "$TMP_DIR" || return 1
-
-    for ((i=1; i<3; i++)); do
+    
+    for ((i=0; i<3; i++)); do
         TRY_PATCH=$((PATCH_VERSION - i))
         TRY_VERSION="${BASE_VERSION}.${TRY_PATCH}"
         DRIVER_URL="https://storage.googleapis.com/chrome-for-testing-public/${TRY_VERSION}/mac-arm64/chromedriver-mac-arm64.zip"
