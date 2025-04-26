@@ -1587,7 +1587,7 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                profit_rate=self.profit_rate
+                                profit_rate=self.profit_rate()
                             )
                             # 重置Yes1和No1价格为0.00
                             self.yes1_price_entry.delete(0, tk.END)
@@ -1649,7 +1649,7 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                profit_rate=self.profit_rate
+                                profit_rate=self.profit_rate()
                             )
                             # 重置Yes1和No1价格为0.00
                             self.yes1_price_entry.delete(0, tk.END)
@@ -1763,7 +1763,7 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                profit_rate=self.profit_rate
+                                profit_rate=self.profit_rate()
                             )
                             self.logger.info("\033[34m✅ Second_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -1816,7 +1816,7 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                profit_rate=self.profit_rate
+                                profit_rate=self.profit_rate()
                             )
                             self.logger.info("\033[34m✅ Second_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -1909,7 +1909,7 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                profit_rate=self.profit_rate
+                                profit_rate=self.profit_rate()
                             )   
                             self.logger.info("\033[34m✅ Third_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -1962,7 +1962,7 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                profit_rate=self.profit_rate
+                                profit_rate=self.profit_rate()
                             )
                             self.logger.info("\033[34m✅ Third_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -2058,7 +2058,7 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                profit_rate=self.profit_rate
+                                profit_rate=self.profit_rate()
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -2113,7 +2113,7 @@ class CryptoTrader:
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value,
-                                profit_rate=self.profit_rate
+                                profit_rate=self.profit_rate()
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
@@ -3009,7 +3009,7 @@ class CryptoTrader:
                 当前卖出次数: {self.sell_count}
                 当前 CASH 值: {str_cash_value}
                 当前 PORTFOLIO 值: {str_portfolio_value}
-                利润率: {profit_rate:.2f}%
+                利润率: {profit_rate:.2f}
                 交易时间: {current_time}
                 """
                 msg.attach(MIMEText(content, 'plain', 'utf-8'))
