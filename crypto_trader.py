@@ -2997,14 +2997,18 @@ class CryptoTrader:
                 msg['Subject'] = Header(subject, 'utf-8')
                 msg['From'] = sender
                 msg['To'] = receiver
-                
+
+                # 修复格式化字符串问题，确保cash_value和portfolio_value是字符串
+                str_cash_value = str(cash_value)
+                str_portfolio_value = str(portfolio_value)
+
                 content = f"""
                 交易价格: ${price:.2f}
                 交易金额: ${amount:.2f}
                 当前买入次数: {self.trade_count}
                 当前卖出次数: {self.sell_count}
-                当前 CASH 值: {cash_value}
-                当前 PORTFOLIO 值: {portfolio_value}
+                当前 CASH 值: {str_cash_value}
+                当前 PORTFOLIO 值: {str_portfolio_value}
                 利润率: {profit_rate:.2f}%
                 交易时间: {current_time}
                 """
