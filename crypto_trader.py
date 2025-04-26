@@ -965,7 +965,6 @@ class CryptoTrader:
                 self.driver.get(target_url)
                 time.sleep(2)
 
-                self.click_accept_button()
                 self.start_url_monitoring()
                 self.start_login_monitoring()
                 self.refresh_page()
@@ -1412,9 +1411,6 @@ class CryptoTrader:
                 
             self.start_login_monitoring_running = True
             self.login_running = True
-
-            self.stop_refresh_page()
-            time.sleep(2)
             
             # 点击登录按钮
             try:
@@ -1427,7 +1423,6 @@ class CryptoTrader:
                     silent=True
                 )
                 login_button.click()
-            time.sleep(1)
             
             # 使用 XPath 定位并点击 google 按钮
             google_button = self._find_element_with_retry(XPathConfig.LOGIN_WITH_GOOGLE_BUTTON, timeout=3, silent=True)
@@ -1439,51 +1434,15 @@ class CryptoTrader:
                 self.login_running = False
                 self.driver.get(self.target_url)
                 time.sleep(2)
-                self.click_accept_button()
+                
             else:
                 self.logger.warning("登录失败,等待2秒后重试")
-                time.sleep(2)
+                time.sleep(1)
                 self.check_and_handle_login()
                 
         except Exception as e:
             self.logger.error(f"登录失败: {str(e)}")
         
-    def click_accept_button(self):
-        """重新登录后,需要在amount输入框输入1并确认"""
-        self.logger.info("开始执行click_accept_button")
-        self.login_running = True
-        try:
-            # 等待输入框可交互
-            try:
-                amount_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
-            except NoSuchElementException:
-                amount_input = self._find_element_with_retry(
-                    XPathConfig.AMOUNT_INPUT,
-                    timeout=3,
-                    silent=True
-                )
-            time.sleep(1)
-            # 清除现有输入并输入新值
-            amount_input.clear()
-            amount_input.send_keys("1")
-            time.sleep(1)
-            
-            # 点击确认按钮
-            self.buy_confirm_button.invoke()
-            time.sleep(1)
-            
-            if self.is_buy_accept():
-                # 点击 "Accept" 按钮
-                pyautogui.press('enter')
-                self.logger.info("\033[34m✅ 点击accept成功\033[0m")
-
-                self.refresh_page()
-            
-        except Exception as e:
-            self.logger.error(f"click_accept_button执行失败: {str(e)}")
-        finally:
-            self.login_running = False
-
     # 添加刷新方法
     def refresh_page(self):
         """定时刷新页面"""
