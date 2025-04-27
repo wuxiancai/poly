@@ -385,13 +385,19 @@ class CryptoTrader:
         # 监控网站配置
         url_frame = ttk.LabelFrame(scrollable_frame, text="Monitoring-Website-Configuration", padding=(2, 2))
         url_frame.pack(fill="x", padx=2, pady=5)
-        
-        ttk.Label(url_frame, text="WEB:", font=('Arial', 10)).grid(row=0, column=1, padx=5, pady=5)
-        
+
         # 创建下拉列和输入框组合控件
-        self.url_entry = ttk.Combobox(url_frame, width=46)
-        self.url_entry.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
+        ttk.Label(url_frame, text="WEB:", font=('Arial', 10)).grid(row=0, column=1, padx=5, pady=5)
+        self.url_entry = ttk.Combobox(url_frame, width=35)
+        self.url_entry.grid(row=0, column=2, padx=2, pady=5, sticky="ew")
         
+        # 保存 CASH 记录
+        self.cash_label = ttk.Label(url_frame, text="Cash:", font=('Arial', 12))
+        self.cash_label.grid(row=0, column=3, padx=1, pady=5)
+        self.cash_label_value = ttk.Label(url_frame, text="0", font=('Arial', 12, 'bold'), foreground='red')
+        self.cash_label_value.grid(row=0, column=4, padx=1, pady=5)
+    
+
         # 从配置文件加载历史记录
         if 'url_history' not in self.config:
             self.config['url_history'] = []
@@ -757,7 +763,7 @@ class CryptoTrader:
         self.running = True
         self.update_status("monitoring...")
 
-        # 获取当前日期并显示
+        # 获取当前日期并显示,此日期再次点击start按钮时会更新
         current_date = datetime.now().strftime("%d %B")
         self.date_label.config(text=current_date)
 
@@ -1241,7 +1247,10 @@ class CryptoTrader:
             self.no4_entry = self.no_frame.grid_slaves(row=7, column=1)[0]
             self.no4_entry.delete(0, tk.END)
             self.no4_entry.insert(0, f"{self.yes4_amount:.2f}")
-        
+
+            # 获取当前CASH并显示,此CASH再次点击start按钮时会更新
+            current_cash = base_amount / initial_percent
+            self.cash_label_value.config(text=current_cash)
             self.logger.info("\033[34m✅ YES/NO 金额设置完成\033[0m")
             
         except Exception as e:
