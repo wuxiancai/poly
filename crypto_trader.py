@@ -425,18 +425,21 @@ class CryptoTrader:
         self.set_amount_button.pack(side=tk.LEFT, padx=1)
         self.set_amount_button['state'] = 'disabled'  # 初始禁用
 
-        # 添加价格按钮
-        prices = ['0.53', '0.54']
-        for price in prices:
-            btn = ttk.Button(
-                button_frame, 
-                text=price,
-                width=3.5,
-                command=lambda p=price: self.set_default_price(p),
-                style='Red.TButton' if price == '0.53' else 'Black.TButton'
-            )
-            btn.pack(side=tk.LEFT, padx=2)
+        # 添加重启次数和显示
+        restart_frame = ttk.Frame(button_frame)
+        restart_frame.pack(fill="x", padx=2, pady=5)
         
+        ttk.Label(restart_frame, text="Reset:", 
+                 font=('Arial', 14)).pack(side=tk.LEFT, padx=2)
+        self.reset_count_label = ttk.Label(restart_frame, text="0", 
+                                        font=('Arial', 16, 'bold'), foreground='red')
+        self.reset_count_label.pack(side=tk.LEFT, padx=2)
+        
+        # 添加日期显示
+        self.date_label = ttk.Label(restart_frame, text="--", 
+                                  font=('Arial', 14, 'bold'))
+        self.date_label.pack(side=tk.LEFT, padx=2)
+
         # 交易币对显示区域
         pair_frame = ttk.Frame(scrollable_frame)
         pair_frame.pack(fill="x", padx=2, pady=5)
@@ -753,6 +756,10 @@ class CryptoTrader:
 
         self.running = True
         self.update_status("monitoring...")
+
+        # 获取当前日期并显示
+        current_date = datetime.now().strftime("%d %B")
+        self.date_label.config(text=current_date)
 
         # 启用设置金额按钮
         self.set_amount_button['state'] = 'normal'
@@ -2199,7 +2206,7 @@ class CryptoTrader:
                                 no_entry.insert(0, "0.00")
 
                         # 在所有操作完成后,重置交易
-                        self.root.after(20000, self.reset_trade)    
+                        self.root.after(8000, self.reset_trade)    
                         break
                     else:
                         self.logger.warning("卖出sell_yes验证失败,重试")
@@ -2269,7 +2276,7 @@ class CryptoTrader:
                                 no_entry.insert(0, "0.00")
 
                         # 在所有操作完成后,重置交易
-                        self.root.after(20000, self.reset_trade)                  
+                        self.root.after(8000, self.reset_trade)                  
                         break
                     else:
                         self.logger.warning("卖出sell_no验证失败,重试")
@@ -2292,6 +2299,7 @@ class CryptoTrader:
         self.sell_count = 0
         self.trade_count = 0
         self.set_yes_no_default_target_price()
+        self.reset_count_label.config(text=str(self.reset_trade_count))
         self.logger.info(f"第\033[32m{self.reset_trade_count}\033[0m次重置交易")
 
     def only_sell_yes(self):
@@ -2479,10 +2487,10 @@ class CryptoTrader:
             )
            
         if accept_button:
-            self.logger.info("\033[34m✅ 检测到ACCEPT弹窗\033[0m")
+            
             return True
         else:
-            self.logger.info("\033[31m❌ 没有检测到ACCEPT弹窗\033[0m")
+            
             return False
         
     """以上代码是交易主体函数 1-4,从第 1370 行到第 2418行"""
