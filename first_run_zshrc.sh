@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 if [ -f ~/.zshrc ]; then
     # 检查是否已经设置了这些代理
@@ -17,9 +17,7 @@ export http_proxy="http://127.0.0.1:7890"
 export no_proxy="localhost,local,127.0.0.1,::1"
 EOL
 fi
-
 source ~/.zshrc
-
 # 在 HOSTS 文件中添加 github.com 和 raw.githubusercontent.com 的记录
 echo "185.199.108.153 raw.githubusercontent.com" | sudo tee -a /etc/hosts
 echo "185.199.109.153 raw.githubusercontent.com" | sudo tee -a /etc/hosts

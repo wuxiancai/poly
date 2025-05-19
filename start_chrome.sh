@@ -49,7 +49,7 @@ check_driver() {
     echo -e "${YELLOW}Chrome 版本: $CHROME_VERSION${NC}"
     echo -e "${YELLOW}chromedriver 版本: $DRIVER_VERSION${NC}"
 
-    if [ "$CHROME_MAJOR_MINOR" != "$DRIVER_MAJOR_MINOR" ]; then
+    if [ "$CHROME_VERSION" != "$DRIVER_VERSION" ]; then
         echo -e "${RED}版本不匹配，需更新驱动${NC}"
         return 1
     fi
