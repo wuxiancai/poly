@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# polymarket_v1.0.0
+# polymarket_v1
 import platform
 import tkinter as tk
 from tkinter import E, ttk, messagebox
@@ -212,15 +212,15 @@ class CryptoTrader:
 
                 # 添加类型转换保护
                 try:
-                    target_price = float(entries[0].get().strip() or '0') if entries else 0.0
+                    target_price = float(entries[0].get().strip() or '0') if entries else 0
                 except ValueError as e:
-                    self.logger.error(f"价格转换失败: {e}, 使用默认值0.0")
+                    self.logger.error(f"价格转换失败: {e}, 使用默认值0")
                     target_price = 0
 
                 try:
-                    amount = float(amount_entries[0].get().strip() or '0') if amount_entries else 0.0
+                    amount = float(amount_entries[0].get().strip() or '0') if amount_entries else 0
                 except ValueError as e:
-                    self.logger.error(f"金额转换失败: {e}, 使用默认值0.0")
+                    self.logger.error(f"金额转换失败: {e}, 使用默认值0")
                     amount = 0
 
                 # 使用正确的配置键格式
