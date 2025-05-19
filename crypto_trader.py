@@ -40,6 +40,7 @@ class Logger:
     def __init__(self, name):
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.DEBUG)
+
         # 如果logger已经有处理器，则不再添加新的处理器
         if not self.logger.handlers:
             # 创建logs目录（如果不存在）
@@ -93,48 +94,42 @@ class CryptoTrader:
         self.start_login_monitoring_running = False
         self.url_monitoring_running = False
         self.refresh_page_running = False
-
+        # 添加重试次数和间隔
         self.retry_count = 3
         self.retry_interval = 5
         # 添加交易次数计数器
         self.trade_count = 0
-        self.sell_count = 0  # 添加卖出计数器
-        self.reset_trade_count = 0 # 添加重置计数器
+        self.sell_count = 0 
+        self.reset_trade_count = 0 
         # 添加定时器
         self.refresh_page_timer = None  # 用于存储定时器ID
         self.url_check_timer = None
         # 添加登录状态监控定时器
         self.login_check_timer = None
-        
         # 添加URL and refresh_page监控锁
         self.url_monitoring_lock = threading.Lock()
         self.refresh_page_lock = threading.Lock()
         # 默认买价
         self.default_target_price = 52
-        # 默认买卖触发最少成交数量
+        # 买卖触发条件之一:最少成交数量SHARES
         self.asks_shares = 99
         self.bids_shares = 99
-        # 交易价格冗余
+        # 买入价格冗余
         self.price_premium = 2
-
-        self._amounts_logged = False
-        # 在初始化部分添加
+        # 停止事件
         self.stop_event = threading.Event()
-
-        # 初始化金额属性
+        # 初始化金额为 0
         for i in range(1, 4):  # 1到4
             setattr(self, f'yes{i}_amount', 0)
             setattr(self, f'no{i}_amount', 0)
-
+        # 初始化 UI 界面
         try:
             self.config = self.load_config()
             self.setup_gui()
-            
             # 获取屏幕尺寸并设置窗口位置
             self.root.update_idletasks()  # 确保窗口尺寸已计算
             window_width = self.root.winfo_width()
             screen_height = self.root.winfo_screenheight()
-            
             # 设置窗口位置在屏幕最左边
             self.root.geometry(f"{window_width}x{screen_height}+0+0")
         except Exception as e:
@@ -143,7 +138,7 @@ class CryptoTrader:
             sys.exit(1)
 
         # 打印启动参数
-        self.logger.info(f"CryptoTrader初始化,启动参数: {sys.argv}")
+        self.logger.info(f"初始化启动参数: {sys.argv}")
       
     def load_config(self):
         """加载配置文件，保持默认格式"""
@@ -253,7 +248,7 @@ class CryptoTrader:
     """从这里开始设置 GUI 直到 771 行"""
     def setup_gui(self):
         self.root = tk.Tk()
-        self.root.title("Polymarket automatic trading")
+        self.root.title("Polymarket Automatic Trading System")
         # 创建主滚动框架
         main_canvas = tk.Canvas(self.root)
         scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=main_canvas.yview)
@@ -311,23 +306,18 @@ class CryptoTrader:
         style.configure('Blue.TButton', foreground='blue', font=('TkDefaultFont', 14, 'normal'))
         style.configure('Blue.TLabel', foreground='blue', font=('TkDefaultFont', 14, 'normal'))
         style.configure('Red.TLabel', foreground='red', font=('TkDefaultFont', 14, 'normal'))
-        style.configure('Red.TLabelframe.Label', foreground='red')  # 设置标签文本颜色为红色
+        style.configure('Red.TLabelframe.Label', foreground='red')
         style.configure('Black.TLabel', foreground='black', font=('TkDefaultFont', 14, 'normal'))
-        style.configure('Warning.TLabelframe.Label', font=('TkDefaultFont', 14, 'bold'),foreground='red', anchor='center', justify='center')
+        style.configure('Warning.TLabelframe.Label', font=('TkDefaultFont', 14),foreground='red', anchor='center', justify='center')
         style.configure('LeftBlack.TButton', anchor='w', foreground='black', padding=(0, 0))
+        
         # 金额设置框架
-        amount_settings_frame = ttk.LabelFrame(scrollable_frame, text="Do't be greedy, or you will lose money!", padding=(2, 5), style='Warning.TLabelframe')
+        amount_settings_frame = ttk.LabelFrame(scrollable_frame, text="Don't greedy! Do not intervene in the Automatic program!", padding=(2, 5), style='Warning.TLabelframe')
         amount_settings_frame.pack(fill="x", padx=5, pady=5)
 
         # 创建一个Frame来水平排列标题和警告
         title_frame = ttk.Frame(amount_settings_frame)
         title_frame.pack(fill="x", padx=5, pady=5)
-
-        # 添加标题和红色警告文本在同一行
-        ttk.Label(title_frame, 
-                text="Rule: Do not intervene in the automatic program!",
-                foreground='red',
-                font=('TkDefaultFont', 14, 'bold')).pack(side=tk.RIGHT, expand=True)
 
         # 创建金额设置容器的内部框架
         settings_container = ttk.Frame(amount_settings_frame)
@@ -377,14 +367,14 @@ class CryptoTrader:
         self.doubling_weeks_entry = ttk.Entry(weeks_frame, width=2, style='Red.TEntry')
         self.doubling_weeks_entry.pack(side=tk.LEFT)
         self.doubling_weeks_entry.insert(0, "53")
-        ttk.Label(weeks_frame, text="Day's Double", style='Red.TLabel').pack(side=tk.LEFT)
+        ttk.Label(weeks_frame, text="Double", style='Red.TLabel').pack(side=tk.LEFT)
 
         # 配置列权重使输入框均匀分布
         for i in range(4):
             settings_container.grid_columnconfigure(i, weight=1)
 
         """设置窗口大小和位置"""
-        window_width = 500
+        window_width = 480
         window_height = 800
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
@@ -398,16 +388,8 @@ class CryptoTrader:
 
         # 创建下拉列和输入框组合控件
         ttk.Label(url_frame, text="WEB:", font=('Arial', 10)).grid(row=0, column=1, padx=5, pady=5)
-        self.url_entry = ttk.Combobox(url_frame, width=40)
+        self.url_entry = ttk.Combobox(url_frame, width=44)
         self.url_entry.grid(row=0, column=2, padx=2, pady=5, sticky="ew")
-        
-        # 添加币种选择下拉框
-        coin_frame = ttk.Frame(url_frame)
-        coin_frame.grid(row=0, column=3, padx=1, pady=5)
-        ttk.Label(coin_frame, text="").pack(side=tk.LEFT)
-        self.coin_combobox = ttk.Combobox(coin_frame, width=3, values=['BTC', 'ETH', 'SOL'])
-        self.coin_combobox.pack(side=tk.LEFT)
-        self.coin_combobox.set('BTC')  # 设置默认值
 
         # 从配置文件加载历史记录
         if 'url_history' not in self.config:
@@ -423,24 +405,25 @@ class CryptoTrader:
         button_frame = ttk.Frame(scrollable_frame)
         button_frame.pack(fill="x", padx=5, pady=5)
         
-        # 开始和停止按钮
+        # 开始按钮
         self.start_button = ttk.Button(button_frame, text="Start", 
                                           command=self.start_monitoring, width=4,
                                           style='LeftBlack.TButton')  # 默认使用黑色文字
-        self.start_button.pack(side=tk.LEFT, padx=1)
-        
-        
-        self.stop_button = ttk.Button(button_frame, text="Stop", 
-                                     command=self.stop_monitoring, width=4,
-                                     style='LeftBlack.TButton')  # 默认使用黑色文字
-        self.stop_button.pack(side=tk.LEFT, padx=1)
-        self.stop_button['state'] = 'disabled'
+        self.start_button.pack(side=tk.LEFT, padx=2)
         
         # 设置金额按钮
         self.set_amount_button = ttk.Button(button_frame, text="Set-Amount", width=8,
                                             command=self.set_yes_no_cash,style='LeftBlack.TButton')  # 默认使用黑色文字
-        self.set_amount_button.pack(side=tk.LEFT, padx=1)
+        self.set_amount_button.pack(side=tk.LEFT, padx=2)
         self.set_amount_button['state'] = 'disabled'  # 初始禁用
+
+        # 添加币种选择下拉框
+        coin_frame = ttk.Frame(button_frame)
+        coin_frame.pack(side=tk.LEFT, padx=2)
+        ttk.Label(coin_frame, text="").pack(side=tk.LEFT)
+        self.coin_combobox = ttk.Combobox(coin_frame, width=3, values=['BTC', 'ETH', 'SOL'])
+        self.coin_combobox.pack(side=tk.LEFT)
+        self.coin_combobox.set('BTC')
 
         # 添加重启次数和显示
         restart_frame = ttk.Frame(button_frame)
@@ -457,43 +440,40 @@ class CryptoTrader:
         # 添加保存 CASH 记录
         cash_frame = ttk.Frame(restart_frame)
         cash_frame.pack(fill="x", padx=2, pady=5)
-        
         ttk.Label(cash_frame, text="Cash:").pack(side=tk.LEFT, padx=1)
         self.cash_label_value = ttk.Label(cash_frame, text="0", foreground='red')
         self.cash_label_value.pack(side=tk.LEFT, padx=1)
-        
 
         # 交易币对显示区域
         pair_frame = ttk.Frame(scrollable_frame)
         pair_frame.pack(fill="x", padx=2, pady=5)
-        
         # 添加交易币对显示区域
         pair_container = ttk.Frame(pair_frame)
         pair_container.pack(anchor="center")
-        
         # 交易币种及日期，颜色为黑色
-        ttk.Label(pair_container, text="Crypto:", 
+        ttk.Label(pair_container, text="", 
                  font=('Arial', 14), foreground='black').pack(side=tk.LEFT, padx=2)
         self.trading_pair_label = ttk.Label(pair_container, text="--", 
-                                        font=('Arial', 16, 'bold'), foreground='black')
+                                        font=('Arial', 16), foreground='black')
         self.trading_pair_label.pack(side=tk.LEFT, padx=2)
 
         # 币安价格显示区域
         binance_frame = ttk.Frame(pair_frame)
         binance_frame.pack(anchor="center")
-
         # 币安零点时价格显示
-        ttk.Label(binance_frame, text="Binance 00:00 Price:", 
-                 font=('Arial', 14), foreground='blue').pack(side=tk.LEFT, padx=2)
+        ttk.Label(binance_frame, text="Binance:", 
+                 font=('Arial', 16), foreground='black').pack(side=tk.LEFT, padx=2)
+        
+        ttk.Label(binance_frame, text="00:00 Price:", 
+                 font=('Arial', 14), foreground='black').pack(side=tk.LEFT, padx=2)
         self.binance_zero_price_label = ttk.Label(binance_frame, text="--", 
-                                        font=('Arial', 16, 'bold'), foreground='red')
+                                        font=('Arial', 16), foreground='red')
         self.binance_zero_price_label.pack(side=tk.LEFT, padx=2)
-
         # 币安实时价格显示
-        ttk.Label(binance_frame, text="Binance Now Price:", 
-                 font=('Arial', 14), foreground='blue').pack(side=tk.LEFT, padx=2)
+        ttk.Label(binance_frame, text="Now Price:", 
+                 font=('Arial', 14), foreground='black').pack(side=tk.LEFT, padx=2)
         self.binance_now_price_label = ttk.Label(binance_frame, text="--", 
-                                        font=('Arial', 16, 'bold'), foreground='red')
+                                        font=('Arial', 16), foreground='green')
         self.binance_now_price_label.pack(side=tk.LEFT, padx=2)
         
         # 修改实时价格显示区域
@@ -683,7 +663,6 @@ class CryptoTrader:
         self.no4_amount_entry.insert(0, "0")
         self.no4_amount_entry.grid(row=7, column=1, padx=2, pady=5, sticky="ew")  # 修正grid位置
 
-
         # 创建买入按钮区域
         buy_frame = ttk.LabelFrame(scrollable_frame, text="Buy-Button", padding=(2, 0))
         buy_frame.pack(fill="x", padx=(0,0), pady=2)
@@ -774,7 +753,7 @@ class CryptoTrader:
 
         # 添加状态标签 (在卖出按钮区域之后)
         self.status_label = ttk.Label(scrollable_frame, text="Status: Not running", 
-                                     font=('Arial', 10, 'bold'))
+                                     font=('Arial', 10))
         self.status_label.pack(pady=5)
         
         # 添加版权信息标签
@@ -792,12 +771,10 @@ class CryptoTrader:
         
         # 启用开始按钮，启用停止按钮
         self.start_button['state'] = 'disabled'
-        self.stop_button['state'] = 'normal'
             
         # 将"开始监控"文字变为红色
         self.start_button.configure(style='Red.TButton')
-        # 恢复"停止监控"文字为黑色
-        self.stop_button.configure(style='Black.TButton')
+        
         # 重置交易次数计数器
         self.trade_count = 0
             
@@ -827,7 +804,7 @@ class CryptoTrader:
         # 启动币安零点时价格监控
         self.root.after(6000, self.get_binance_price)
         # 启动币安实时价格监控
-        self.root.after(11000, self.get_now_price)
+        self.root.after(7000, self.get_now_price)
         # 启动 XPath 监控
         self.monitor_xpath_timer = self.root.after(120000, self.monitor_xpath_elements)
 
@@ -901,7 +878,6 @@ class CryptoTrader:
         # 用after方法确保在线程中执行GUI操作
         self.root.after(0, lambda: messagebox.showerror("错误", error_msg))
         self.root.after(0, lambda: self.start_button.config(state='normal'))
-        self.root.after(0, lambda: self.stop_button.config(state='disabled'))
         self.running = False
 
     def monitor_prices(self):
@@ -1126,7 +1102,7 @@ class CryptoTrader:
                 time.sleep(1)  # 稍等一下再试
                 continue
             except Exception as e:
-                self.logger.logger.info(f"其他异常: {e}")
+                self.logger.logger.info(f"SPREAD其他异常,2秒后重试,忽略")
                 time.sleep(2)
                 if attempt < retry_times - 1:
                     time.sleep(2)
@@ -1168,16 +1144,14 @@ class CryptoTrader:
                         down_price = 100 - float(below_price)
                         up_shares = float(asks_shares)
                         down_shares = float(bids_shares)
-                        up_price_dollar = up_price / 100
-                        down_price_dollar = down_price / 100
                         
                         # 更新价格显示
                         self.yes_price_label.config(
-                            text=f"Up: {up_price:.2f}¢ (${up_price_dollar:.2f})",
+                            text=f"Up: {up_price:.1f}¢",
                             foreground='red'
                         )
                         self.no_price_label.config(
-                            text=f"Down: {down_price:.2f}¢ (${down_price_dollar:.2f})",
+                            text=f"Down: {down_price:.1f}¢",
                             foreground='red'
                         )
                         self.up_shares_label.config(
@@ -2873,7 +2847,6 @@ class CryptoTrader:
             self.logger.info("准备阶段：重置按钮状态")
             # 强制启用开始按钮
             self.start_button['state'] = 'normal'
-            self.stop_button['state'] = 'disabled'
             # 清除可能存在的锁定状态
             self.running = False
 
@@ -3010,12 +2983,9 @@ class CryptoTrader:
                 self.login_check_timer = None
             
             self.start_button['state'] = 'normal'
-            self.stop_button['state'] = 'disabled'
             self.update_status("监控已停止")
             self.set_amount_button['state'] = 'disabled'  # 禁用更新金额按钮
             
-            # 将"停止监控"文字变为红色
-            self.stop_button.configure(style='Red.TButton')
             # 恢复"开始监控"文字为蓝色
             self.start_button.configure(style='Black.TButton')
             if self.driver:
@@ -3511,7 +3481,7 @@ class CryptoTrader:
                 price = round(float(data['price']),2)
                 self.last_coin_price = price
                 self.logger.info(f"✅ 币安 {coin} 价格: \033[34m{price}\033[0m")
-                self.binance_zero_price_label.config(text=price)
+                self.binance_zero_price_label.config(text=f"${price}")
                 return price
             else:
                 self.logger.error(f"❌ 获取币安价格失败: HTTP {response.status_code}")
@@ -3520,7 +3490,7 @@ class CryptoTrader:
         finally:
             # 计算下一个00:00的时间
             now = datetime.now()
-            tomorrow = now.replace(hour=0, minute=0, second=10, microsecond=0) + timedelta(days=1)
+            tomorrow = now.replace(hour=0, minute=0, second=5, microsecond=0) + timedelta(days=1)
             seconds_until_midnight = (tomorrow - now).total_seconds()
             # 取消已有的定时器（如果存在）
             if hasattr(self, 'binance_price_timer') and self.binance_price_timer:
@@ -3542,7 +3512,7 @@ class CryptoTrader:
             if response.status_code == 200:
                 data = response.json()
                 price = round(float(data['price']),2)
-                self.binance_now_price_label.config(text=price)
+                self.binance_now_price_label.config(text=f"${price}")
                 #self.logger.info(f"币安 {coin} 价格: \033[34m{price}\033[0m")
         except Exception as e:
             self.logger.info(f"❌ 获取币安价格异常: {str(e)}")
@@ -3555,24 +3525,13 @@ class CryptoTrader:
                 self.get_now_price_timer = threading.Timer(5, self.get_now_price)
                 self.get_now_price_timer.daemon = True
                 self.get_now_price_timer.start()
-                
-    def run(self):
-        """启动程序"""
-        try:
-            self.logger.info("启动主程序...")
-            self.root.mainloop()
-        except Exception as e:
-            self.logger.error(f"程序运行出错: {str(e)}")
-            raise
 
 if __name__ == "__main__":
     try:
         # 打印启动参数，用于调试
-        print("启动参数:", sys.argv)
         
         # 初始化日志
         logger = Logger("main")
-        logger.info(f"程序启动，参数: {sys.argv}")
             
         # 创建并运行主程序
         app = CryptoTrader()
