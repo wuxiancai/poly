@@ -1898,7 +1898,6 @@ class CryptoTrader:
                             self.buy_confirm_button.invoke()
                             self.logger.info("✅ 点击 ACCEPT 完成")
                     
-
                         if self.Verify_buy_yes():
 
                             # 重置Yes3和No3价格为0
@@ -1949,7 +1948,6 @@ class CryptoTrader:
                             time.sleep(1)
                             self.buy_confirm_button.invoke()
                             self.logger.info("\033[34m✅ 点击 ENTER 完成\033[0m")
-                        
                      
                         if self.Verify_buy_no():
                             
@@ -2311,8 +2309,7 @@ class CryptoTrader:
         else:
             self.logger.warning("卖出only_sell_no验证失败,重试")
             return self.only_sell_no()
-             
-            
+              
     def is_sell_accept(self):
         """检查是否存在"Accept"按钮"""
         try:
@@ -2389,7 +2386,6 @@ class CryptoTrader:
             error_msg = f"点击 Positions-Sell-No 按钮失败: {str(e)}"
             self.logger.error(error_msg)
             
-
     def click_position_sell_yes(self):
         """点击 Positions-Sell-Yes 按钮"""
         try:
@@ -2426,12 +2422,10 @@ class CryptoTrader:
                         silent=True
                     )
             # 执行点击
-            self.driver.execute_script("arguments[0].click();", button)
-             
+            self.driver.execute_script("arguments[0].click();", button)  
         except Exception as e:
             error_msg = f"点击 Positions-Sell-Yes 按钮失败: {str(e)}"
-            self.logger.error(error_msg)
-            
+            self.logger.error(error_msg)        
 
     def click_sell_confirm_button(self):
         """点击sell-卖出按钮"""
@@ -2721,7 +2715,7 @@ class CryptoTrader:
                 if not self.driver:
                     self.restart_browser()
                 if self.find_login_button():
-                    self.check_and_handle_login()            # 等待并检查是否存在 No 交易记录
+                    self.check_and_handle_login() 
                 try:
                     no_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
                 except NoSuchElementException:
@@ -3135,7 +3129,6 @@ class CryptoTrader:
                 
                 body += "\n请尽快检查并更新 xpath_config.py 文件。"
                 
-
                 # 使用 send_trade_email 方法发送邮件
                 self.send_trade_email(
                                 trade_type="XPATH检查",
@@ -3161,7 +3154,7 @@ class CryptoTrader:
         """安排每天1点2分执行自动找币"""
         now = datetime.now()
         # 计算下一个3点2分的时间
-        next_run = now.replace(hour=0, minute=20, second=0, microsecond=0)
+        next_run = now.replace(hour=0, minute=5, second=0, microsecond=0)
         if now >= next_run:
             next_run += timedelta(days=1)
         
@@ -3245,8 +3238,7 @@ class CryptoTrader:
             elif coin == 'ETH':
                 search_text = 'Ethereum Up or Down on'
             elif coin == 'SOL':
-                search_text = 'Solana Up or Down on'
-            
+                search_text = 'Solana Up or Down on'   
             
             try:
                 # 使用确定的XPath查找搜索框
