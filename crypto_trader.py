@@ -1086,8 +1086,6 @@ class CryptoTrader:
 
             if not self.driver:
                 self.restart_browser()
-            
-   
             # 添加URL检查
             target_url = self.url_entry.get()
             current_url = self.driver.current_url
@@ -1134,15 +1132,14 @@ class CryptoTrader:
                         self.Sell_yes()
                         self.Sell_no() 
                     except ValueError as e:
-                        self.logger.error(f"价格计算错误: {ValueError}")
-                       
+                        self.logger.error(f"价格计算错误: {ValueError}")      
                 else:
                     self.yes_price_label.config(text="Up: Fail", foreground='red')
                     self.no_price_label.config(text="Down: Fail", foreground='red')  
             except Exception as e:
                 self.yes_price_label.config(text="Up: Fail", foreground='red')
                 self.no_price_label.config(text="Down: Fail", foreground='red')
-                self.root.after(3000, self.check_prices)
+                #self.root.after(3000, self.check_prices)
         except Exception as e:
             self.logger.error(f"检查价格主流程失败: {str(e)}")
             time.sleep(1)
@@ -1190,7 +1187,7 @@ class CryptoTrader:
                 self.portfolio_label.config(text="Portfolio: Fail")
                 self.cash_label.config(text="Cash: Fail")
                 self.driver.refresh()
-                self.root.after(3000, self.check_balance)
+                #self.root.after(3000, self.check_balance)
                 
         except Exception as e:
             self.logger.error(f"检查资金失败: {str(e)}")
@@ -3105,7 +3102,7 @@ class CryptoTrader:
             excluded_attrs = ['ACCEPT_BUTTON', 'LOGIN_BUTTON', 'LOGIN_WITH_GOOGLE_BUTTON','HISTORY',
                               'POSITION_SELL_BUTTON', 'POSITION_SELL_YES_BUTTON', 'POSITION_SELL_NO_BUTTON',
                               'POSITION_UP_LABEL', 'POSITION_DOWN_LABEL', 'POSITION_YES_VALUE', 'POSITION_NO_VALUE',
-                              'SEARCH_CONFIRM_BUTTON','SEARCH_INPUT'
+                              'SEARCH_CONFIRM_BUTTON','SEARCH_INPUT','SPREAD'
                               ]
             # 获取所有 XPath 属性，排除指定的属性
             xpath_attrs = [attr for attr in dir(xpath_config) 
