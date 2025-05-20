@@ -2293,7 +2293,14 @@ class CryptoTrader:
         # 在所有操作完成后,重置交易
         time.sleep(2)
         self.set_yes_no_cash()
-        cash_value = self.cash_value
+        cash_text = self.cash_value
+        # 使用正则表达式提取数字
+        cash_match = re.search(r'\$?([\d,]+\.?\d*)', cash_text)
+        if not cash_match:
+            raise ValueError("无法从Cash值中提取数字")
+        # 移除逗号并转换为浮点数
+        cash_value = float(cash_match.group(1).replace(',', ''))
+
         self.cash_label_value.config(text=f"{cash_value:.2f}")
         
         # 检查属性是否存在，如果不存在则使用默认值
