@@ -795,7 +795,7 @@ class CryptoTrader:
         # 启动自动找币
         self.root.after(90000, self.schedule_auto_find_coin)
         # 启动币安零点时价格监控
-        self.root.after(6000, self.get_binance_price)
+        self.root.after(6000, self.get_binance_zero_time_price)
         # 启动币安实时价格监控
         self.root.after(7000, self.get_now_price)
         # 启动 XPath 监控
@@ -1641,13 +1641,13 @@ class CryptoTrader:
                         self.amount_yes1_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
-                        time.sleep(1)
+                        time.sleep(0.5)
                         
                         if self.is_buy_accept():
                             # 点击 "Accept" 按钮
                             pyautogui.press('enter')
                             self.logger.info("\033[34m✅ 点击 ENTER 完成\033[0m")
-                            time.sleep(1)
+                            time.sleep(0.5)
                             self.buy_confirm_button.invoke()
                             
                         time.sleep(2)
@@ -1709,14 +1709,14 @@ class CryptoTrader:
                         self.amount_no1_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
-                        time.sleep(1)
+                        time.sleep(0.5)
                         
                         if self.is_buy_accept():
                             # 点击 "Accept" 按钮
                             pyautogui.press('enter')
                             time.sleep(0.5)
                             self.logger.info("\033[34m✅ 点击 ENTER 完成\033[0m")
-                            time.sleep(1)
+                            time.sleep(0.5)
                             self.buy_confirm_button.invoke()
 
                         time.sleep(2)
@@ -1795,14 +1795,14 @@ class CryptoTrader:
                         self.amount_yes2_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
-                        time.sleep(1)
+                        time.sleep(0.5)
                         
                         if self.is_buy_accept():
                             # 点击 "Accept" 按钮
                             pyautogui.press('enter')
                             time.sleep(0.5)
                             self.logger.info("\033[34m✅ 点击 ENTER 完成\033[0m")
-                            time.sleep(1)
+                            time.sleep(0.5)
                             self.buy_confirm_button.invoke()
                         time.sleep(2)
                         if self.Verify_buy_yes():
@@ -1853,13 +1853,13 @@ class CryptoTrader:
                         self.amount_no2_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
-                        time.sleep(1)
+                        time.sleep(0.5)
                             
                         if self.is_buy_accept():
                             # 点击 "Accept" 按钮
                             time.sleep(0.5)
                             pyautogui.press('enter')
-                            time.sleep(1)
+                            time.sleep(0.5)
                             self.buy_confirm_button.invoke()
                             self.logger.info("\033[34m✅ 点击 ENTER 完成\033[0m")
                         time.sleep(2)
@@ -1928,13 +1928,13 @@ class CryptoTrader:
                         self.amount_yes3_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
-                        time.sleep(1)
+                        time.sleep(0.5)
                         
                         if self.is_buy_accept():
                             # 点击 "Accept" 按钮
                             time.sleep(0.5)
                             pyautogui.press('enter')
-                            time.sleep(1)
+                            time.sleep(0.5)
                             self.buy_confirm_button.invoke()
                             self.logger.info("✅ 点击 ACCEPT 完成")
                         time.sleep(2)
@@ -1984,13 +1984,13 @@ class CryptoTrader:
                         self.amount_no3_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
-                        time.sleep(1)
+                        time.sleep(0.5)
                         
                         if self.is_buy_accept():
                             # 点击 "Accept" 按钮
                             time.sleep(0.5)
                             pyautogui.press('enter')
-                            time.sleep(1)
+                            time.sleep(0.5)
                             self.buy_confirm_button.invoke()
                             self.logger.info("\033[34m✅ 点击 ENTER 完成\033[0m")
 
@@ -2059,11 +2059,11 @@ class CryptoTrader:
                         self.amount_yes4_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
-                        time.sleep(1)
+                        time.sleep(0.5)
                         if self.is_buy_accept():
                             # 点击 "Accept" 按钮
                             pyautogui.press('enter')
-                            time.sleep(1)
+                            time.sleep(0.5)
                             self.buy_confirm_button.invoke()
                             self.logger.info("✅ 点击 ENTER 完成")
                         time.sleep(2)
@@ -2119,11 +2119,11 @@ class CryptoTrader:
                         self.amount_no4_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
-                        time.sleep(1)
+                        time.sleep(0.5)
                         if self.is_buy_accept():
                             # 点击 "Accept" 按钮
                             pyautogui.press('enter')
-                            time.sleep(1)
+                            time.sleep(0.5)
                             self.buy_confirm_button.invoke()
                             self.logger.info("\033[34m✅ 点击 ENTER 完成\033[0m")
                         time.sleep(2)
@@ -2293,6 +2293,8 @@ class CryptoTrader:
         # 在所有操作完成后,重置交易
         time.sleep(2)
         self.set_yes_no_cash()
+        cash_value = self.cash_value
+        self.cash_label_value.config(text=f"{cash_value:.2f}")
         
         # 检查属性是否存在，如果不存在则使用默认值
         yes5_price = getattr(self, 'yes5_target_price', 0)
@@ -2305,7 +2307,8 @@ class CryptoTrader:
         
         self.sell_count = 0
         self.trade_count = 0
-        # 重置Yes1和No1价格为53
+
+        # 重置Yes1和No1价格为默认值
         self.set_yes_no_default_target_price()
         self.reset_count_label.config(text=str(self.reset_trade_count))
         self.logger.info(f"第\033[32m{self.reset_trade_count}\033[0m次重置交易")
@@ -2387,7 +2390,7 @@ class CryptoTrader:
             if self.find_login_button():
                 self.check_and_handle_login()
 
-            time.sleep(2)
+            time.sleep(1)
             try:
                 yes_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
             except NoSuchElementException:
@@ -2434,7 +2437,7 @@ class CryptoTrader:
             if self.find_login_button():
                 self.check_and_handle_login()
 
-            time.sleep(2)
+            time.sleep(1)
             # 等待并检查是否存在 No 标签
             try:
                 no_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
@@ -2481,7 +2484,7 @@ class CryptoTrader:
             if self.find_login_button():
                 self.check_and_handle_login()  
                
-            time.sleep(2)
+            time.sleep(1)
             try:
                 yes_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
             except NoSuchElementException:
@@ -2528,7 +2531,7 @@ class CryptoTrader:
             if self.find_login_button():
                 self.check_and_handle_login()  
             
-            time.sleep(2)
+            time.sleep(1)
             try:
                 no_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
             except NoSuchElementException:
@@ -3453,7 +3456,7 @@ class CryptoTrader:
             self.logger.error(f"查找并点击今天日期卡片失败: {str(e)}")
             self.click_today_card()
 
-    def get_binance_price(self):
+    def get_binance_zero_time_price(self):
         """获取币安BTC实时价格,并在中国时区00:00触发"""
         self.logger.info(f"✅ 获取币安 \033[34m{self.coin_combobox.get()}USDT\033[0m 价格")
         try:
@@ -3482,11 +3485,48 @@ class CryptoTrader:
                 self.binance_price_timer.cancel()
             # 设置下一次执行的定时器
             if self.running and not self.stop_event.is_set():
-                self.binance_price_timer = threading.Timer(seconds_until_midnight, self.get_binance_price)
+                self.binance_price_timer = threading.Timer(seconds_until_midnight, self.get_binance_zero_time_price)
                 self.binance_price_timer.daemon = True
                 self.binance_price_timer.start()
                 self.logger.info(f"{round(seconds_until_midnight / 3600,2)}小时后再次获取价格")
     
+    def comparison_binance_price(self):
+        """比较币安价格和当前价格"""
+        self.logger.info(f"✅ 比较币安价格和当前价格")
+        now = datetime.now()
+        tomorrow = now.replace(hour=23, minute=0, second=0, microsecond=0) + timedelta(days=1)
+        seconds_until_midnight = (tomorrow - now).total_seconds()
+        # 取消已有的定时器（如果存在）
+        if hasattr(self, 'binance_price_timer') and self.binance_price_timer:
+            self.binance_price_timer.cancel()
+        # 设置下一次执行的定时器
+        if self.running and not self.stop_event.is_set():
+            self.binance_price_timer = threading.Timer(seconds_until_midnight, self.get_binance_zero_time_price)
+            self.binance_price_timer.daemon = True
+            self.binance_price_timer.start()
+            self.logger.info(f"{round(seconds_until_midnight / 3600,2)}小时后再次获取价格")
+        try:
+            # 获取0点当币安价格
+            zero_time_price = float(self.get_binance_zero_time_price())
+            # 获取当前价格
+            now_price = float(self.get_now_price())
+            # 计算上涨或下跌幅度
+            price_change = ((now_price - zero_time_price) / zero_time_price) * 100
+            # 比较价格
+            if price_change > 0.01 or price_change < -0.01:
+                self.send_trade_email(
+                                trade_type="当前价格上涨或下跌幅度大于 1%,请马上关注",
+                                price=f"零点价格{zero_time_price}",
+                                amount=f"当前价格{now_price}",
+                                trade_count=f"上涨下跌幅度{price_change}%",
+                                cash_value=self.cash_value,
+                                portfolio_value=self.portfolio_value
+                            )
+
+        except Exception as e:
+            self.logger.error(f"❌ 比较币安价格和当前价格异常: {str(e)}")
+            
+
     def get_now_price(self):
         """获取当前价格"""
         # 获取当前币安价格
@@ -3499,8 +3539,11 @@ class CryptoTrader:
                 price = round(float(data['price']),2)
                 self.binance_now_price_label.config(text=f"${price}")
                 #self.logger.info(f"币安 {coin} 价格: \033[34m{price}\033[0m")
+                return price
+            else:
+                self.logger.error(f"❌ 获取币安价格失败: HTTP {response.status_code}")
         except Exception as e:
-            self.logger.info(f"❌ 获取币安价格异常: {str(e)}")
+            self.logger.error(f"❌ 获取币安价格异常: {str(e)}")
         finally:
             # 取消已有的定时器（如果存在）
             if hasattr(self, 'get_now_price_timer') and self.get_now_price_timer:
