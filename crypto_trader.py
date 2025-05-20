@@ -1661,7 +1661,13 @@ class CryptoTrader:
                             self.yes1_price_entry.insert(0, "0")
                             self.no1_price_entry.delete(0, tk.END)
                             self.no1_price_entry.insert(0, "0")
-                                
+                            
+                            # 重置 Yes1和 No1金额为 0
+                            self.yes1_amount_entry.delete(0, tk.END)
+                            self.yes1_amount_entry.insert(0, "0")
+                            self.no1_amount_entry.delete(0, tk.END)
+                            self.no1_amount_entry.insert(0, "0")
+                            
                             # 设置No2价格为默认值
                             self.no2_price_entry = self.no_frame.grid_slaves(row=2, column=1)[0]
                             self.no2_price_entry.delete(0, tk.END)
@@ -1724,6 +1730,12 @@ class CryptoTrader:
                             self.yes1_price_entry.insert(0, "0")
                             self.no1_price_entry.delete(0, tk.END)
                             self.no1_price_entry.insert(0, "0")
+                            
+                            # 重置 Yes1和 No1金额为 0
+                            self.yes1_amount_entry.delete(0, tk.END)
+                            self.yes1_amount_entry.insert(0, "0")
+                            self.no1_amount_entry.delete(0, tk.END)
+                            self.no1_amount_entry.insert(0, "0")
                             
                             # 设置Yes2价格为默认值
                             self.yes2_price_entry = self.yes_frame.grid_slaves(row=2, column=1)[0]
@@ -1801,6 +1813,12 @@ class CryptoTrader:
                             self.no2_price_entry.delete(0, tk.END)
                             self.no2_price_entry.insert(0, "0")
                             
+                            # 重置 Yes2和 No2金额为 0
+                            self.yes2_amount_entry.delete(0, tk.END)
+                            self.yes2_amount_entry.insert(0, "0")
+                            self.no2_amount_entry.delete(0, tk.END)
+                            self.no2_amount_entry.insert(0, "0")
+                            
                             # 设置No3价格为默认值
                             self.no3_price_entry = self.no_frame.grid_slaves(row=4, column=1)[0]
                             self.no3_price_entry.delete(0, tk.END)
@@ -1852,6 +1870,12 @@ class CryptoTrader:
                             self.yes2_price_entry.insert(0, "0")
                             self.no2_price_entry.delete(0, tk.END)
                             self.no2_price_entry.insert(0, "0")
+                            
+                            # 重置 Yes2和 No2金额为 0
+                            self.yes2_amount_entry.delete(0, tk.END)
+                            self.yes2_amount_entry.insert(0, "0")
+                            self.no2_amount_entry.delete(0, tk.END)
+                            self.no2_amount_entry.insert(0, "0")
                             
                             # 设置Yes3价格为默认值
                             self.yes3_price_entry = self.yes_frame.grid_slaves(row=4, column=1)[0]
@@ -1921,6 +1945,12 @@ class CryptoTrader:
                             self.no3_price_entry.delete(0, tk.END)
                             self.no3_price_entry.insert(0, "0")
                             
+                            # 重置 Yes3和 No3金额为 0
+                            self.yes3_amount_entry.delete(0, tk.END)
+                            self.yes3_amount_entry.insert(0, "0")
+                            self.no3_amount_entry.delete(0, tk.END)
+                            self.no3_amount_entry.insert(0, "0")
+                            
                             # 设置No4价格为默认值
                             self.no4_price_entry = self.no_frame.grid_slaves(row=6, column=1)[0]
                             self.no4_price_entry.delete(0, tk.END)
@@ -1971,6 +2001,12 @@ class CryptoTrader:
                             self.yes3_price_entry.insert(0, "0")
                             self.no3_price_entry.delete(0, tk.END)
                             self.no3_price_entry.insert(0, "0")
+                            
+                            # 重置 Yes3和 No3金额为 0
+                            self.yes3_amount_entry.delete(0, tk.END)
+                            self.yes3_amount_entry.insert(0, "0")
+                            self.no3_amount_entry.delete(0, tk.END)
+                            self.no3_amount_entry.insert(0, "0")
                             
                             # 设置Yes4价格为默认值
                             self.yes4_price_entry = self.yes_frame.grid_slaves(row=6, column=1)[0]
@@ -2039,6 +2075,12 @@ class CryptoTrader:
                             self.no4_price_entry.delete(0, tk.END)
                             self.no4_price_entry.insert(0, "0")
 
+                            # 重置 Yes4和 No4金额为 0
+                            self.yes4_amount_entry.delete(0, tk.END)
+                            self.yes4_amount_entry.insert(0, "0")
+                            self.no4_amount_entry.delete(0, tk.END)
+                            self.no4_amount_entry.insert(0, "0")
+
                             """当买了 4次后预防第 5 次反水，所以价格到了 51 时就平仓，然后再自动开"""
                             # 设置 Yes5和No5价格为0.85
                             self.yes5_price_entry = self.yes_frame.grid_slaves(row=8, column=1)[0]
@@ -2091,6 +2133,12 @@ class CryptoTrader:
                             self.yes4_price_entry.insert(0, "0")
                             self.no4_price_entry.delete(0, tk.END)
                             self.no4_price_entry.insert(0, "0")
+
+                            # 重置 Yes4和 No4金额为 0
+                            self.yes4_amount_entry.delete(0, tk.END)
+                            self.yes4_amount_entry.insert(0, "0")
+                            self.no4_amount_entry.delete(0, tk.END)
+                            self.no4_amount_entry.insert(0, "0")
 
                             """当买了 4次后预防第 5 次反水，所以价格到了 52 时就平仓，然后再自动开"""
                             # 设置 Yes5和No5价格为0.98
