@@ -453,15 +453,15 @@ class CryptoTrader:
         self.reset_count_label = ttk.Label(restart_frame, text="0", foreground='red')
         self.reset_count_label.pack(side=tk.LEFT, padx=1)
         
-        # 添加日期显示
-        self.date_label = ttk.Label(restart_frame, text="--")
-        self.date_label.pack(side=tk.LEFT, padx=1)
-
         # 添加保存 CASH 记录
         cash_frame = ttk.Frame(restart_frame)
         cash_frame.pack(fill="x", padx=2, pady=5)
         ttk.Label(cash_frame, text="Cash:").pack(side=tk.LEFT, padx=1)
-        self.cash_label_value = ttk.Label(cash_frame, text="0", foreground='red')
+
+        self.zero_time_cash_label = ttk.Label(cash_frame, text="0", foreground='red')
+        self.zero_time_cash_label.pack(side=tk.LEFT, padx=1)
+
+        self.cash_label_value = ttk.Label(cash_frame, text="0", foreground='blue')
         self.cash_label_value.pack(side=tk.LEFT, padx=1)
 
         # 交易币对显示区域
@@ -778,10 +778,6 @@ class CryptoTrader:
 
         self.running = True
 
-        # 获取当前日期并显示,此日期再次点击start按钮时会更新
-        current_date = datetime.now().strftime("%d %B")
-        self.date_label.config(text=current_date)
-
         # 启用设置金额按钮
         self.set_amount_button['state'] = 'normal'
         # 启动页面刷新
@@ -795,9 +791,11 @@ class CryptoTrader:
         # 启动自动找币
         self.root.after(90000, self.schedule_auto_find_coin)
         # 启动币安零点时价格监控
-        self.root.after(6000, self.get_binance_zero_time_price)
+        self.root.after(30000, self.get_binance_zero_time_price)
         # 启动币安实时价格监控
-        self.root.after(7000, self.get_now_price)
+        self.root.after(40000, self.get_now_price)
+        # 启动币安价格对比
+        self.root.after(60000, self.comparison_binance_price)
         # 启动 XPath 监控
         self.monitor_xpath_timer = self.root.after(120000, self.monitor_xpath_elements)
 
@@ -2955,10 +2953,10 @@ class CryptoTrader:
                 try:
                     server.login(sender, app_password)
                     server.sendmail(sender, receiver, msg.as_string())
-                    self.logger.info(f"邮件发送成功: {trade_type}")
+                    self.logger.info(f"✅ \033[34m邮件发送成功: {trade_type}\033[0m")
                     return  # 发送成功,退出重试循环
                 except Exception as e:
-                    self.logger.error(f"SMTP操作失败 (尝试 {attempt + 1}/{max_retries}): {str(e)}")
+                    self.logger.error(f"❌ SMTP操作失败 (尝试 {attempt + 1}/{max_retries}): {str(e)}")
                     if attempt < max_retries - 1:
                         self.logger.info(f"等待 {retry_delay} 秒后重试...")
                         time.sleep(retry_delay)
@@ -2968,7 +2966,7 @@ class CryptoTrader:
                     except Exception:
                         pass          
             except Exception as e:
-                self.logger.error(f"邮件准备失败 (尝试 {attempt + 1}/{max_retries}): {str(e)}")
+                self.logger.error(f"❌ 邮件准备失败 (尝试 {attempt + 1}/{max_retries}): {str(e)}")
                 if attempt < max_retries - 1:
                     time.sleep(retry_delay)     
         # 所有重试都失败
@@ -3465,21 +3463,30 @@ class CryptoTrader:
 
     def get_binance_zero_time_price(self):
         """获取币安BTC实时价格,并在中国时区00:00触发"""
-        self.logger.info(f"✅ 获取币安 \033[34m{self.coin_combobox.get()}USDT\033[0m 价格")
         try:
+            # 零点获取 CASH 的值
+            try:
+                cash_element = self.driver.find_element(By.XPATH, XPathConfig.CASH_VALUE[0])
+                cash_value = cash_element.text
+            except NoSuchElementException:
+                cash_element = self._find_element_with_retry(XPathConfig.CASH_VALUE, timeout=3, silent=True)
+                cash_value = cash_element.text
+            
+            self.zero_time_cash_label.config(text=f"{cash_value}")
+
             # 获取当前币安BTC价格
-            selected_coin = self.coin_combobox.get()
-            coin = selected_coin + 'USDT'
+            self.selected_coin = self.coin_combobox.get()
+            coin = self.selected_coin + 'USDT'
             response = requests.get(f'https://api.binance.com/api/v3/ticker/price?symbol={coin}')
             if response.status_code == 200:
                 data = response.json()
                 price = round(float(data['price']),2)
                 self.last_coin_price = price
-                self.logger.info(f"✅ 币安 {coin} 价格: \033[34m{price}\033[0m")
                 self.binance_zero_price_label.config(text=f"${price}")
+                self.logger.info(f"✅ 获取到币安 \033[34m{coin}\033[0m 价格: \033[34m{price}\033[0m")
                 return price
             else:
-                self.logger.error(f"❌ 获取币安价格失败: HTTP {response.status_code}")
+                self.logger.info(f"❌ 获取币安价格失败")
         except Exception as e:
             self.logger.error(f"❌ 获取币安价格异常: {str(e)}")
         finally:
@@ -3499,40 +3506,43 @@ class CryptoTrader:
     
     def comparison_binance_price(self):
         """比较币安价格和当前价格"""
-        self.logger.info(f"✅ 比较币安价格和当前价格")
-        now = datetime.now()
-        tomorrow = now.replace(hour=23, minute=0, second=0, microsecond=0) + timedelta(days=1)
-        seconds_until_midnight = (tomorrow - now).total_seconds()
-        # 取消已有的定时器（如果存在）
-        if hasattr(self, 'binance_price_timer') and self.binance_price_timer:
-            self.binance_price_timer.cancel()
-        # 设置下一次执行的定时器
-        if self.running and not self.stop_event.is_set():
-            self.binance_price_timer = threading.Timer(seconds_until_midnight, self.get_binance_zero_time_price)
-            self.binance_price_timer.daemon = True
-            self.binance_price_timer.start()
-            self.logger.info(f"{round(seconds_until_midnight / 3600,2)}小时后再次获取价格")
+        self.logger.info(f"✅ 比较\033[34m{self.selected_coin}USDT\033[0m币安零点价格和当前价格")
         try:
-            # 获取0点当币安价格
-            zero_time_price = float(self.get_binance_zero_time_price())
+            # 获取0点当天的币安价格
+            zero_time_price = round(float(self.binance_zero_price_label.cget('text').replace('$', '')),2)
             # 获取当前价格
-            now_price = float(self.get_now_price())
+            now_price = round(float(self.binance_now_price_label.cget('text').replace('$', '')),2)
             # 计算上涨或下跌幅度
-            price_change = ((now_price - zero_time_price) / zero_time_price) * 100
+            price_change = round(((now_price - zero_time_price) / zero_time_price) * 100,3)
             # 比较价格
-            if price_change > 0.01 or price_change < -0.01:
+            if 0 <= price_change <= 0.01 or -0.01 <= price_change <= 0:
+                price_change = f"{round(price_change,3)}%"
+                self.logger.info(f"✅ \033[34m{self.selected_coin}USDT当前价格上涨或下跌幅度小于{price_change},请立即关注\033[0m")
                 self.send_trade_email(
-                                trade_type="当前价格上涨或下跌幅度大于 1%,请马上关注",
-                                price=f"零点价格{zero_time_price}",
-                                amount=f"当前价格{now_price}",
-                                trade_count=f"上涨下跌幅度{price_change}%",
-                                cash_value=self.cash_value,
-                                portfolio_value=self.portfolio_value
+                                trade_type=f"{self.selected_coin}USDT当前价格上涨或下跌幅度小于{price_change}",
+                                price=zero_time_price,
+                                amount=now_price,
+                                trade_count=price_change,
+                                cash_value=0,
+                                portfolio_value=0
                             )
-
+            else:
+                self.logger.info(f"❌ \033[34m{self.selected_coin}USDT当前价格上涨或下跌幅度大于{price_change}%,不用关注\033[0m")
         except Exception as e:
-            self.logger.error(f"❌ 比较币安价格和当前价格异常: {str(e)}")
-            
+            self.logger.info(f"❌ 比较币安价格和当前价格异常: {str(e)}")
+        finally:
+            now = datetime.now()
+            tomorrow = now.replace(hour=23, minute=0, second=0, microsecond=0) + timedelta(days=1)
+            seconds_until_midnight = (tomorrow - now).total_seconds()
+            # 取消已有的定时器（如果存在）
+            if hasattr(self, 'comparison_binance_pric') and self.comparison_binance_pric:
+                self.comparison_binance_pric.cancel()
+            # 设置下一次执行的定时器
+            if self.running and not self.stop_event.is_set():
+                self.comparison_binance_pric = threading.Timer(seconds_until_midnight, self.comparison_binance_price)
+                self.comparison_binance_pric.daemon = True
+                self.comparison_binance_pric.start()
+                self.logger.info(f"{round(seconds_until_midnight / 3600,2)}小时后再次比较价格")
 
     def get_now_price(self):
         """获取当前价格"""
@@ -3548,7 +3558,7 @@ class CryptoTrader:
                 #self.logger.info(f"币安 {coin} 价格: \033[34m{price}\033[0m")
                 return price
             else:
-                self.logger.error(f"❌ 获取币安价格失败: HTTP {response.status_code}")
+                self.logger.info(f"❌ 获取币安价格失败")
         except Exception as e:
             self.logger.error(f"❌ 获取币安价格异常: {str(e)}")
         finally:
@@ -3557,7 +3567,7 @@ class CryptoTrader:
                 self.get_now_price_timer.cancel()
             # 设置下一次执行的定时器
             if self.running and not self.stop_event.is_set():
-                self.get_now_price_timer = threading.Timer(5, self.get_now_price)
+                self.get_now_price_timer = threading.Timer(20, self.get_now_price)
                 self.get_now_price_timer.daemon = True
                 self.get_now_price_timer.start()
 
