@@ -3485,10 +3485,9 @@ class CryptoTrader:
                 self.binance_zero_price_label.config(text=f"${price}")
                 self.logger.info(f"✅ 获取到币安 \033[34m{coin}\033[0m 价格: \033[34m{price}\033[0m")
                 return price
-            else:
-                self.logger.info(f"❌ 获取币安价格失败")
+            
         except Exception as e:
-            self.logger.error(f"❌ 获取币安价格异常: {str(e)}")
+            continue
         finally:
             # 计算下一个00:00的时间
             now = datetime.now()
@@ -3506,7 +3505,7 @@ class CryptoTrader:
     
     def comparison_binance_price(self):
         """比较币安价格和当前价格"""
-        self.logger.info(f"✅ 比较\033[34m{self.selected_coin}USDT\033[0m币安零点价格和当前价格")
+        # self.logger.info(f"✅ 比较\033[34m{self.selected_coin}USDT\033[0m币安零点价格和当前价格")
         try:
             # 获取0点当天的币安价格
             zero_time_price = round(float(self.binance_zero_price_label.cget('text').replace('$', '')),2)
@@ -3526,10 +3525,9 @@ class CryptoTrader:
                                 cash_value=0,
                                 portfolio_value=0
                             )
-            else:
-                self.logger.info(f"❌ \033[34m{self.selected_coin}USDT当前价格上涨或下跌幅度大于{price_change}%,不用关注\033[0m")
+            
         except Exception as e:
-            self.logger.info(f"❌ 比较币安价格和当前价格异常: {str(e)}")
+            continue
         finally:
             now = datetime.now()
             tomorrow = now.replace(hour=23, minute=0, second=0, microsecond=0) + timedelta(days=1)
@@ -3557,10 +3555,9 @@ class CryptoTrader:
                 self.binance_now_price_label.config(text=f"${price}")
                 #self.logger.info(f"币安 {coin} 价格: \033[34m{price}\033[0m")
                 return price
-            else:
-                self.logger.info(f"❌ 获取币安价格失败")
+           
         except Exception as e:
-            self.logger.error(f"❌ 获取币安价格异常: {str(e)}")
+            continue
         finally:
             # 取消已有的定时器（如果存在）
             if hasattr(self, 'get_now_price_timer') and self.get_now_price_timer:
