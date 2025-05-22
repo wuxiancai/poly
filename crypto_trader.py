@@ -3487,7 +3487,7 @@ class CryptoTrader:
                 return price
             
         except Exception as e:
-            continue
+            pass
         finally:
             # 计算下一个00:00的时间
             now = datetime.now()
@@ -3527,7 +3527,7 @@ class CryptoTrader:
                             )
             
         except Exception as e:
-            continue
+            pass
         finally:
             now = datetime.now()
             tomorrow = now.replace(hour=23, minute=0, second=0, microsecond=0) + timedelta(days=1)
@@ -3557,7 +3557,7 @@ class CryptoTrader:
                 return price
            
         except Exception as e:
-            continue
+            pass
         finally:
             # 取消已有的定时器（如果存在）
             if hasattr(self, 'get_now_price_timer') and self.get_now_price_timer:
