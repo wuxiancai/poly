@@ -1643,6 +1643,7 @@ class CryptoTrader:
                         
                         if self.is_buy_accept():
                             # 点击 "Accept" 按钮
+                            time.sleep(0.5)
                             pyautogui.press('enter')
                             self.logger.info("\033[34m✅ 点击 ENTER 完成\033[0m")
                             time.sleep(0.5)
@@ -1711,6 +1712,7 @@ class CryptoTrader:
                         
                         if self.is_buy_accept():
                             # 点击 "Accept" 按钮
+                            time.sleep(0.5)
                             pyautogui.press('enter')
                             time.sleep(0.5)
                             self.logger.info("\033[34m✅ 点击 ENTER 完成\033[0m")
@@ -1797,8 +1799,9 @@ class CryptoTrader:
                         
                         if self.is_buy_accept():
                             # 点击 "Accept" 按钮
-                            pyautogui.press('enter')
                             time.sleep(0.5)
+                            pyautogui.press('enter')
+                            
                             self.logger.info("\033[34m✅ 点击 ENTER 完成\033[0m")
                             time.sleep(0.5)
                             self.buy_confirm_button.invoke()
@@ -2060,6 +2063,7 @@ class CryptoTrader:
                         time.sleep(0.5)
                         if self.is_buy_accept():
                             # 点击 "Accept" 按钮
+                            time.sleep(0.5)
                             pyautogui.press('enter')
                             time.sleep(0.5)
                             self.buy_confirm_button.invoke()
@@ -2120,6 +2124,7 @@ class CryptoTrader:
                         time.sleep(0.5)
                         if self.is_buy_accept():
                             # 点击 "Accept" 按钮
+                            time.sleep(0.5)
                             pyautogui.press('enter')
                             time.sleep(0.5)
                             self.buy_confirm_button.invoke()
@@ -2287,6 +2292,8 @@ class CryptoTrader:
     def reset_trade(self):
         """重置交易"""
         # 在所有操作完成后,重置交易
+        time.sleep(3)
+        self.driver.refresh()
         self.set_yes_no_cash()
         cash_text = self.cash_value
         # 使用正则表达式提取数字
