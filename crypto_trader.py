@@ -3506,9 +3506,8 @@ class CryptoTrader:
                 self.binance_price_timer.start()
                 self.logger.info(f"{round(seconds_until_midnight / 3600,2)}小时后再次获取价格")
     
-    def comparison_binance_price(self):
-        """比较币安价格和当前价格"""
-        # self.logger.info(f"✅ 比较\033[34m{self.selected_coin}USDT\033[0m币安零点价格和当前价格")
+    def _perform_price_comparison(self):
+        """执行价格比较"""
         try:
             # 获取0点当天的币安价格
             zero_time_price = round(float(self.binance_zero_price_label.cget('text').replace('$', '')),2)
@@ -3532,18 +3531,32 @@ class CryptoTrader:
         except Exception as e:
             pass
         finally:
-            now = datetime.now()
-            tomorrow = now.replace(hour=23, minute=0, second=0, microsecond=0) + timedelta(days=1)
-            seconds_until_midnight = (tomorrow - now).total_seconds()
-            # 取消已有的定时器（如果存在）
-            if hasattr(self, 'comparison_binance_pric') and self.comparison_binance_pric:
-                self.comparison_binance_pric.cancel()
-            # 设置下一次执行的定时器
-            if self.running and not self.stop_event.is_set():
-                self.comparison_binance_pric = threading.Timer(seconds_until_midnight, self.comparison_binance_price)
-                self.comparison_binance_pric.daemon = True
-                self.comparison_binance_pric.start()
-                self.logger.info(f"{round(seconds_until_midnight / 3600,2)}小时后再次比较价格")
+            self.comparison_binance_price()
+
+    def comparison_binance_price(self):
+        """设置定时器以在每天23点比较币安价格和当前价格"""
+        now = datetime.now()
+        # 设置目标时间为当天的23点
+        target_time_today = now.replace(hour=23, minute=0, second=0, microsecond=0)
+
+        if now < target_time_today:
+            # 如果当前时间早于今天的23点，则在今天的23点执行
+            next_run_time = target_time_today
+        else:
+            # 如果当前时间晚于或等于今天的23点，则在明天的23点执行
+            next_run_time = target_time_today + timedelta(days=1)
+
+        seconds_until_next_run = (next_run_time - now).total_seconds()
+        # 取消已有的定时器（如果存在）
+        if hasattr(self, 'comparison_binance_pric') and self.comparison_binance_timer:
+            self.comparison_binance_timer.cancel()
+
+        # 设置下一次执行的定时器
+        if self.running and not self.stop_event.is_set():
+            self.comparison_binance_timer = threading.Timer(seconds_until_next_run, self._perform_price_comparison)
+            self.comparison_binance_timer.daemon = True
+            self.comparison_binance_timer.start()
+            self.logger.info(f"{round(seconds_until_next_run / 3600,2)}小时后比较价格")
 
     def get_now_price(self):
         """获取当前价格"""
