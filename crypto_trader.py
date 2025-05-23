@@ -461,9 +461,6 @@ class CryptoTrader:
         self.zero_time_cash_label = ttk.Label(cash_frame, text="0", foreground='red')
         self.zero_time_cash_label.pack(side=tk.LEFT, padx=1)
 
-        self.cash_label_value = ttk.Label(cash_frame, text="0", foreground='blue')
-        self.cash_label_value.pack(side=tk.LEFT, padx=1)
-
         # 交易币对显示区域
         pair_frame = ttk.Frame(scrollable_frame)
         pair_frame.pack(fill="x", padx=2, pady=5)
@@ -791,7 +788,7 @@ class CryptoTrader:
         # 启动自动找币
         self.root.after(90000, self.schedule_auto_find_coin)
         # 启动币安零点时价格监控
-        self.root.after(30000, self.get_binance_zero_time_price)
+        self.root.after(3000, self.get_binance_zero_time_price)
         # 启动币安实时价格监控
         self.root.after(40000, self.get_now_price)
         # 启动币安价格对比
@@ -1271,20 +1268,12 @@ class CryptoTrader:
             #设置重试参数
             max_retry = 15
             retry_count = 0
-            self.cash = 0
+            cash_value = 0
 
             while retry_count < max_retry:
                 try:
                     # 获取 Cash 值
-                    cash_text = self.cash_value
-                    
-                    # 使用正则表达式提取数字
-                    cash_match = re.search(r'\$?([\d,]+\.?\d*)', cash_text)
-                    if not cash_match:
-                        raise ValueError("无法从Cash值中提取数字")
-                    # 移除逗号并转换为浮点数
-                    self.cash = float(cash_match.group(1).replace(',', ''))
-                    self.logger.info(f"\033[34m提取到Cash值: {self.cash}\033[0m")
+                    cash_value = float(self.zero_time_cash_value)
                     break
                 except Exception as e:
                     retry_count += 1
@@ -1292,7 +1281,7 @@ class CryptoTrader:
                         time.sleep(2)
                     else:
                         raise ValueError("获取Cash值失败")
-            if self.cash is None:
+            if cash_value is None:
                 raise ValueError("获取Cash值失败")
             
             # 获取金额设置中的百分比值
@@ -1301,7 +1290,7 @@ class CryptoTrader:
             n_rebound_percent = float(self.n_rebound_entry.get()) / 100  # 反水N次百分比
 
             # 设置 Yes1 和 No1金额
-            base_amount = self.cash * initial_percent
+            base_amount = cash_value * initial_percent
             self.yes1_entry = self.yes_frame.grid_slaves(row=1, column=1)[0]
             self.yes1_amount_entry.delete(0, tk.END)
             self.yes1_amount_entry.insert(0, f"{base_amount:.2f}")
@@ -1337,8 +1326,6 @@ class CryptoTrader:
             self.no4_entry.insert(0, f"{self.yes4_amount:.2f}")
 
             # 获取当前CASH并显示,此CASH再次点击start按钮时会更新
-            current_cash = float(base_amount / initial_percent)
-            self.cash_label_value.config(text=f"{current_cash:.2f}")
             self.logger.info("\033[34m✅ YES/NO 金额设置完成\033[0m")
             
         except Exception as e:
@@ -2294,14 +2281,6 @@ class CryptoTrader:
         time.sleep(3)
         self.driver.refresh()
         self.set_yes_no_cash()
-        cash_text = self.cash_value
-        # 使用正则表达式提取数字
-        cash_match = re.search(r'\$?([\d,]+\.?\d*)', cash_text)
-        if not cash_match:
-            raise ValueError("无法从Cash值中提取数字")
-        # 移除逗号并转换为浮点数
-        cash_value = float(cash_match.group(1).replace(',', ''))
-        self.cash_label_value.config(text=f"{cash_value:.2f}")
         
         # 检查属性是否存在，如果不存在则使用默认值
         yes5_price = getattr(self, 'yes5_target_price', 0)
@@ -3240,7 +3219,7 @@ class CryptoTrader:
         # 设置定时器
         selected_coin = self.coin_combobox.get()
         self.root.after(int(wait_time), lambda: self.find_54_coin(selected_coin))
-        self.logger.info(f"{round(wait_time_hours,2)} 小时后,开始自动找币")
+        self.logger.info(f"\033[34m{round(wait_time_hours,2)}\033[0m小时后,开始自动找币")
 
     def find_54_coin(self,coin_type):
         """自动找币"""
@@ -3475,7 +3454,14 @@ class CryptoTrader:
                 cash_element = self._find_element_with_retry(XPathConfig.CASH_VALUE, timeout=3, silent=True)
                 cash_value = cash_element.text
             
-            self.zero_time_cash_label.config(text=f"{cash_value}")
+            # 使用正则表达式提取数字
+            cash_match = re.search(r'\$?([\d,]+\.?\d*)', cash_value)
+            if not cash_match:
+                raise ValueError("无法从Cash值中提取数字")
+            # 移除逗号并转换为浮点数
+            self.zero_time_cash_value = round(float(cash_match.group(1).replace(',', '')), 2)
+            self.zero_time_cash_label.config(text=f"{self.zero_time_cash_value}")
+            self.logger.info(f"✅ 获取到原始CASH值:\033[34m${self.zero_time_cash_value}\033[0m")
 
             # 获取当前币安BTC价格
             self.selected_coin = self.coin_combobox.get()
@@ -3504,7 +3490,7 @@ class CryptoTrader:
                 self.binance_price_timer = threading.Timer(seconds_until_midnight, self.get_binance_zero_time_price)
                 self.binance_price_timer.daemon = True
                 self.binance_price_timer.start()
-                self.logger.info(f"{round(seconds_until_midnight / 3600,2)}小时后再次获取价格")
+                self.logger.info(f"\033[34m{round(seconds_until_midnight / 3600,2)}\033[0m小时后再次获取币安\033[34m{self.selected_coin}USDT\033[0m价格和 CASH 值")
     
     def _perform_price_comparison(self):
         """执行价格比较"""
@@ -3556,7 +3542,7 @@ class CryptoTrader:
             self.comparison_binance_timer = threading.Timer(seconds_until_next_run, self._perform_price_comparison)
             self.comparison_binance_timer.daemon = True
             self.comparison_binance_timer.start()
-            self.logger.info(f"{round(seconds_until_next_run / 3600,2)}小时后比较价格")
+            self.logger.info(f"\033[34m{round(seconds_until_next_run / 3600,2)}\033[0m小时后比较\033[34m{self.selected_coin}USDT\033[0m币安价格")
 
     def get_now_price(self):
         """获取当前价格"""
