@@ -441,7 +441,7 @@ class CryptoTrader:
         coin_frame = ttk.Frame(button_frame)
         coin_frame.pack(side=tk.LEFT, padx=2)
         ttk.Label(coin_frame, text="").pack(side=tk.LEFT)
-        self.coin_combobox = ttk.Combobox(coin_frame, width=3, values=['BTC', 'ETH', 'SOL'])
+        self.coin_combobox = ttk.Combobox(coin_frame, width=3, values=['BTC', 'ETH', 'SOL', 'XRP'])
         self.coin_combobox.pack(side=tk.LEFT)
         self.coin_combobox.set('BTC')
 
@@ -3315,7 +3315,8 @@ class CryptoTrader:
                 search_text = 'Ethereum Up or Down on'
             elif coin == 'SOL':
                 search_text = 'Solana Up or Down on'
-            
+            elif coin == 'XRP':
+                search_text = 'XRP Up or Down on'
             
             try:
                 # 使用确定的XPath查找搜索框
@@ -3494,7 +3495,7 @@ class CryptoTrader:
         finally:
             # 计算下一个00:00的时间
             now = datetime.now()
-            tomorrow = now.replace(hour=0, minute=0, second=5, microsecond=0) + timedelta(days=1)
+            tomorrow = now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
             seconds_until_midnight = (tomorrow - now).total_seconds()
             # 取消已有的定时器（如果存在）
             if hasattr(self, 'binance_price_timer') and self.binance_price_timer:
