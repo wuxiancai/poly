@@ -1807,7 +1807,7 @@ class CryptoTrader:
                             self.buy_confirm_button.invoke()
                         time.sleep(2)
                         if self.Verify_buy_yes():
-                            
+                            self.buy_yes2_amount = float(self.yes2_amount_entry.get())
                             # 重置Yes2和No2价格为0
                             self.yes2_price_entry.delete(0, tk.END)
                             self.yes2_price_entry.insert(0, "0")
@@ -1825,7 +1825,7 @@ class CryptoTrader:
                             self.no3_price_entry.delete(0, tk.END)
                             self.no3_price_entry.insert(0, str(self.default_target_price))
                             self.no3_price_entry.configure(foreground='red')  # 添加红色设置
-                            self.buy_yes2_amount = float(self.yes2_amount_entry.get())
+                            
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
@@ -1865,7 +1865,7 @@ class CryptoTrader:
                             self.logger.info("\033[34m✅ 点击 ENTER 完成\033[0m")
                         time.sleep(2)
                         if self.Verify_buy_no():
-
+                            self.buy_no2_amount = float(self.no2_amount_entry.get())
                             # 重置Yes2和No2价格为0
                             self.yes2_price_entry.delete(0, tk.END)
                             self.yes2_price_entry.insert(0, "0")
@@ -1883,7 +1883,7 @@ class CryptoTrader:
                             self.yes3_price_entry.delete(0, tk.END)
                             self.yes3_price_entry.insert(0, str(self.default_target_price))
                             self.yes3_price_entry.configure(foreground='red')  # 添加红色设置
-                            self.buy_no2_amount = float(self.no2_amount_entry.get())
+                            
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
@@ -1940,6 +1940,7 @@ class CryptoTrader:
                             self.logger.info("✅ 点击 ACCEPT 完成")
                         time.sleep(2)
                         if self.Verify_buy_yes():
+                            self.buy_yes3_amount = float(self.yes3_amount_entry.get())
                             # 重置Yes3和No3价格为0
                             self.yes3_price_entry.delete(0, tk.END)
                             self.yes3_price_entry.insert(0, "0")
@@ -1957,7 +1958,6 @@ class CryptoTrader:
                             self.no4_price_entry.delete(0, tk.END)
                             self.no4_price_entry.insert(0, str(self.default_target_price))
                             self.no4_price_entry.configure(foreground='red')  # 添加红色设置
-                            self.buy_yes3_amount = float(self.yes3_amount_entry.get())
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
@@ -1997,6 +1997,7 @@ class CryptoTrader:
 
                         time.sleep(2)
                         if self.Verify_buy_no():
+                            self.buy_no3_amount = float(self.no3_amount_entry.get())
                             # 重置Yes3和No3价格为0
                             self.yes3_price_entry.delete(0, tk.END)
                             self.yes3_price_entry.insert(0, "0")
@@ -2014,7 +2015,6 @@ class CryptoTrader:
                             self.yes4_price_entry.delete(0, tk.END)
                             self.yes4_price_entry.insert(0, str(self.default_target_price))
                             self.yes4_price_entry.configure(foreground='red')  # 添加红色设置
-                            self.buy_no3_amount = float(self.no3_amount_entry.get())
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
@@ -2070,7 +2070,7 @@ class CryptoTrader:
                             self.logger.info("✅ 点击 ENTER 完成")
                         time.sleep(2)
                         if self.Verify_buy_yes():
-
+                            self.buy_yes4_amount = float(self.yes4_amount_entry.get())
                             # 重置Yes4和No4价格为0
                             self.yes4_price_entry.delete(0, tk.END)
                             self.yes4_price_entry.insert(0, "0")
@@ -2093,7 +2093,6 @@ class CryptoTrader:
                             self.no5_price_entry.delete(0, tk.END)
                             self.no5_price_entry.insert(0, str(self.default_sell_price_backwater))
                             self.no5_price_entry.configure(foreground='red')  # 添加红色设置
-                            self.buy_yes4_amount = float(self.yes4_amount_entry.get())
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
