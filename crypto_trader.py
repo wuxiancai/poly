@@ -1640,21 +1640,21 @@ class CryptoTrader:
                             if accept_button:
                                 try:
                                     accept_button.click()
-                                    self.logger.info("✅ 已点击ACCEPT按钮")
+                                    self.logger.info("✅ 已通过敲击 ENTRY 按键,敲击了ACCEPT按钮")
                                     self.root.after(1000, self.driver.refresh())
                                 except Exception as e:
                                     self.logger.info(f"accept_button.click() 失败,重新点击")
                                     self.click_accept()
                                     self.root.after(1000, self.driver.refresh())
-                                    self.logger.info("✅ 已使用 坐标法 点击ACCEPT按钮成功")
+                                    self.logger.info("✅ 已使用 坐标法 鼠标点击ACCEPT按钮成功")
                         except NoSuchElementException:
                             pass
                     else:
                         self.logger.info("❌ 未找到CASH值,登录失败,重新登录")
                         self.start_login_monitoring()
 
-                    self.url_check_timer = self.root.after(10000, self.enable_url_monitoring)
-                    self.refresh_page_timer = self.root.after(240000, self.enable_refresh_page)
+                    self.url_check_timer = self.root.after(10000, self.start_url_monitoring)
+                    self.refresh_page_timer = self.root.after(240000, self.refresh_page)
                     self.logger.info("✅ 已重新启用URL监控和页面刷新")
 
         except NoSuchElementException:
@@ -1662,8 +1662,8 @@ class CryptoTrader:
             pass
             
         finally:
-            # 每20秒检查一次登录状态
-            self.login_check_timer = self.root.after(20000, self.start_login_monitoring)
+            # 每15秒检查一次登录状态
+            self.login_check_timer = self.root.after(15000, self.start_login_monitoring)
 
     def click_accept(self):
         """点击ACCEPT按钮"""
