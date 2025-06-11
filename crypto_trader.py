@@ -1558,6 +1558,7 @@ class CryptoTrader:
             
             # 开始第一次检查
             self.url_check_timer = self.root.after(1000, check_url)
+
     def stop_url_monitoring(self):
         """停止URL监控"""
         with self.url_monitoring_lock:
@@ -1579,186 +1580,113 @@ class CryptoTrader:
             self.url_monitoring_running = False
             self.logger.info("\033[31m❌ URL监控已停止\033[0m")
 
-    def find_login_button(self):
-        """查找登录按钮"""
-        login_button_element = None # 重命名以区分元素和文本
-        try:
-            login_button_element = self.driver.find_element(By.XPATH, XPathConfig.LOGIN_BUTTON[0])
-        except NoSuchElementException:
-            login_button_element = self._find_element_with_retry(
-                XPathConfig.LOGIN_BUTTON,
-                timeout=3,
-                silent=True
-            )
-        
-        if login_button_element:
-            try:
-                if login_button_element.text == "Log In":
-                    self.logger.info(f"\033[34m✅ 找到登录按钮，文本为 '{login_button_element.text}'\033[0m")
-                    return login_button_element # 返回 WebElement 对象
-                else:
-                    return None # 文本不匹配，返回 None
-            except StaleElementReferenceException:
-                self.logger.warning("获取登录按钮文本时发生 StaleElementReferenceException将重试查找。")
-                return None
-        else: 
-            return None # 未找到元素，返回 None
-    
-    def click_login_button(self):
-        """点击登录按钮""" 
-        login_button_element = self.find_login_button() # 现在返回元素或 None
-
-        if login_button_element: # 检查是否获取到了元素   
-            try:
-                login_button_element.click()
-                self.logger.info("\033[34m✅ 已点击 'Log In' 按钮\033[0m")
-
-                # 使用 XPath 定位并点击 google 按钮,可以考虑使用pyautogui点击登录按钮
-                google_button = None
-                try:
-                    google_button = self.driver.find_element(By.XPATH, XPathConfig.LOGIN_WITH_GOOGLE_BUTTON[0])
-                except NoSuchElementException:
-                    google_button = self._find_element_with_retry(
-                        XPathConfig.LOGIN_WITH_GOOGLE_BUTTON,
-                        timeout=3,
-                        silent=True
-                    )
-                if google_button:
-                    google_button.click()
-                    self.logger.info("\033[34m✅ 已点击 Google 登录按钮\033[0m")
-
-            except StaleElementReferenceException:
-                self.logger.warning("点击登录按钮时发生 StaleElementReferenceException,可能需要重新查找按钮或处理页面刷新。")
-            except Exception as e:
-                self.logger.info(f"❌ 点击登录按钮或 Google 按钮时出错")
-                self.click_login_button()
-        else:
-            self.logger.info("❌ 未找到 'Log In' 按钮或不符合点击条件，跳过点击。")
-
     def start_login_monitoring(self):
-        """启动登录状态监控"""
+        """监控登录状态"""
         self.logger.info("\033[34m✅ 启动登录状态监控\033[0m")
         if not self.driver and not self.is_restarting:
             self.restart_browser(force_restart=True)
-            
-        def check_login_status():
-            if self.running and self.driver:
-                try:
-                    # 使用线程执行登录检查，避免阻塞主线程
-                    threading.Thread(
-                        target=self._check_login_status_thread, # 执行登录检查线程,此线程完全独立于主线程
-                        daemon=True
-                    ).start()
-                except Exception as e:
-                    self.logger.error(f"登录状态检查出错: {str(e)}")
+
+        # 检查是否已经登录
+        try:
+            # 查找登录按钮
+            login_button = self.driver.find_element(By.XPATH, XPathConfig.LOGIN_BUTTON[0])
+            if login_button:
+                self.logger.info("✅ 已发现登录按钮,尝试登录")
+                self.stop_url_monitoring()
+                self.stop_refresh_page()
+
+                login_button.click()
+                time.sleep(1)
                 
-                # 继续监控
-                if self.running:
-                    self.login_check_timer = self.root.after(15000, check_login_status)  # 每15秒检查一次
-        # 开始第一次检查
-        self.login_check_timer = self.root.after(10000, check_login_status)
-
-    def _check_login_status_thread(self):
-        """在单独线程中执行登录检查,只检查"""
-        try:
-            login_button_element_found = self.find_login_button()
-
-            if login_button_element_found:
-                try:
-                    self.logger.warning(f"❌ 检测到未登录状态, 执行登录操作")
-                    # 在新的辅助线程中执行登录操作
-                    login_thread = threading.Thread(target=self.check_and_handle_login, daemon=True)
-                    login_thread.start()
-
-                except Exception as e_thread_start:
-                    self.logger.error(f"启动登录线程失败: {e_thread_start}")
-                                
-        except Exception as e:
-            self.logger.info(f"❌ _check_login_status_thread 中发生意外错误: {e}")
-
-    def check_and_handle_login(self):
-        """执行登录操作 - 此函数由 _check_login_status_thread 在获得锁后于新线程中启动"""
-        try:
-            self.stop_refresh_page()
-            self.stop_url_monitoring()
-
-            self.logger.info("开始执行登录操作 (在独立线程中)...")
-            if not self.driver and not self.is_restarting:
-                self.restart_browser(force_restart=True) 
-
-            self.login_running = True
-
-            self.click_login_button()
-
-            # 等待10秒,等待页面跳转
-            time.sleep(10)
-            
-            # 再次检查 "Log In" 按钮是否仍然存在
-            login_button_still_present = self.find_login_button()
-            
-            if login_button_still_present:
-                self.click_login_button()
-                time.sleep(10)
-            
-            def check_cash():
-                # 找 CASH的值, 验证是否登录成功,如果找到, 则登录成功
-                try:
+                # 查找Google登录按钮
+                google_login_button = self.driver.find_element(By.XPATH, XPathConfig.LOGIN_WITH_GOOGLE_BUTTON[0])
+                if google_login_button:
+                    google_login_button.click()
+                    self.logger.info("✅ 已点击Google登录按钮")
+                    
+                    # 不再固定等待15秒，而是循环检测CASH值
+                    max_attempts = 15  # 最多检测15次
+                    check_interval = 2  # 每2秒检测一次
                     cash_value = None
-                    try:
-                        cash_value = self.driver.find_element(By.XPATH, XPathConfig.CASH_VALUE[0])
-                    except NoSuchElementException:
-                        cash_value = self._find_element_with_retry(
-                            XPathConfig.CASH_VALUE,
-                            timeout=3,
-                            silent=True
-                        )
-
+                    
+                    for attempt in range(max_attempts):
+                        try:
+                            # 尝试获取CASH值
+                            cash_element = self.driver.find_element(By.XPATH, XPathConfig.CASH_VALUE[0])
+                            if cash_element:
+                                cash_value = cash_element.text
+                                self.logger.info(f"✅ 第{attempt+1}次尝试: 已获取CASH值: {cash_value}")
+                                break
+                        except NoSuchElementException:
+                            self.logger.info(f"⏳ 第{attempt+1}次尝试: 等待登录完成...")
+                        
+                        # 等待指定时间后再次检测
+                        time.sleep(check_interval)
+                    
+                    # 检查是否有ACCEPT按钮（Cookie提示等）
                     if cash_value:
-                        return cash_value
+                        self.driver.get(self.url_entry.get().strip())
+                        time.sleep(2)
+                        try:
+                            amount_button = getattr(self, 'amount_yes1_button')
+                            amount_button.event_generate('<Button-1>')
+                            time.sleep(0.5)
+
+                            # 点击buy_confirm_button
+                            self.buy_confirm_button.invoke()
+                            time.sleep(1)
+                            
+                            accept_button = self.driver.find_element(By.XPATH, XPathConfig.ACCEPT_BUTTON[0])
+                            if accept_button:
+                                try:
+                                    accept_button.click()
+                                    self.logger.info("✅ 已点击ACCEPT按钮")
+                                    self.root.after(1000, self.driver.refresh())
+                                except Exception as e:
+                                    self.logger.info(f"accept_button.click() 失败,重新点击")
+                                    self.click_accept()
+                                    self.root.after(1000, self.driver.refresh())
+                                    self.logger.info("✅ 已使用 坐标法 点击ACCEPT按钮成功")
+                        except NoSuchElementException:
+                            pass
                     else:
-                        return None
+                        self.logger.info("❌ 未找到CASH值,登录失败,重新登录")
+                        self.start_login_monitoring()
 
-                except Exception as e:
-                    self.logger.warning(f"❌ 检查 CASH 值失败")
-                    return None
-                
-            cash_value = check_cash()
-            if cash_value:
-                self.logger.info(f"✅ 找到\033[34mcash的值:{cash_value.text}\033[0m,登录成功")
-                # 在当前标签页打开 url 网址
-                url = self.url_entry.get()
-                self.driver.get(url)
-                time.sleep(2)
+                    self.url_check_timer = self.root.after(10000, self.enable_url_monitoring)
+                    self.refresh_page_timer = self.root.after(240000, self.enable_refresh_page)
+                    self.logger.info("✅ 已重新启用URL监控和页面刷新")
 
-                # 执行 CLICK_ACCEPT 按钮
-                self.click_accept()
-                
-                # 确保在主线程中调用 refresh_page
-                self.root.after(2000, self.start_url_monitoring)
-                self.root.after(20000, self.refresh_page)
-                self.logger.info(f"✅ \033[34m启动页面刷新\033[0m")
-                self.login_running = False
-
-        except Exception as e:
-            self.logger.info(f"❌ 登录流程 'check_and_handle_login' 发生错误: {e}")
+        except NoSuchElementException:
+            # 未找到登录按钮，可能已经登录
+            pass
+            
+        finally:
+            # 每20秒检查一次登录状态
+            self.login_check_timer = self.root.after(20000, self.start_login_monitoring)
 
     def click_accept(self):
         """点击ACCEPT按钮"""
         self.logger.info("开始执行点击ACCEPT按钮")
+
         #点击 AMOUNT 按钮,输入 1,然后点击 CONFIRM 按钮
         self.amount_yes1_button.event_generate('<Button-1>')
+        
         time.sleep(0.5)
         self.buy_confirm_button.invoke()
         time.sleep(0.5)
 
         try:
             screen_width, screen_height = pyautogui.size()
+            
             target_x = 0
             target_y = 0
-            if platform.system() == "Linux": # 分辨率 2560x1600
+
+            if platform.system() == "Linux": # 分辨率 1920X1280
                 # Linux 系统下的特定坐标
-                target_x = screen_width - 520
-                target_y = 724    
+                target_x = screen_width - 550
+                target_y = 792
+                
             else:
                 # 其他操作系统的默认坐标分辨率 1920x1080
                 target_x = screen_width - 520
@@ -1824,13 +1752,11 @@ class CryptoTrader:
             # 重置监控状态
             self.refresh_page_running = False
             self.logger.info("\033[31m❌ 刷新状态已停止\033[0m")
-    """以上代码执行了登录操作的函数,直到第 1315 行,程序执行返回到 748 行"""
-
-    """以下代码是监控买卖条件及执行交易的函数,程序开始进入交易阶段,从 1468 行直到第 2224200 行"""  
+ 
     def First_trade(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
         """第一次交易价格设置为 0.52 买入"""
         try:
-            if asks_price_raw is not None and asks_price_raw > 20 and bids_price_raw is not None and bids_price_raw < 97:
+            if asks_price_raw is not None and asks_price_raw > 10 and bids_price_raw is not None and bids_price_raw < 97:
                 # 获取Yes1和No1的GUI界面上的价格
                 yes1_price = float(self.yes1_price_entry.get())
                 no1_price = float(self.no1_price_entry.get())
@@ -1955,7 +1881,7 @@ class CryptoTrader:
     def Second_trade(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
         """处理Yes2/No2的自动交易"""
         try:
-            if asks_price_raw is not None and asks_price_raw > 20 and bids_price_raw is not None and bids_price_raw < 97:
+            if asks_price_raw is not None and asks_price_raw > 10 and bids_price_raw is not None and bids_price_raw < 97:
                 # 获Yes2和No2的价格输入框
                 yes2_price = float(self.yes2_price_entry.get())
                 no2_price = float(self.no2_price_entry.get())
@@ -2064,7 +1990,7 @@ class CryptoTrader:
     def Third_trade(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
         """处理Yes3/No3的自动交易"""
         try:
-            if asks_price_raw is not None and asks_price_raw > 20 and bids_price_raw is not None and bids_price_raw < 97:                
+            if asks_price_raw is not None and asks_price_raw > 10 and bids_price_raw is not None and bids_price_raw < 97:                
                 # 获取Yes3和No3的价格输入框
                 yes3_price = float(self.yes3_price_entry.get())
                 no3_price = float(self.no3_price_entry.get())
@@ -2172,7 +2098,7 @@ class CryptoTrader:
     def Forth_trade(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
         """处理Yes4/No4的自动交易"""
         try:
-            if asks_price_raw is not None and asks_price_raw > 20 and bids_price_raw is not None and bids_price_raw < 97:  
+            if asks_price_raw is not None and asks_price_raw > 10 and bids_price_raw is not None and bids_price_raw < 97:  
                 # 获取Yes4和No4的价格输入框
                 yes4_price = float(self.yes4_price_entry.get())
                 no4_price = float(self.no4_price_entry.get())
@@ -2298,7 +2224,7 @@ class CryptoTrader:
                 price_diff = round(bids_price_raw - yes5_price, 2) # 47-47=0;;46-47=-1;
 
                 # 检查Yes5价格匹配
-                if (44 <=yes5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
+                if (10 <=yes5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
                     self.logger.info(f"Up 5: {bids_price_raw}¢ 价格匹配,执行自动卖出")
                     
                     self.yes5_target_price = yes5_price
@@ -2331,7 +2257,7 @@ class CryptoTrader:
                         self.yes2_price_entry.configure(foreground='black') 
                         break
                     
-                elif yes5_price >= 60 and 0 <= price_diff <= 1.1 and (bids_shares > self.bids_shares):
+                elif yes5_price >= 50 and 0 <= price_diff <= 1.1 and (bids_shares > self.bids_shares):
                     self.logger.info(f"Up 5: {asks_price_raw}¢ 价格匹配,执行自动卖出")
                     
                     self.yes5_target_price = yes5_price
@@ -2384,7 +2310,7 @@ class CryptoTrader:
                 price_diff = round(100 - asks_price_raw - no5_price, 2)
             
                 # 检查No5价格匹配,反水卖出同方向
-                if (40 <=no5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
+                if (10 <=no5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
                     self.logger.info(f"Down 5: {100 - asks_price_raw}¢ 价格匹配,执行自动卖出")
 
                     while True:
@@ -2417,7 +2343,7 @@ class CryptoTrader:
 
                         break
                     
-                elif no5_price >= 60 and (0 <= price_diff <= 1.1) and (bids_shares > self.bids_shares):
+                elif no5_price >= 50 and (0 <= price_diff <= 1.1) and (bids_shares > self.bids_shares):
                     self.logger.info(f"Down 5: {100 - asks_price_raw}¢ 价格匹配,执行自动卖出")
 
                     self.no5_target_price = no5_price
@@ -2462,7 +2388,7 @@ class CryptoTrader:
         yes5_price = getattr(self, 'yes5_target_price', 0)
         no5_price = getattr(self, 'no5_target_price', 0)
 
-        if (yes5_price > 90) or (no5_price > 90):
+        if (yes5_price > 60) or (no5_price > 60):
             self.reset_trade_count = 0
         else:
             self.reset_trade_count += 1
