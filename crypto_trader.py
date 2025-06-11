@@ -2652,7 +2652,33 @@ class CryptoTrader:
         except Exception as e:
             self.logger.error(f"交易验证失败: {str(e)}")
             return False, 0, 0
-              
+
+    def _wait_for_element(self, xpath_list, timeout=10, poll_frequency=0.5):
+        """智能等待元素出现
+        
+        Args:
+            xpath_list: XPath列表
+            timeout: 超时时间（秒）
+            poll_frequency: 轮询频率（秒）
+            
+        Returns:
+            WebElement: 找到的元素,未找到则返回None
+        """
+        if not self.driver:
+            return None
+            
+        end_time = time.time() + timeout
+        while time.time() < end_time:
+            for xpath in xpath_list:
+                try:
+                    element = self.driver.find_element(By.XPATH, xpath)
+                    if element and element.is_displayed():
+                        return element
+                except (NoSuchElementException, StaleElementReferenceException):
+                    pass
+            time.sleep(poll_frequency)
+        return None
+          
     def click_buy_confirm_button(self):
         try:
             buy_confirm_button = self.driver.find_element(By.XPATH, XPathConfig.BUY_CONFIRM_BUTTON[0])
