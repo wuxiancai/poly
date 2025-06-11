@@ -1582,7 +1582,6 @@ class CryptoTrader:
 
     def start_login_monitoring(self):
         """监控登录状态"""
-        self.logger.info("\033[34m✅ 启动登录状态监控\033[0m")
         if not self.driver and not self.is_restarting:
             self.restart_browser(force_restart=True)
 
