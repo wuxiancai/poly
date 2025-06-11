@@ -943,7 +943,7 @@ class CryptoTrader:
                 try:
                     # 根据操作系统选择启动脚本
                     script_path = ('start_chrome_macos.sh' if platform.system() == 'Darwin' 
-                                else 'start_chrome_aliyun.sh')
+                                else 'start_chrome_ubuntu.sh')
                     script_path = os.path.abspath(script_path)
                     
                     # 检查脚本是否存在
