@@ -1764,7 +1764,7 @@ class CryptoTrader:
                 # 检查Yes1价格匹配: asks_price_raw should be close to yes1_price_gui
                 if 0 <= round((asks_price_raw - yes1_price), 2) <= self.price_premium and (asks_shares > self.asks_shares):
                     while True:
-                        self.logger.info(f"✅ Up 1: \033[32m{asks_price_raw}¢\033[0m 价格匹配,执行自动交易")
+                        self.logger.info(f"✅ \033[32mUp 1: {asks_price_raw}¢\033[0m 价格匹配,执行自动交易")
                         # 执行现有的交易操作
                         self.amount_yes1_button.event_generate('<Button-1>')
                         time.sleep(0.5)
@@ -1819,7 +1819,7 @@ class CryptoTrader:
                 # 检查No1价格匹配: (100 - bids_price_raw) should be close to no1_price_gui
                 elif 0 <= round(((100.0 - bids_price_raw) - no1_price), 2) <= self.price_premium and (bids_shares > self.bids_shares):
                      while True:
-                        self.logger.info(f"✅ Down 1: \033[31m{100.0 - bids_price_raw}¢\033[0m 价格匹配,执行自动交易") 
+                        self.logger.info(f"✅ \033[31mDown 1: {100.0 - bids_price_raw}¢\033[0m 价格匹配,执行自动交易") 
                         # 执行现有的交易操作
                         self.buy_no_button.invoke()
                         time.sleep(0.5)
@@ -1892,7 +1892,7 @@ class CryptoTrader:
                 # 检查Yes2价格匹配
                 if 0 <= round((asks_price_raw - yes2_price), 2) <= self.price_premium and (asks_shares > self.asks_shares):
                     while True:
-                        self.logger.info(f"✅  Up 2: \033[32m{asks_price_raw}¢\033[0m 价格匹配,执行自动交易")
+                        self.logger.info(f"✅  \033[32mUp 2: {asks_price_raw}¢\033[0m 价格匹配,执行自动交易")
                         # 执行现有的交易操作
                         self.amount_yes2_button.event_generate('<Button-1>')
                         time.sleep(0.5)
@@ -1938,7 +1938,7 @@ class CryptoTrader:
                 # 检查No2价格匹配
                 elif 0 <= round(((100.0 - bids_price_raw) - no2_price), 2) <= self.price_premium and (bids_shares > self.bids_shares):
                     while True:
-                        self.logger.info(f"✅ Down 2: \033[31m{100.0 - bids_price_raw}¢\033[0m 价格匹配,执行自动交易")
+                        self.logger.info(f"✅ \033[31mDown 2: {100.0 - bids_price_raw}¢\033[0m 价格匹配,执行自动交易")
                         
                         # 执行现有的交易操作
                         self.buy_no_button.invoke()
@@ -2003,7 +2003,7 @@ class CryptoTrader:
                 # 检查Yes3价格匹配
                 if 0 <= round((asks_price_raw - yes3_price), 2) <= self.price_premium and (asks_shares > self.asks_shares):
                     while True:
-                        self.logger.info(f"✅ Up 3: \033[32m{asks_price_raw}¢\033[0m 价格匹配,执行自动交易")
+                        self.logger.info(f"✅ \033[32mUp 3: {asks_price_raw}¢\033[0m 价格匹配,执行自动交易")
                         # 执行交易操作
                         self.amount_yes3_button.event_generate('<Button-1>')
                         time.sleep(0.5)
@@ -2050,7 +2050,7 @@ class CryptoTrader:
                 # 检查No3价格匹配
                 elif 0 <= round(((100.0 - bids_price_raw) - no3_price), 2) <= self.price_premium and (bids_shares > self.bids_shares):
                     while True:
-                        self.logger.info(f"✅ Down 3: \033[31m{100.0 - bids_price_raw}¢\033[0m 价格匹配,执行自动交易")
+                        self.logger.info(f"✅ \033[31mDown 3: {100.0 - bids_price_raw}¢\033[0m 价格匹配,执行自动交易")
                         # 执行交易操作
                         self.buy_no_button.invoke()
                         time.sleep(0.5)
@@ -2113,7 +2113,7 @@ class CryptoTrader:
                 # 检查Yes4价格匹配
                 if 0 <= round((asks_price_raw - yes4_price), 2) <= self.price_premium and (asks_shares > self.asks_shares):
                     while True:
-                        self.logger.info(f"✅ Up 4: \033[32m{asks_price_raw}¢\033[0m 价格匹配,执行自动交易")
+                        self.logger.info(f"✅ \033[32mUp 4: {asks_price_raw}¢\033[0m 价格匹配,执行自动交易")
                         # 执行交易操作
                         self.amount_yes4_button.event_generate('<Button-1>')
                         time.sleep(0.5)
@@ -2163,7 +2163,7 @@ class CryptoTrader:
                 # 检查No4价格匹配
                 elif 0 <= round(((100.0 - bids_price_raw) - no4_price), 2) <= self.price_premium and (bids_shares > self.bids_shares):
                     while True:
-                        self.logger.info(f"✅ Down 4: \033[31m{100.0 - bids_price_raw}¢\033[0m 价格匹配,执行自动交易")
+                        self.logger.info(f"✅ \033[31mDown 4: {100.0 - bids_price_raw}¢\033[0m 价格匹配,执行自动交易")
                         # 执行交易操作
                         self.buy_no_button.invoke()
                         time.sleep(0.5)
@@ -2233,7 +2233,7 @@ class CryptoTrader:
 
                 # 检查Yes5价格匹配
                 if (10 <=yes5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
-                    self.logger.info(f"✅ Up 5: \033[32m{bids_price_raw}¢\033[0m 价格匹配,执行自动卖出")
+                    self.logger.info(f"✅ \033[32mUp 5: {bids_price_raw}¢\033[0m 价格匹配,执行自动卖出")
                     
                     self.yes5_target_price = yes5_price
                             
@@ -2266,7 +2266,7 @@ class CryptoTrader:
                         break
                     
                 elif yes5_price >= 50 and 0 <= price_diff <= 1.1 and (bids_shares > self.bids_shares):
-                    self.logger.info(f"✅ Up 5: \033[32m{asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
+                    self.logger.info(f"✅ \033[32mUp 5: {asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
                     
                     self.yes5_target_price = yes5_price
                             
@@ -2319,7 +2319,7 @@ class CryptoTrader:
             
                 # 检查No5价格匹配,反水卖出同方向
                 if (10 <=no5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
-                    self.logger.info(f"✅ Down 5: \033[31m{100 - asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
+                    self.logger.info(f"✅ \033[31mDown 5: {100 - asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
 
                     while True:
                         # 先卖全部 Down
@@ -2352,7 +2352,7 @@ class CryptoTrader:
                         break
                     
                 elif no5_price >= 50 and (0 <= price_diff <= 1.1) and (bids_shares > self.bids_shares):
-                    self.logger.info(f"✅ Down 5: \033[32m{100 - asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
+                    self.logger.info(f"✅ \033[31mDown 5: {100 - asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
 
                     self.no5_target_price = no5_price
                     
