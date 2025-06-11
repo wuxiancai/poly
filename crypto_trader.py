@@ -608,7 +608,7 @@ class CryptoTrader:
             ("Yes2", "yes2_price_entry", "yes2_amount_entry", "0", "0"),
             ("Yes3", "yes3_price_entry", "yes3_amount_entry", "0", "0"),
             ("Yes4", "yes4_price_entry", "yes4_amount_entry", "0", "0"),
-            ("Yes5", "yes5_price_entry", None, "0", None)
+            ("Yes5", "yes5_price_entry", "yes5_amount_entry", "0", "0")
         ]
         
         for i, (label, price_attr, amount_attr, price_val, amount_val) in enumerate(yes_configs):
@@ -641,7 +641,7 @@ class CryptoTrader:
             ("No2", "no2_price_entry", "no2_amount_entry", "0", "0"),
             ("No3", "no3_price_entry", "no3_amount_entry", "0", "0"),
             ("No4", "no4_price_entry", "no4_amount_entry", "0", "0"),
-            ("No5", "no5_price_entry", None, "0", None)
+            ("No5", "no5_price_entry", "no5_amount_entry", "0", "0")
         ]
         
         for i, (label, price_attr, amount_attr, price_val, amount_val) in enumerate(no_configs):
