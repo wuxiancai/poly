@@ -1800,13 +1800,13 @@ class CryptoTrader:
                             self.no5_price_entry.configure(foreground='red')  # 添加红色设置
                             self.logger.info("\033[34m✅ First_trade执行BUY UP1成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
+
                             # 发送交易邮件
-                            price, amount, shares = self._verify_trade('Buy', 'Up')
                             self.send_trade_email(
                                 trade_type="Buy Up1",
-                                price=price,
-                                amount=amount,
-                                shares=shares,
+                                price=self.price,
+                                amount=self.amount,
+                                shares=self.shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
@@ -1859,12 +1859,11 @@ class CryptoTrader:
                             self.logger.info("\033[34m✅ First_trade执行BUY DOWN1成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
                             # 发送交易邮件
-                            price, amount, shares = self._verify_trade('Buy', 'Down')
                             self.send_trade_email(
                                 trade_type="Buy Down1",
-                                price=price,
-                                amount=amount,
-                                shares=shares,
+                                price=self.price,
+                                amount=self.amount,
+                                shares=self.shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
@@ -1921,12 +1920,11 @@ class CryptoTrader:
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
-                            price, amount, shares = self._verify_trade('Buy', 'Up')
                             self.send_trade_email(
                                 trade_type="Buy Up2",
-                                price=price,
-                                amount=amount,
-                                shares=shares,
+                                price=self.price,
+                                amount=self.amount,
+                                shares=self.shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
@@ -1970,12 +1968,11 @@ class CryptoTrader:
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
-                            price, amount, shares = self._verify_trade('Buy', 'Down')
                             self.send_trade_email(
                                 trade_type="Buy Down2",
-                                price=price,
-                                amount=amount,
-                                shares=shares,
+                                price=self.price,
+                                amount=self.amount,
+                                shares=self.shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
@@ -2035,12 +2032,11 @@ class CryptoTrader:
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
-                            price, amount, shares = self._verify_trade('Buy', 'Up')
                             self.send_trade_email(
                                 trade_type="Buy Up3",
-                                price=price,
-                                amount=amount,
-                                shares=shares,
+                                price=self.price,
+                                amount=self.amount,
+                                shares=self.shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
@@ -2083,12 +2079,11 @@ class CryptoTrader:
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
-                            price, amount, shares = self._verify_trade('Buy', 'Down')
                             self.send_trade_email(
                                 trade_type="Buy Down3",
-                                price=price,
-                                amount=amount,
-                                shares=shares,
+                                price=self.price,
+                                amount=self.amount,
+                                shares=self.shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
@@ -2150,12 +2145,11 @@ class CryptoTrader:
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
-                            price, amount, shares = self._verify_trade('Buy', 'Up')
                             self.send_trade_email(
                                 trade_type="Buy Up4",
-                                price=price,
-                                amount=amount,
-                                shares=shares,
+                                price=self.price,
+                                amount=self.amount,
+                                shares=self.shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
@@ -2202,12 +2196,11 @@ class CryptoTrader:
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
-                            price, amount, shares = self._verify_trade('Buy', 'Down')
                             self.send_trade_email(
                                 trade_type="Buy Down4",
-                                price=price,
-                                amount=amount,
-                                shares=shares,
+                                price=self.price,
+                                amount=self.amount,
+                                shares=self.shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
@@ -2439,12 +2432,11 @@ class CryptoTrader:
              # 增加卖出计数
             self.sell_count += 1
             # 发送交易邮件 - 卖出YES
-            price, amount, shares = self._verify_trade('Sold', 'Up')
             self.send_trade_email(
                 trade_type="Sell Up",
-                price=price,
-                amount=amount,
-                shares=shares,
+                price=self.price,
+                amount=self.amount,
+                shares=self.shares,
                 trade_count=self.sell_count,
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value
@@ -2468,12 +2460,11 @@ class CryptoTrader:
             self.sell_count += 1
             
             # 发送交易邮件 - 卖出NO
-            price, amount, shares = self._verify_trade('Sold', 'Down')
             self.send_trade_email(
                 trade_type="Sell Down",
-                price=price,
-                amount=amount,
-                shares=shares,
+                price=self.price,
+                amount=self.amount,
+                shares=self.shares,
                 trade_count=self.sell_count,
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value
@@ -2519,12 +2510,11 @@ class CryptoTrader:
             # 增加卖出计数
             self.sell_count += 1
             # 发送交易邮件 - 卖出YES
-            price, amount, shares = self._verify_trade('Sold', 'Up')
             self.send_trade_email(
                 trade_type="Sell Up",
-                price=price,
-                amount=amount,
-                shares=shares,
+                price=self.price,
+                amount=self.amount,
+                shares=self.shares,
                 trade_count=self.sell_count,
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value
@@ -2571,12 +2561,11 @@ class CryptoTrader:
             self.sell_count += 1
             
             # 发送交易邮件 - 卖出NO
-            price, amount, shares = self._verify_trade('Sold', 'Down')
             self.send_trade_email(
                 trade_type="Sell Down",
-                price=price,
-                amount=amount,
-                shares=shares,
+                price=self.price,
+                amount=self.amount,
+                shares=self.shares,
                 trade_count=self.sell_count,
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value
@@ -2657,12 +2646,12 @@ class CryptoTrader:
                         price_match = re.search(r'at (\d+\.?\d*)¢', history_text)
                         amount_match = re.search(r'\$(\d+\.?\d*)', history_text)
                         shares_match = re.search(r'(\d+)', history_text)
-                        price = float(price_match.group(1)) if price_match else 0
-                        amount = float(amount_match.group(1)) if amount_match else 0
-                        shares = int(shares_match.group(1)) if shares_match else 0
+                        self.price = float(price_match.group(1)) if price_match else 0
+                        self.amount = float(amount_match.group(1)) if amount_match else 0
+                        self.shares = int(shares_match.group(1)) if shares_match else 0
                         
-                        self.logger.info(f"✅ 交易验证成功: {action_type} {direction} 价格: {price} 金额: {amount} Shares: {shares}")
-                        return True, price, amount, shares
+                        self.logger.info(f"✅ 交易验证成功: {action_type} {direction} 价格: {self.price} 金额: {self.amount} Shares: {self.shares}")
+                        return True, self.price, self.amount, self.shares
                 
                 # 等待一段时间后再次检查
                 self.logger.info(f"交易记录未出现或不匹配,等待{wait_interval}秒后重试...")
