@@ -1798,13 +1798,15 @@ class CryptoTrader:
                             self.no5_price_entry.delete(0, tk.END)
                             self.no5_price_entry.insert(0, str(self.default_normal_sell_price))
                             self.no5_price_entry.configure(foreground='red')  # 添加红色设置
-                            self.logger.info("\033[34m✅ First_trade执行成功\033[0m")
+                            self.logger.info("\033[34m✅ First_trade执行BUY UP1成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
                             # 发送交易邮件
+                            price, amount, shares = self._verify_trade('Buy', 'Up')
                             self.send_trade_email(
                                 trade_type="Buy Up1",
-                                price=self.buy_up_price,
-                                amount=self.buy_yes1_amount,
+                                price=price,
+                                amount=amount,
+                                shares=shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
@@ -1854,13 +1856,15 @@ class CryptoTrader:
                             self.no5_price_entry.delete(0, tk.END)
                             self.no5_price_entry.insert(0, str(self.default_normal_sell_price))
                             self.no5_price_entry.configure(foreground='red')  # 添加红色设置
-                            self.logger.info("\033[34m✅ First_trade执行成功\033[0m")
+                            self.logger.info("\033[34m✅ First_trade执行BUY DOWN1成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
                             # 发送交易邮件
+                            price, amount, shares = self._verify_trade('Buy', 'Down')
                             self.send_trade_email(
                                 trade_type="Buy Down1",
-                                price=self.buy_down_price,
-                                amount=self.buy_no1_amount,
+                                price=price,
+                                amount=amount,
+                                shares=shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
@@ -1917,15 +1921,17 @@ class CryptoTrader:
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
+                            price, amount, shares = self._verify_trade('Buy', 'Up')
                             self.send_trade_email(
                                 trade_type="Buy Up2",
-                                price=self.buy_up_price,
-                                amount=self.buy_yes2_amount,
+                                price=price,
+                                amount=amount,
+                                shares=shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
                             )
-                            self.logger.info("\033[34m✅ Second_trade执行成功\033[0m")
+                            self.logger.info("\033[34m✅ Second_trade执行BUY UP2成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
                             break
                         else:
@@ -1964,15 +1970,17 @@ class CryptoTrader:
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
+                            price, amount, shares = self._verify_trade('Buy', 'Down')
                             self.send_trade_email(
                                 trade_type="Buy Down2",
-                                price=self.buy_down_price,
-                                amount=self.buy_no2_amount,
+                                price=price,
+                                amount=amount,
+                                shares=shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
                             )
-                            self.logger.info("\033[34m✅ Second_trade执行成功\033[0m")
+                            self.logger.info("\033[34m✅ Second_trade执行BUY DOWN2成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
                             break
                         else:
@@ -2027,15 +2035,17 @@ class CryptoTrader:
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
+                            price, amount, shares = self._verify_trade('Buy', 'Up')
                             self.send_trade_email(
                                 trade_type="Buy Up3",
-                                price=self.buy_up_price,
-                                amount=self.buy_yes3_amount,
+                                price=price,
+                                amount=amount,
+                                shares=shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
                             )   
-                            self.logger.info("\033[34m✅ Third_trade执行成功\033[0m")
+                            self.logger.info("\033[34m✅ Third_trade执行BUY UP3成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
                             break
                         else:
@@ -2073,15 +2083,17 @@ class CryptoTrader:
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
+                            price, amount, shares = self._verify_trade('Buy', 'Down')
                             self.send_trade_email(
                                 trade_type="Buy Down3",
-                                price=self.buy_down_price,
-                                amount=self.buy_no3_amount,
+                                price=price,
+                                amount=amount,
+                                shares=shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
                             )
-                            self.logger.info("\033[34m✅ Third_trade执行成功\033[0m")
+                            self.logger.info("\033[34m✅ Third_trade执行BUY DOWN3成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
                             break
                         else:
@@ -2138,15 +2150,17 @@ class CryptoTrader:
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
+                            price, amount, shares = self._verify_trade('Buy', 'Up')
                             self.send_trade_email(
                                 trade_type="Buy Up4",
-                                price=self.buy_up_price,
-                                amount=self.buy_yes4_amount,
+                                price=price,
+                                amount=amount,
+                                shares=shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
                             )
-                            self.logger.info("\033[34m✅ Forth_trade执行成功\033[0m")
+                            self.logger.info("\033[34m✅ Forth_trade执行BUY UP4成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
                             break
                         else:
@@ -2188,15 +2202,17 @@ class CryptoTrader:
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
+                            price, amount, shares = self._verify_trade('Buy', 'Down')
                             self.send_trade_email(
                                 trade_type="Buy Down4",
-                                price=self.buy_down_price,
-                                amount=self.buy_no4_amount,
+                                price=price,
+                                amount=amount,
+                                shares=shares,
                                 trade_count=self.trade_count,
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
                             )
-                            self.logger.info("\033[34m✅ Forth_trade执行成功\033[0m")
+                            self.logger.info("\033[34m✅ Forth_trade执行BUY DOWN4成功\033[0m")
                             self.root.after(30000, self.driver.refresh)
                             break
                         else:
@@ -2423,15 +2439,17 @@ class CryptoTrader:
              # 增加卖出计数
             self.sell_count += 1
             # 发送交易邮件 - 卖出YES
+            price, amount, shares = self._verify_trade('Sold', 'Up')
             self.send_trade_email(
                 trade_type="Sell Up",
-                price=self.sell_up_price,
-                amount=self.position_yes_cash(),  # 卖出时金额为总持仓
+                price=price,
+                amount=amount,
+                shares=shares,
                 trade_count=self.sell_count,
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value
             )
-            
+            self.logger.info(f"卖出 Up 成功")
         else:
             self.logger.warning("❌ 卖出only_sell_yes验证失败,重试")
             self.only_sell_yes()        
@@ -2450,15 +2468,17 @@ class CryptoTrader:
             self.sell_count += 1
             
             # 发送交易邮件 - 卖出NO
+            price, amount, shares = self._verify_trade('Sold', 'Down')
             self.send_trade_email(
                 trade_type="Sell Down",
-                price=self.sell_down_price,
-                amount=self.position_no_cash(),  # 卖出时金额为总持仓
+                price=price,
+                amount=amount,
+                shares=shares,
                 trade_count=self.sell_count,
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value
             )
-            
+            self.logger.info(f"卖出 Down 成功")
         else:
             self.logger.warning("❌ 卖出only_sell_no验证失败,重试")
             self.only_sell_no()
@@ -2499,10 +2519,12 @@ class CryptoTrader:
             # 增加卖出计数
             self.sell_count += 1
             # 发送交易邮件 - 卖出YES
+            price, amount, shares = self._verify_trade('Sold', 'Up')
             self.send_trade_email(
                 trade_type="Sell Up",
-                price=self.sell_up_price,
-                amount=self.position_yes_cash(),  # 卖出时金额为总持仓
+                price=price,
+                amount=amount,
+                shares=shares,
                 trade_count=self.sell_count,
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value
@@ -2549,10 +2571,12 @@ class CryptoTrader:
             self.sell_count += 1
             
             # 发送交易邮件 - 卖出NO
+            price, amount, shares = self._verify_trade('Sold', 'Down')
             self.send_trade_email(
                 trade_type="Sell Down",
-                price=self.sell_down_price,
-                amount=self.position_no_cash(),  # 卖出时金额为总持仓
+                price=price,
+                amount=amount,
+                shares=shares,
                 trade_count=self.sell_count,
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value
@@ -2972,7 +2996,7 @@ class CryptoTrader:
         except ValueError:
             self.logger.error("价格设置无效，请输入有效数字")
 
-    def send_trade_email(self, trade_type, price, amount, trade_count,
+    def send_trade_email(self, trade_type, price, amount, shares, trade_count,
                          cash_value, portfolio_value):
         """发送交易邮件"""
         max_retries = 2
@@ -3008,6 +3032,7 @@ class CryptoTrader:
                 content = f"""
                 交易价格: {price:.2f}¢
                 交易金额: ${amount:.2f}
+                交易数量: {shares}
                 当前买入次数: {self.trade_count}
                 当前卖出次数: {self.sell_count}
                 当前 CASH 值: {str_cash_value}
