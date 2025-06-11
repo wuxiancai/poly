@@ -2420,7 +2420,7 @@ class CryptoTrader:
         time.sleep(0.5)
         
         time.sleep(2)
-        if self.Verify_sold_yes():
+        if self._verify_trade('Sold', 'Up')[0]:
              # 增加卖出计数
             self.sell_count += 1
             # 发送交易邮件 - 卖出YES
@@ -2446,7 +2446,7 @@ class CryptoTrader:
         time.sleep(1)
 
         time.sleep(2)
-        if self.Verify_sold_no():
+        if self._verify_trade('Sold', 'Down')[0]:
             # 增加卖出计数
             self.sell_count += 1
             
@@ -2494,7 +2494,7 @@ class CryptoTrader:
             time.sleep(0.5)
 
             # 验证是否卖出成功
-            if self.Verify_sold_yes():
+            if self._verify_trade('Sold', 'Up')[0]:
                 self.logger.info(f"卖 Up 3 SHARES 成功")
 
             # 增加卖出计数
@@ -2543,7 +2543,7 @@ class CryptoTrader:
             self.sell_confirm_button.invoke()
             time.sleep(0.5)
 
-            if self.Verify_sold_no():
+            if self._verify_trade('Sold', 'Down')[0]:
                 self.logger.info(f"卖 Down 3 SHARES 成功")
 
             # 增加卖出计数
@@ -2562,185 +2562,98 @@ class CryptoTrader:
         except Exception as e:
             self.logger.info(f"❌ only_sell_no3执行失败,重试")
             self.only_sell_no3()
-            
+
     def Verify_buy_yes(self):
         """
-        验证交易是否成功完成Returns:bool: 交易是否成功
+        验证买入YES交易是否成功完成
+        
+        Returns:
+            bool: 交易是否成功
         """
-        try:
-            # 首先验证浏览器状态
-            if not self.driver and not self.is_restarting:
-                self.restart_browser(force_restart=True)
-            
-            time.sleep(1)
-            try:
-                yes_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
-            except NoSuchElementException:
-                yes_element = self._find_element_with_retry(
-                    XPathConfig.HISTORY,
-                    timeout=3,
-                    silent=True
-                )
-            text = yes_element.text
-            trade_type = re.search(r'\b(Bought)\b', text)  # 匹配单词 Bought
-            yes_match = re.search(r'\b(Up)\b', text)  # 匹配单词 Up
-            amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-            price_match = re.search(r'(\d+)¢', text)  # 匹配 数字¢ 格式
-
-            # 添加空值检查
-            if not all([trade_type, yes_match]):
-                #self.logger.warning(f"正则匹配失败,text内容: {text}")
-                return False
-
-            if trade_type.group(1) == "Bought" and yes_match.group(1) == "Up":
-                self.trade_type = trade_type.group(1)  # 获取 "Bought"
-                self.buy_yes_value = yes_match.group(1)  # 获取 "Up"
-                self.buy_yes_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
-                self.buy_up_price = float(price_match.group(1))# 获取数字部分并转为浮点数
-                self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_yes_value}-${self.buy_yes_amount}")
-                return True, self.buy_yes_amount 
-            return False       
-        except Exception as e:
-            self.logger.warning(f"❌ Verify_buy_yes执行失败: {str(e)}")
-            return False
-        finally:
-            self.driver.refresh()
+        return self._verify_trade('Bought', 'Up')[0]
         
     def Verify_buy_no(self):
         """
-        验证交易是否成功完成
+        验证买入NO交易是否成功完成
+        
         Returns:
-        bool: 交易是否成功
+            bool: 交易是否成功
         """
-        try:
-            # 首先验证浏览器状态
-            if not self.driver and not self.is_restarting:
-                self.restart_browser(force_restart=True)
-            
-            time.sleep(1)
-            # 等待并检查是否存在 No 标签
-            try:
-                no_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
-            except NoSuchElementException:
-                no_element = self._find_element_with_retry(
-                    XPathConfig.HISTORY,
-                    timeout=3,
-                    silent=True
-                )
-            text = no_element.text
-
-            trade_type = re.search(r'\b(Bought)\b', text)  # 匹配单词 Bought
-            no_match = re.search(r'\b(Down)\b', text)  # 匹配单词 Down
-            amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-            price_match = re.search(r'(\d+)¢', text)  # 匹配 数字¢ 格式
-
-            if not all([trade_type, no_match]):
-                self.logger.warning(f"正则匹配失败,text内容: {text}")
-                return False
-
-            if trade_type.group(1) == "Bought" and no_match.group(1) == "Down":
-                self.trade_type = trade_type.group(1)  # 获取 "Bought"
-                self.buy_no_value = no_match.group(1)  # 获取 "Down"
-                self.buy_no_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
-                self.buy_down_price = float(price_match.group(1)) # 获取数字部分并转为浮点数
-                self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_no_value}-${self.buy_no_amount}")
-                return True, self.buy_no_amount
-            return False        
-        except Exception as e:
-            self.logger.warning(f"❌ Verify_buy_no执行失败: {str(e)}")
-            return False
-        finally:
-            self.driver.refresh()
+        return self._verify_trade('Bought', 'Down')[0]
     
     def Verify_sold_yes(self):
         """
-        验证交易是否成功完成Returns:bool: 交易是否成功
+        验证卖出YES交易是否成功完成
+        
+        Returns:
+            bool: 交易是否成功
         """
-        try:
-            # 首先验证浏览器状态
-            if not self.driver and not self.is_restarting:
-                self.restart_browser(force_restart=True)  
-
-            time.sleep(2)
-            try:
-                yes_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
-            except NoSuchElementException:
-                yes_element = self._find_element_with_retry(
-                    XPathConfig.HISTORY,
-                    timeout=3,
-                    silent=True
-                )
-            text = yes_element.text
-            trade_type = re.search(r'\b(Sold)\b', text)  # 匹配单词 Sold
-            yes_match = re.search(r'\b(Up)\b', text)  # 匹配单词 Up
-            amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-            price_match = re.search(r'(\d+)¢', text)  # 匹配 数字¢ 格式
-
-            if not all([trade_type, yes_match]):
-                self.logger.warning(f"正则匹配失败,text内容: {text}")
-                return False
-
-            if trade_type.group(1) == "Sold" and yes_match.group(1) == "Up":
-                self.trade_type = trade_type.group(1)  # 获取 "Sold"
-                self.buy_yes_value = yes_match.group(1)  # 获取 "Up"
-                self.sell_yes_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
-                self.sell_up_price = float(price_match.group(1)) # 获取数字部分并转为浮点数
-                self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_yes_value}-${self.sell_yes_amount}")
-                return True, self.sell_yes_amount
-            return False       
-        except Exception as e:
-            self.logger.warning(f"❌ Verify_sold_yes执行失败: {str(e)}")   
-            return False
-        finally:
-            self.driver.refresh()
+        return self._verify_trade('Sold', 'Up')[0]
         
     def Verify_sold_no(self):
         """
-        验证交易是否成功完成
+        验证卖出NO交易是否成功完成
+        
         Returns:
-        bool: 交易是否成功
+            bool: 交易是否成功
+        """
+        return self._verify_trade('Sold', 'Down')[0]
+
+    def _verify_trade(self, action_type, direction):
+        """
+        验证交易是否成功完成
+        
+        Args:
+            action_type: 'Bought' 或 'Sold'
+            direction: 'Up' 或 'Down'
+            
+        Returns:
+            tuple: (是否成功, 价格, 金额)
         """
         try:
-            # 首先验证浏览器状态
-            if not self.driver and not self.is_restarting:
-                self.restart_browser(force_restart=True)
-
-            time.sleep(2)
-            try:
-                no_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
-            except NoSuchElementException:
-                no_element = self._find_element_with_retry(
-                    XPathConfig.HISTORY,
-                    timeout=3,
-                    silent=True
-                )
-            text = no_element.text
-
-            trade_type = re.search(r'\b(Sold)\b', text)  # 匹配单词 Sold
-            no_match = re.search(r'\b(Down)\b', text)  # 匹配单词 Down
-            amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-            price_match = re.search(r'(\d+)¢', text)  # 匹配 数字¢ 格式
-
-            if not all([trade_type, no_match]):
-                self.logger.warning(f"正则匹配失败,text内容: {text}")
-                return False
-
-            if trade_type.group(1) == "Sold" and no_match.group(1) == "Down":
-                self.trade_type = trade_type.group(1)  # 获取 "Sold"
-                self.buy_no_value = no_match.group(1)  # 获取 "Down"
-                self.sell_no_amount = float(amount_match.group(1))  # 获取数字部分并转为浮点数
-                self.sell_down_price = float(price_match.group(1)) # 获取数字部分并转为浮点数
-                self.logger.info(f"交易验证成功: {self.trade_type}-{self.buy_no_value}-${self.sell_no_amount}")
-                return True, self.sell_no_amount
-            return False        
+            # 最多等待15秒钟,每1秒检查一次交易记录
+            max_wait_time = 15  # 最大等待时间
+            wait_interval = 1  # 检查间隔
+            end_time = time.time() + max_wait_time
+            
+            while time.time() < end_time:
+                # 等待历史记录元素出现
+                history_element = self._wait_for_element(XPathConfig.HISTORY, timeout=2)
+                self.logger.info(f"尝试获取历史记录元素...")
+                
+                if history_element:
+                    # 获取历史记录文本
+                    history_text = history_element.text
+                    self.logger.info(f"历史记录文本: {history_text}")
+                    
+                    # 构建更灵活的匹配模式: "Bought xxx Down at" 或 "Sold xxx Down at"
+                    pattern = rf"{action_type}.*?{direction}"
+                    
+                    # 检查是否包含预期的交易记录
+                    if re.search(pattern, history_text, re.IGNORECASE):
+                        self.logger.info(f"✅ 交易验证成功: {action_type} {direction}")
+                        
+                        # 提取价格和金额
+                        price_match = re.search(r'at (\d+\.?\d*)¢', history_text)
+                        amount_match = re.search(r'\$(\d+\.?\d*)', history_text)
+                        
+                        price = float(price_match.group(1)) if price_match else 0
+                        amount = float(amount_match.group(1)) if amount_match else 0
+                        
+                        return True, price, amount
+                
+                # 等待一段时间后再次检查
+                self.logger.info(f"交易记录未出现或不匹配,等待{wait_interval}秒后重试...")
+                time.sleep(wait_interval)
+            
+            # 超时未找到匹配的交易记录
+            self.logger.warning(f"❌ 交易验证失败: 未找到 {action_type} {direction} (已等待{max_wait_time}秒)")
+            return False, 0, 0
+                
         except Exception as e:
-            self.logger.info(f"❌ Verify_sold_no执行失败: {str(e)}")
-            return False
-        finally:
-            self.driver.refresh()
-    """以上代码是交易主体函数 1-4,从第 1370 行到第 2418行"""
-
-    """以下代码是交易过程中的各种点击方法函数，涉及到按钮的点击，从第 2419 行到第 2528 行"""
+            self.logger.error(f"交易验证失败: {str(e)}")
+            return False, 0, 0
+              
     def click_buy_confirm_button(self):
         try:
             buy_confirm_button = self.driver.find_element(By.XPATH, XPathConfig.BUY_CONFIRM_BUTTON[0])
