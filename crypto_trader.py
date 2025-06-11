@@ -1427,8 +1427,11 @@ class CryptoTrader:
         """设置默认目标价格"""
         self.yes1_price_entry.delete(0, tk.END)
         self.yes1_price_entry.insert(0, self.default_target_price)
+        self.yes1_price_entry.configure(foreground='red')
+        
         self.no1_price_entry.delete(0, tk.END)
         self.no1_price_entry.insert(0, self.default_target_price)
+        self.no1_price_entry.configure(foreground='red')
         self.logger.info(f"\033[34m✅ 设置买入价格{self.default_target_price}成功\033[0m")
         self.close_windows()
 
