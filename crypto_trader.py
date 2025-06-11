@@ -1764,7 +1764,7 @@ class CryptoTrader:
                 # 检查Yes1价格匹配: asks_price_raw should be close to yes1_price_gui
                 if 0 <= round((asks_price_raw - yes1_price), 2) <= self.price_premium and (asks_shares > self.asks_shares):
                     while True:
-                        self.logger.info(f"Up 1: {asks_price_raw}¢ 价格匹配,执行自动交易")
+                        self.logger.info(f"✅ Up 1: {asks_price_raw}¢ 价格匹配,执行自动交易")
                         # 执行现有的交易操作
                         self.amount_yes1_button.event_generate('<Button-1>')
                         time.sleep(0.5)
@@ -1811,13 +1811,13 @@ class CryptoTrader:
                             )
                             break
                         else:
-                            self.logger.warning("❌ 交易失败,等待1秒后重试")
+                            self.logger.warning("❌  Buy Up1 交易失败,等待1秒后重试")
                             time.sleep(1)  # 添加延时避免过于频繁的重试
 
                 # 检查No1价格匹配: (100 - bids_price_raw) should be close to no1_price_gui
                 elif 0 <= round(((100.0 - bids_price_raw) - no1_price), 2) <= self.price_premium and (bids_shares > self.bids_shares):
                      while True:
-                        self.logger.info(f"Down 1: {100.0 - bids_price_raw}¢ 价格匹配,执行自动交易") 
+                        self.logger.info(f"✅ Down 1: {100.0 - bids_price_raw}¢ 价格匹配,执行自动交易") 
                         # 执行现有的交易操作
                         self.buy_no_button.invoke()
                         time.sleep(0.5)
@@ -1867,7 +1867,7 @@ class CryptoTrader:
                             )
                             break
                         else:
-                            self.logger.warning("❌ 交易失败,等待1秒后重试")
+                            self.logger.warning("❌  Buy Down1 交易失败,等待1秒后重试")
                             time.sleep(1)  # 添加延时避免过于频繁的重试                           
         except ValueError as e:
             self.logger.error(f"价格转换错误: {str(e)}")
@@ -1889,7 +1889,7 @@ class CryptoTrader:
                 # 检查Yes2价格匹配
                 if 0 <= round((asks_price_raw - yes2_price), 2) <= self.price_premium and (asks_shares > self.asks_shares):
                     while True:
-                        self.logger.info(f"Up 2: {asks_price_raw}¢ 价格匹配,执行自动交易")
+                        self.logger.info(f"✅  Up 2: {asks_price_raw}¢ 价格匹配,执行自动交易")
                         # 执行现有的交易操作
                         self.amount_yes2_button.event_generate('<Button-1>')
                         time.sleep(0.5)
@@ -1929,12 +1929,12 @@ class CryptoTrader:
                             self.root.after(30000, self.driver.refresh)
                             break
                         else:
-                            self.logger.warning("❌ 交易失败,等待1秒后重试")
+                            self.logger.warning("❌  Buy Up2 交易失败,等待1秒后重试")
                             time.sleep(1)  # 添加延时避免过于频繁的重试
                 # 检查No2价格匹配
                 elif 0 <= round(((100.0 - bids_price_raw) - no2_price), 2) <= self.price_premium and (bids_shares > self.bids_shares):
                     while True:
-                        self.logger.info(f"Down 2: {100.0 - bids_price_raw}¢ 价格匹配,执行自动交易")
+                        self.logger.info(f"✅ Down 2: {100.0 - bids_price_raw}¢ 价格匹配,执行自动交易")
                         
                         # 执行现有的交易操作
                         self.buy_no_button.invoke()
@@ -1976,7 +1976,7 @@ class CryptoTrader:
                             self.root.after(30000, self.driver.refresh)
                             break
                         else:
-                            self.logger.warning("交易失败,等待1秒后重试")
+                            self.logger.warning("❌  Buy Down2 交易失败,等待1秒后重试")
                             time.sleep(1)  # 添加延时避免过于频繁的重试
         except ValueError as e:
             self.logger.error(f"价格转换错误: {str(e)}")
@@ -1998,7 +1998,7 @@ class CryptoTrader:
                 # 检查Yes3价格匹配
                 if 0 <= round((asks_price_raw - yes3_price), 2) <= self.price_premium and (asks_shares > self.asks_shares):
                     while True:
-                        self.logger.info(f"Up 3: {asks_price_raw}¢ 价格匹配,执行自动交易")
+                        self.logger.info(f"✅ Up 3: {asks_price_raw}¢ 价格匹配,执行自动交易")
                         # 执行交易操作
                         self.amount_yes3_button.event_generate('<Button-1>')
                         time.sleep(0.5)
@@ -2039,12 +2039,12 @@ class CryptoTrader:
                             self.root.after(30000, self.driver.refresh)
                             break
                         else:
-                            self.logger.warning("❌ 交易失败,等待1秒后重试")
+                            self.logger.warning("❌  Buy Up3 交易失败,等待1秒后重试")
                             time.sleep(1)  # 添加延时避免过于频繁的重试
                 # 检查No3价格匹配
                 elif 0 <= round(((100.0 - bids_price_raw) - no3_price), 2) <= self.price_premium and (bids_shares > self.bids_shares):
                     while True:
-                        self.logger.info(f"Down 3: {100.0 - bids_price_raw}¢ 价格匹配,执行自动交易")
+                        self.logger.info(f"✅ Down 3: {100.0 - bids_price_raw}¢ 价格匹配,执行自动交易")
                         # 执行交易操作
                         self.buy_no_button.invoke()
                         time.sleep(0.5)
@@ -2085,7 +2085,7 @@ class CryptoTrader:
                             self.root.after(30000, self.driver.refresh)
                             break
                         else:
-                            self.logger.warning("❌ 交易失败,等待1秒后重试")
+                            self.logger.warning("❌  Buy Down3 交易失败,等待1秒后重试")
                             time.sleep(1)  # 添加延时避免过于频繁的重试
         except ValueError as e:
             self.logger.error(f"价格转换错误: {str(e)}")
@@ -2106,7 +2106,7 @@ class CryptoTrader:
                 # 检查Yes4价格匹配
                 if 0 <= round((asks_price_raw - yes4_price), 2) <= self.price_premium and (asks_shares > self.asks_shares):
                     while True:
-                        self.logger.info(f"Up 4: {asks_price_raw}¢ 价格匹配,执行自动交易")
+                        self.logger.info(f"✅ Up 4: {asks_price_raw}¢ 价格匹配,执行自动交易")
                         # 执行交易操作
                         self.amount_yes4_button.event_generate('<Button-1>')
                         time.sleep(0.5)
@@ -2150,12 +2150,12 @@ class CryptoTrader:
                             self.root.after(30000, self.driver.refresh)
                             break
                         else:
-                            self.logger.warning("❌ 交易失败,等待2秒后重试")
+                            self.logger.warning("❌  Buy Up4 交易失败,等待2秒后重试")
                             time.sleep(2)  # 添加延时避免过于频繁的重试
                 # 检查No4价格匹配
                 elif 0 <= round(((100.0 - bids_price_raw) - no4_price), 2) <= self.price_premium and (bids_shares > self.bids_shares):
                     while True:
-                        self.logger.info(f"Down 4: {100.0 - bids_price_raw}¢ 价格匹配,执行自动交易")
+                        self.logger.info(f"✅ Down 4: {100.0 - bids_price_raw}¢ 价格匹配,执行自动交易")
                         # 执行交易操作
                         self.buy_no_button.invoke()
                         time.sleep(0.5)
@@ -2200,7 +2200,7 @@ class CryptoTrader:
                             self.root.after(30000, self.driver.refresh)
                             break
                         else:
-                            self.logger.warning("❌ 交易失败,等待1秒后重试")
+                            self.logger.warning("❌  Buy Down4 交易失败,等待1秒后重试")
                             time.sleep(1)  # 添加延时避免过于频繁的重试
         except ValueError as e:
             self.logger.error(f"价格转换错误: {str(e)}")
@@ -2224,7 +2224,7 @@ class CryptoTrader:
 
                 # 检查Yes5价格匹配
                 if (10 <=yes5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
-                    self.logger.info(f"Up 5: {bids_price_raw}¢ 价格匹配,执行自动卖出")
+                    self.logger.info(f"✅ Up 5: {bids_price_raw}¢ 价格匹配,执行自动卖出")
                     
                     self.yes5_target_price = yes5_price
                             
@@ -2257,7 +2257,7 @@ class CryptoTrader:
                         break
                     
                 elif yes5_price >= 50 and 0 <= price_diff <= 1.1 and (bids_shares > self.bids_shares):
-                    self.logger.info(f"Up 5: {asks_price_raw}¢ 价格匹配,执行自动卖出")
+                    self.logger.info(f"✅ Up 5: {asks_price_raw}¢ 价格匹配,执行自动卖出")
                     
                     self.yes5_target_price = yes5_price
                             
@@ -2310,7 +2310,7 @@ class CryptoTrader:
             
                 # 检查No5价格匹配,反水卖出同方向
                 if (10 <=no5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
-                    self.logger.info(f"Down 5: {100 - asks_price_raw}¢ 价格匹配,执行自动卖出")
+                    self.logger.info(f"✅ Down 5: {100 - asks_price_raw}¢ 价格匹配,执行自动卖出")
 
                     while True:
                         # 先卖全部 Down
@@ -2343,7 +2343,7 @@ class CryptoTrader:
                         break
                     
                 elif no5_price >= 50 and (0 <= price_diff <= 1.1) and (bids_shares > self.bids_shares):
-                    self.logger.info(f"Down 5: {100 - asks_price_raw}¢ 价格匹配,执行自动卖出")
+                    self.logger.info(f"✅ Down 5: {100 - asks_price_raw}¢ 价格匹配,执行自动卖出")
 
                     self.no5_target_price = no5_price
                     
@@ -2618,28 +2618,27 @@ class CryptoTrader:
             while time.time() < end_time:
                 # 等待历史记录元素出现
                 history_element = self._wait_for_element(XPathConfig.HISTORY, timeout=2)
-                self.logger.info(f"尝试获取历史记录元素...")
                 
                 if history_element:
                     # 获取历史记录文本
                     history_text = history_element.text
-                    self.logger.info(f"历史记录文本: {history_text}")
+                    self.logger.info(f"找到交易记录: {history_text}")
                     
                     # 构建更灵活的匹配模式: "Bought xxx Down at" 或 "Sold xxx Down at"
                     pattern = rf"{action_type}.*?{direction}"
                     
                     # 检查是否包含预期的交易记录
                     if re.search(pattern, history_text, re.IGNORECASE):
-                        self.logger.info(f"✅ 交易验证成功: {action_type} {direction}")
-                        
                         # 提取价格和金额
                         price_match = re.search(r'at (\d+\.?\d*)¢', history_text)
                         amount_match = re.search(r'\$(\d+\.?\d*)', history_text)
-                        
+                        shares_match = re.search(r'(\d+)', history_text)
                         price = float(price_match.group(1)) if price_match else 0
                         amount = float(amount_match.group(1)) if amount_match else 0
+                        shares = int(shares_match.group(1)) if shares_match else 0
                         
-                        return True, price, amount
+                        self.logger.info(f"✅ 交易验证成功: {action_type} {direction} 价格: {price} 金额: {amount} Shares: {shares}")
+                        return True, price, amount, shares
                 
                 # 等待一段时间后再次检查
                 self.logger.info(f"交易记录未出现或不匹配,等待{wait_interval}秒后重试...")
