@@ -200,7 +200,8 @@ class CryptoTrader:
                     'Down4': {'target_price': 0, 'amount': 0},
                     'Down5': {'target_price': 0, 'amount': 0}
                 },
-                'url_history': []
+                'url_history': [],
+                'auto_find_time': '2:00'  # 默认2点自动找币
             }
             
             try:
@@ -277,6 +278,10 @@ class CryptoTrader:
                 # 确保最多保留1条
                 self.config['url_history'] = self.config['url_history'][:1]
                 self.url_entry['values'] = self.config['url_history']
+            
+            # 保存自动找币时间设置
+            if hasattr(self, 'auto_find_time_combobox'):
+                self.config['auto_find_time'] = self.auto_find_time_combobox.get()
             
             # 保存配置到文件，使用indent=4确保格式化
             with open('config.json', 'w', encoding='utf-8') as f:
@@ -484,6 +489,20 @@ class CryptoTrader:
         ttk.Label(main_controls, text="Reset:", style='Black.TLabel').pack(side=tk.LEFT, padx=(10, 2))
         self.reset_count_label = ttk.Label(main_controls, text="0", style='Red.TLabel')
         self.reset_count_label.pack(side=tk.LEFT, padx=(0, 15))
+        
+        # 自动找币时间选择
+        auto_find_frame = ttk.Frame(control_frame)
+        auto_find_frame.pack(fill="x", pady=2)
+        
+        ttk.Label(auto_find_frame, text="Auto Find Coin Time:", style='Black.TLabel').pack(side=tk.LEFT, padx=(0, 5))
+        self.auto_find_time_combobox = ttk.Combobox(auto_find_frame, values=['1:00', '2:00', '3:00', '4:00'], width=5, state='readonly')
+        self.auto_find_time_combobox.pack(side=tk.LEFT, padx=2)
+        # 从配置文件加载保存的时间设置
+        saved_time = self.config.get('auto_find_time', '2:00')
+        self.auto_find_time_combobox.set(saved_time)
+        
+        # 绑定时间选择变化事件
+        self.auto_find_time_combobox.bind('<<ComboboxSelected>>', self.on_auto_find_time_changed)
 
         # 交易信息显示区域
         trading_info_frame = ttk.LabelFrame(scrollable_frame, text="📊 Trading Information", padding=(8, 5))
@@ -3465,10 +3484,15 @@ class CryptoTrader:
             self.monitor_xpath_timer = self.root.after(3600000, self.monitor_xpath_elements)
 
     def schedule_auto_find_coin(self):
-        """安排每天3点30分执行自动找币"""
+        """安排每天指定时间执行自动找币"""
         now = datetime.now()
-        # 计算下一个3点2分的时间
-        next_run = now.replace(hour=15, minute=16, second=0, microsecond=0)
+        
+        # 从GUI获取选择的时间
+        selected_time = self.auto_find_time_combobox.get()
+        hour = int(selected_time.split(':')[0])
+        
+        # 计算下一个指定时间的时间点
+        next_run = now.replace(hour=hour, minute=2, second=0, microsecond=0)
         if now >= next_run:
             next_run += timedelta(days=1)
         
@@ -3479,7 +3503,20 @@ class CryptoTrader:
         # 设置定时器
         selected_coin = self.coin_combobox.get()
         self.root.after(int(wait_time), lambda: self.find_54_coin(selected_coin))
-        self.logger.info(f"✅ \033[34m{round(wait_time_hours,2)}\033[0m小时后,开始自动找币")
+        self.logger.info(f"✅ \033[34m{round(wait_time_hours,2)}\033[0m小时后({selected_time}),开始自动找币")
+
+    def on_auto_find_time_changed(self, event=None):
+        """当自动找币时间选择改变时的处理函数"""
+        # 保存新的时间设置到配置文件
+        self.save_config()
+        
+        if hasattr(self, 'schedule_auto_find_coin_timer') and self.schedule_auto_find_coin_timer:
+            # 取消当前的定时器
+            self.root.after_cancel(self.schedule_auto_find_coin_timer)
+            self.logger.info("🔄 自动找币时间已更改，重新安排定时任务")
+            
+            # 重新安排定时任务
+            self.schedule_auto_find_coin()
 
     def find_54_coin(self,coin_type):
         """自动找币"""
