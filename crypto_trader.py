@@ -727,13 +727,13 @@ class CryptoTrader:
         
         # 最后一次更新确保布局正确
         self.root.update_idletasks()
-    """以上代码从240行到 742 行是设置 GUI 界面的"""
+    """以上代码从240行到 730 行是设置 GUI 界面的,以上部分代码不允许修改"""
 
-    """以下代码从 745 行到行是程序交易逻辑"""
+    """以下代码从 732 行到行是程序交易逻辑"""
     def start_monitoring(self):
         """开始监控"""
         # 直接使用当前显示的网址
-        target_url = self.url_entry.get()
+        target_url = self.url_entry.get().strip()
         self.logger.info(f"\033[34m✅ 开始监控网址: {target_url}\033[0m")
         
         # 启用开始按钮，启用停止按钮
@@ -755,7 +755,7 @@ class CryptoTrader:
         self.set_amount_button['state'] = 'normal'
 
         # 检查是否登录
-        self.login_check_timer = self.root.after(6000, self.start_login_monitoring)
+        self.login_check_timer = self.root.after(4000, self.start_login_monitoring)
 
         # 启动URL监控
         self.url_check_timer = self.root.after(10000, self.start_url_monitoring)
@@ -925,7 +925,6 @@ class CryptoTrader:
                 return True
             self.is_restarting = True
 
-        self._send_chrome_alert_email()
         try:
             self.logger.info(f"正在{'重启' if force_restart else '重连'}浏览器...")
             
@@ -1035,10 +1034,9 @@ class CryptoTrader:
             
         except Exception as e:
             self.logger.error(f"浏览器重启失败: {e}")
+            self._send_chrome_alert_email()
             return False
-        except Exception as e:
-            self.logger.error(f"浏览器重启失败: {e}")
-            return False
+        
         finally:
             with self.restart_lock:
                 self.is_restarting = False
@@ -1380,9 +1378,9 @@ class CryptoTrader:
             self.portfolio_label.config(text="Portfolio: Fail")
             self.cash_label.config(text="Cash: Fail")
              
-    """以上代码执行了监控价格和获取 CASH 的值。从这里开始程序返回到第 740 行"""  
+    """以上代码执行了监控价格和获取 CASH 的值。从这里开始程序返回到第 732 行"""  
 
-    """以下代码是设置 YES/NO 金额的函数,直到第 1127 行"""
+    """以下代码是设置 YES/NO 金额的函数,直到第 1509 行"""
     def schedule_update_amount(self, retry_count=0):
         """设置金额,带重试机制"""
         try:
@@ -1508,7 +1506,7 @@ class CryptoTrader:
         if hasattr(self, 'retry_timer'):
             self.root.after_cancel(self.retry_timer)
         self.retry_timer = self.root.after(3000, self.set_yes_no_cash)  # 3秒后重试
-    """以上代码执行了设置 YES/NO 金额的函数,从 1000 行到 1127 行,程序执行返回到 745 行"""
+    
 
     """以下代码是启动 URL 监控和登录状态监控的函数,直到第 1426 行"""
     def start_url_monitoring(self):
@@ -1528,15 +1526,23 @@ class CryptoTrader:
                 if self.running and self.driver:
                     try:
                         current_page_url = self.driver.current_url # 获取当前页面URL
-                        target_url = self.url_entry.get() # 获取输入框中的URL,这是最原始的URL
+                        target_url = self.url_entry.get().strip() # 获取输入框中的URL,这是最原始的URL
 
-                        if current_page_url != target_url:
-                            self.logger.warning("检测到URL变化,正在恢复")
+                        # 去除URL中的查询参数(?后面的部分)
+                        def clean_url(url):
+                            return url.split('?')[0].rstrip('/')
+                            
+                        clean_current = clean_url(current_page_url)
+                        clean_target = clean_url(target_url)
+                        
+                        # 如果URL基础部分不匹配，重新导航
+                        if clean_current != clean_target:
+                            self.logger.info(f"❌ URL不匹配,重新导航到: {target_url}")
                             self.driver.get(target_url)
-                            self.logger.info(f"\033[34m✅ 已恢复到原始的监控网址: {target_url}\033[0m")
 
                     except Exception as e:
                         self.logger.error(f"URL监控出错: {str(e)}")
+
                         # 重新导航到目标URL
                         if self.driver:
                             try:
@@ -1548,7 +1554,7 @@ class CryptoTrader:
                             self.restart_browser(force_restart=True)
                     # 继续监控
                     if self.running:
-                        self.url_check_timer = self.root.after(3000, check_url)  # 每3秒检查一次
+                        self.url_check_timer = self.root.after(10000, check_url)  # 每10秒检查一次
             
             # 开始第一次检查
             self.url_check_timer = self.root.after(1000, check_url)
