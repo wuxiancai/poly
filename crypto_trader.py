@@ -805,6 +805,7 @@ class CryptoTrader:
                     chrome_options.add_argument('--disable-sync')
                     chrome_options.add_argument('--metrics-recording-only')
                     chrome_options.add_argument('--no-first-run')
+                    chrome_options.add_argument('--disable-session-crashed-bubble')
                     chrome_options.add_argument('--disable-translate')
                     chrome_options.add_argument('--disable-background-timer-throttling')
                     chrome_options.add_argument('--disable-backgrounding-occluded-windows')
@@ -999,6 +1000,7 @@ class CryptoTrader:
                         chrome_options.add_argument('--disable-sync')
                         chrome_options.add_argument('--metrics-recording-only')
                         chrome_options.add_argument('--no-first-run')
+                        chrome_options.add_argument('--disable-session-crashed-bubble')
                         chrome_options.add_argument('--disable-translate')
                         chrome_options.add_argument('--disable-background-timer-throttling')
                         chrome_options.add_argument('--disable-backgrounding-occluded-windows')
@@ -1428,7 +1430,7 @@ class CryptoTrader:
         self.yes1_price_entry.delete(0, tk.END)
         self.yes1_price_entry.insert(0, self.default_target_price)
         self.yes1_price_entry.configure(foreground='red')
-        
+
         self.no1_price_entry.delete(0, tk.END)
         self.no1_price_entry.insert(0, self.default_target_price)
         self.no1_price_entry.configure(foreground='red')

@@ -140,6 +140,7 @@ if [ -x "$SCRIPT_DIR/google-chrome" ]; then
         --disable-sync \
         --metrics-recording-only \
         --no-first-run \
+        --disable-session-crashed-bubble \
         --disable-translate \
         --disable-background-timer-throttling \
         --disable-backgrounding-occluded-windows \
