@@ -2444,8 +2444,10 @@ class CryptoTrader:
                 portfolio_value=self.portfolio_value
             )
             self.logger.info(f"卖出 Up 成功")
+            self.driver.refresh()
         else:
             self.logger.warning("❌ 卖出only_sell_yes验证失败,重试")
+            time.sleep(1)
             self.only_sell_yes()        
        
     def only_sell_no(self):
@@ -2472,8 +2474,10 @@ class CryptoTrader:
                 portfolio_value=self.portfolio_value
             )
             self.logger.info(f"卖出 Down 成功")
+            self.driver.refresh()
         else:
             self.logger.warning("❌ 卖出only_sell_no验证失败,重试")
+            time.sleep(1)
             self.only_sell_no()
 
     def only_sell_yes3(self):
@@ -2521,9 +2525,11 @@ class CryptoTrader:
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value
             )
-            self.logger.info(f"卖出 Up 3 SHARES: {yes3_shares} 成功")     
+            self.logger.info(f"卖出 Up 3 SHARES: {yes3_shares} 成功")
+            self.driver.refresh()    
         except Exception as e:
             self.logger.info(f"❌ only_sell_yes3执行失败,重试")
+            time.sleep(1)
             self.only_sell_yes3()
             
     def only_sell_no3(self):
@@ -2573,8 +2579,10 @@ class CryptoTrader:
                 portfolio_value=self.portfolio_value
             )
             self.logger.info(f"卖出 Down 3 SHARES: {no3_shares} 成功")
+            self.driver.refresh()
         except Exception as e:
             self.logger.info(f"❌ only_sell_no3执行失败,重试")
+            time.sleep(1)
             self.only_sell_no3()
 
     def Verify_buy_yes(self):
@@ -3190,7 +3198,7 @@ class CryptoTrader:
                         self.logger.info(f"use with-retry,找到了Down持仓标签: {position_label_down.text}")
                         return True
                     else:
-                        self.logger.info("use with-retry,未找到Down持仓标签")
+                        #self.logger.info("use with-retry,未找到Down持仓标签")
                         return False
                                
             except TimeoutException:
