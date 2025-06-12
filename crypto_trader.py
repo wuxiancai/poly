@@ -1816,8 +1816,10 @@ class CryptoTrader:
                             self.trade_count += 1
                             
                             # 重置Yes1和No1价格为0
+                            self.yes1_price_entry.configure(foreground='black')  # 添加红色设置
                             self.yes1_price_entry.delete(0, tk.END)
                             self.yes1_price_entry.insert(0, "0")
+                            self.no1_price_entry.configure(foreground='black')  # 添加红色设置
                             self.no1_price_entry.delete(0, tk.END)
                             self.no1_price_entry.insert(0, "0")
                             
@@ -1875,9 +1877,10 @@ class CryptoTrader:
                             # 重置Yes1和No1价格为0
                             self.yes1_price_entry.delete(0, tk.END)
                             self.yes1_price_entry.insert(0, "0")
+                            self.yes1_price_entry.configure(foreground='black')  # 添加红色设置
                             self.no1_price_entry.delete(0, tk.END)
                             self.no1_price_entry.insert(0, "0")
-                            
+                            self.no1_price_entry.configure(foreground='black')  # 添加红色设置
                             
                             # 设置Yes2价格为默认值
                             self.yes2_price_entry = self.yes_frame.grid_slaves(row=2, column=1)[0]
@@ -1968,7 +1971,6 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Second_trade执行BUY UP2成功\033[0m")
-                            self.root.after(30000, self.driver.refresh)
                             break
                         else:
                             self.logger.warning("❌  Buy Up2 交易失败,等待1秒后重试")
@@ -2016,7 +2018,7 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Second_trade执行BUY DOWN2成功\033[0m")
-                            self.root.after(30000, self.driver.refresh)
+                        
                             break
                         else:
                             self.logger.warning("❌  Buy Down2 交易失败,等待1秒后重试")
@@ -2080,7 +2082,7 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )   
                             self.logger.info("\033[34m✅ Third_trade执行BUY UP3成功\033[0m")
-                            self.root.after(30000, self.driver.refresh)
+                          
                             break
                         else:
                             self.logger.warning("❌  Buy Up3 交易失败,等待1秒后重试")
@@ -2127,7 +2129,7 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Third_trade执行BUY DOWN3成功\033[0m")
-                            self.root.after(30000, self.driver.refresh)
+                      
                             break
                         else:
                             self.logger.warning("❌  Buy Down3 交易失败,等待1秒后重试")
@@ -2193,7 +2195,7 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行BUY UP4成功\033[0m")
-                            self.root.after(30000, self.driver.refresh)
+                      
                             break
                         else:
                             self.logger.warning("❌  Buy Up4 交易失败,等待2秒后重试")
@@ -2244,7 +2246,7 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行BUY DOWN4成功\033[0m")
-                            self.root.after(30000, self.driver.refresh)
+                       
                             break
                         else:
                             self.logger.warning("❌  Buy Down4 交易失败,等待1秒后重试")
@@ -2300,7 +2302,7 @@ class CryptoTrader:
                         # 重置YES2 价格为默认值
                         self.yes2_price_entry.delete(0, tk.END)
                         self.yes2_price_entry.insert(0, str(self.default_target_price))
-                        self.yes2_price_entry.configure(foreground='black') 
+                        self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
                         break
                     
                 elif yes5_price >= 50 and 0 <= price_diff <= 1.1 and (bids_shares > self.bids_shares):
@@ -2385,7 +2387,7 @@ class CryptoTrader:
                         # 重置NO2 价格为默认值
                         self.no2_price_entry.delete(0, tk.END)
                         self.no2_price_entry.insert(0, str(self.default_target_price))
-                        self.no2_price_entry.configure(foreground='black')  
+                        self.no2_price_entry.configure(foreground='red')  # 添加红色设置
 
                         break
                     
@@ -2655,8 +2657,8 @@ class CryptoTrader:
             tuple: (是否成功, 价格, 金额)
         """
         try:
-            # 最多等待15秒钟,每1秒检查一次交易记录
-            max_wait_time = 15  # 最大等待时间
+            # 最多等待6秒钟,每1秒检查一次交易记录
+            max_wait_time = 6  # 最大等待时间
             wait_interval = 1  # 检查间隔
             end_time = time.time() + max_wait_time
             
