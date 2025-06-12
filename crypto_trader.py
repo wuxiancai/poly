@@ -2028,7 +2028,9 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Second_trade执行BUY DOWN2成功\033[0m")
-
+                            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
+                            time.sleep(2)
+                            self.driver.refresh()
                             break
                         else:
                             self.logger.warning("❌  Buy Down2 交易失败,等待1秒后重试")
@@ -2691,6 +2693,10 @@ class CryptoTrader:
             max_wait_time = 6  # 最大等待时间
             wait_interval = 1  # 检查间隔
             end_time = time.time() + max_wait_time
+
+            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
+            time.sleep(2)
+            self.driver.refresh()
             
             while time.time() < end_time:
                 # 等待历史记录元素出现
@@ -2716,7 +2722,10 @@ class CryptoTrader:
                         
                         self.logger.info(f"✅ 交易验证成功: \033[32m{action_type} {direction} 价格: {self.price} 金额: {self.amount} Shares: {self.shares}\033[0m")
                         return True, self.price, self.amount, self.shares
-                
+
+                # 增加刷新,因为不刷新,HISTORY 上不显示购买记录
+                time.sleep(2)
+                self.driver.refresh()
                 # 等待一段时间后再次检查
                 self.logger.info(f"交易记录未出现或不匹配,等待{wait_interval}秒后重试...")
                 time.sleep(wait_interval)
