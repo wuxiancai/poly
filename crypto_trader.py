@@ -1912,7 +1912,10 @@ class CryptoTrader:
                             break
                         else:
                             self.logger.warning("❌  Buy Down1 交易失败,等待1秒后重试")
-                            time.sleep(1)  # 添加延时避免过于频繁的重试                           
+                            time.sleep(1)  # 添加延时避免过于频繁的重试   
+            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
+            time.sleep(2)
+            self.driver.refresh()
         except ValueError as e:
             self.logger.error(f"价格转换错误: {str(e)}")
         except Exception as e:
@@ -2022,7 +2025,10 @@ class CryptoTrader:
                             break
                         else:
                             self.logger.warning("❌  Buy Down2 交易失败,等待1秒后重试")
-                            time.sleep(1)  # 添加延时避免过于频繁的重试
+                            time.sleep(1)  # 添加延时避免过于频繁的重试   
+            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
+            time.sleep(2)
+            self.driver.refresh()
         except ValueError as e:
             self.logger.error(f"价格转换错误: {str(e)}")
         except Exception as e:
@@ -2129,11 +2135,13 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Third_trade执行BUY DOWN3成功\033[0m")
-                      
                             break
                         else:
                             self.logger.warning("❌  Buy Down3 交易失败,等待1秒后重试")
-                            time.sleep(1)  # 添加延时避免过于频繁的重试
+                            time.sleep(1)  # 添加延时避免过于频繁的重试   
+            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
+            time.sleep(2)
+            self.driver.refresh()
         except ValueError as e:
             self.logger.error(f"价格转换错误: {str(e)}")
         except Exception as e:
@@ -2250,7 +2258,10 @@ class CryptoTrader:
                             break
                         else:
                             self.logger.warning("❌  Buy Down4 交易失败,等待1秒后重试")
-                            time.sleep(1)  # 添加延时避免过于频繁的重试
+                            time.sleep(1)  # 添加延时避免过于频繁的重试   
+            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
+            time.sleep(2)
+            self.driver.refresh()
         except ValueError as e:
             self.logger.error(f"价格转换错误: {str(e)}")
         except Exception as e:
@@ -2281,7 +2292,11 @@ class CryptoTrader:
                         # 先卖 Down
                         self.only_sell_yes()
                         self.logger.info(f"卖完 Up 后，再卖 Down 3 SHARES")
-                        
+
+                        # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚卖出的
+                        time.sleep(2)
+                        self.driver.refresh()
+
                         self.only_sell_no3()
 
                         # 设置 YES5/NO5 价格为 99
@@ -2314,7 +2329,7 @@ class CryptoTrader:
                         # 执行卖出YES操作
                         self.only_sell_yes()
                         
-                        time.sleep(1)
+                        time.sleep(2)
                         self.driver.refresh()
 
                         self.logger.info("卖完 Up 后，再卖 Down")
@@ -2366,6 +2381,10 @@ class CryptoTrader:
                         self.only_sell_no()
                         self.logger.info(f"卖完 Down 后，再卖 Up3 SHARES")
                         
+                        # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚卖出的
+                        time.sleep(2)
+                        self.driver.refresh()
+                        
                         self.only_sell_yes3()
 
                         # 设置 YES5/NO5 价格为 99
@@ -2400,8 +2419,10 @@ class CryptoTrader:
                         # 卖完 Down 后，自动再卖 Up                      
                         self.only_sell_no()
                         self.logger.info("卖完 Down 后，再卖 Up")
+
                         time.sleep(2)
                         self.driver.refresh()
+
                         if self.find_position_label_yes():
                             self.only_sell_yes()
 
@@ -2494,7 +2515,6 @@ class CryptoTrader:
         self.position_sell_no_button.invoke()
         time.sleep(0.5)
         self.sell_confirm_button.invoke()
-        time.sleep(1)
 
         time.sleep(2)
         if self._verify_trade('Sold', 'Down')[0]:
@@ -2538,8 +2558,8 @@ class CryptoTrader:
             shares_input.send_keys(str(yes3_shares))
             time.sleep(0.5)
             self.sell_confirm_button.invoke()
-            time.sleep(0.5)
 
+            time.sleep(2)
             # 验证是否卖出成功
             if self._verify_trade('Sold', 'Up')[0]:
                 self.logger.info(f"卖 Up 3 SHARES 成功")
@@ -2584,8 +2604,8 @@ class CryptoTrader:
             shares_input.send_keys(str(no3_shares))
             time.sleep(0.5)
             self.sell_confirm_button.invoke()
-            time.sleep(0.5)
 
+            time.sleep(2)
             if self._verify_trade('Sold', 'Down')[0]:
                 self.logger.info(f"卖 Down 3 SHARES 成功")
 
