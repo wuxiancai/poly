@@ -549,7 +549,7 @@ class CryptoTrader:
                 setattr(self, attr_name, label)
         
         # 实时价格显示区域
-        price_frame = ttk.LabelFrame(scrollable_frame, text="💰 Live Prices", padding=(8, 5))
+        price_frame = ttk.LabelFrame(scrollable_frame, text="Live Prices", padding=(8, 5))
         price_frame.pack(fill="x", padx=8, pady=6)
         
         # 价格显示容器
@@ -586,7 +586,7 @@ class CryptoTrader:
             setattr(self, shares_attr, shares_label)
 
         # 资金显示区域
-        balance_frame = ttk.LabelFrame(scrollable_frame, text="💳 Account Balance", padding=(8, 5))
+        balance_frame = ttk.LabelFrame(scrollable_frame, text="Account Balance", padding=(8, 5))
         balance_frame.pack(fill="x", padx=8, pady=6)
         
         balance_container = ttk.Frame(balance_frame)
