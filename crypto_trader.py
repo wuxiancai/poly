@@ -2432,7 +2432,7 @@ class CryptoTrader:
                         self.only_sell_no()
                         self.logger.info("卖完 Down 后，再卖 Up")
 
-                        time.sleep(2)
+                        time.sleep(1)
                         self.driver.refresh()
 
                         if self.find_position_label_yes():
