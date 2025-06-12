@@ -2680,6 +2680,7 @@ class CryptoTrader:
     def _verify_trade(self, action_type, direction):
         """
         验证交易是否成功完成
+        基于时间的循环:在6秒时间窗口内不断查找,时间到了就刷新,循环2次
         
         Args:
             action_type: 'Bought' 或 'Sold'
@@ -2689,49 +2690,51 @@ class CryptoTrader:
             tuple: (是否成功, 价格, 金额)
         """
         try:
-            # 最多等待6秒钟,每1秒检查一次交易记录
-            max_wait_time = 6  # 最大等待时间
-            wait_interval = 1  # 检查间隔
-            end_time = time.time() + max_wait_time
-
-            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-            time.sleep(2)
-            self.driver.refresh()
-            
-            while time.time() < end_time:
-                # 等待历史记录元素出现
-                history_element = self._wait_for_element(XPathConfig.HISTORY, timeout=2)
+            for attempt in range(2):
+                self.logger.info(f"开始第{attempt + 1}次验证尝试（基于时间窗口）")
+                # 最多等待6秒钟,每1秒检查一次交易记录
+                max_wait_time = 6  # 最大等待时间
+                wait_interval = 1  # 检查间隔
+                end_time = time.time() + max_wait_time
                 
-                if history_element:
-                    # 获取历史记录文本
-                    history_text = history_element.text
-                    self.logger.info(f"找到交易记录: \033[34m{history_text}\033[0m")
+                while time.time() < end_time:
+                    # 等待历史记录元素出现
+                    history_element = self._wait_for_element(XPathConfig.HISTORY, timeout=2)
                     
-                    # 构建更灵活的匹配模式: "Bought xxx Down at" 或 "Sold xxx Down at"
-                    pattern = rf"{action_type}.*?{direction}"
-                    
-                    # 检查是否包含预期的交易记录
-                    if re.search(pattern, history_text, re.IGNORECASE):
-                        # 提取价格和金额
-                        price_match = re.search(r'at (\d+\.?\d*)¢', history_text)
-                        amount_match = re.search(r'\$(\d+\.?\d*)', history_text)
-                        shares_match = re.search(r'(\d+)', history_text)
-                        self.price = float(price_match.group(1)) if price_match else 0
-                        self.amount = float(amount_match.group(1)) if amount_match else 0
-                        self.shares = int(shares_match.group(1)) if shares_match else 0
+                    if history_element:
+                        # 获取历史记录文本
+                        history_text = history_element.text
+                        self.logger.info(f"找到交易记录: \033[34m{history_text}\033[0m")
                         
-                        self.logger.info(f"✅ 交易验证成功: \033[32m{action_type} {direction} 价格: {self.price} 金额: {self.amount} Shares: {self.shares}\033[0m")
-                        return True, self.price, self.amount, self.shares
-
-                # 增加刷新,因为不刷新,HISTORY 上不显示购买记录
-                time.sleep(2)
+                        # 构建更灵活的匹配模式: "Bought xxx Down at" 或 "Sold xxx Down at"
+                        pattern = rf"{action_type}.*?{direction}"
+                        
+                        # 检查是否包含预期的交易记录
+                        if re.search(pattern, history_text, re.IGNORECASE):
+                            # 提取价格和金额
+                            price_match = re.search(r'at (\d+\.?\d*)¢', history_text)
+                            amount_match = re.search(r'\$(\d+\.?\d*)', history_text)
+                            shares_match = re.search(r'(\d+)', history_text)
+                            self.price = float(price_match.group(1)) if price_match else 0
+                            self.amount = float(amount_match.group(1)) if amount_match else 0
+                            self.shares = int(shares_match.group(1)) if shares_match else 0
+                            
+                            self.logger.info(f"✅ 交易验证成功: \033[32m{action_type} {direction} 价格: {self.price} 金额: {self.amount} Shares: {self.shares}\033[0m")
+                            return True, self.price, self.amount, self.shares
+                    
+                    # 等待一段时间后再次检查
+                    remaining_time = end_time - time.time()
+                    if remaining_time > 0:
+                        self.logger.info(f"交易记录未出现或不匹配,等待{wait_interval}秒后重试...（剩余时间: {remaining_time:.1f}秒）")
+                        time.sleep(wait_interval)
+                
+                # 6秒时间窗口结束，刷新页面
+                self.logger.info(f"第{attempt + 1}次尝试的6秒时间窗口结束,刷新页面")
                 self.driver.refresh()
-                # 等待一段时间后再次检查
-                self.logger.info(f"交易记录未出现或不匹配,等待{wait_interval}秒后重试...")
-                time.sleep(wait_interval)
+                time.sleep(2)  # 刷新后等待页面加载
             
             # 超时未找到匹配的交易记录
-            self.logger.warning(f"❌ 交易验证失败: 未找到 {action_type} {direction} (已等待{max_wait_time}秒)")
+            self.logger.warning(f"❌ 交易验证失败: 未找到 {action_type} {direction} (已尝试2轮,每轮{max_wait_time}秒时间窗口)")
             return False, 0, 0
                 
         except Exception as e:
