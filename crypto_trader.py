@@ -1838,8 +1838,6 @@ class CryptoTrader:
                             self.no5_price_entry.delete(0, tk.END)
                             self.no5_price_entry.insert(0, str(self.default_normal_sell_price))
                             self.no5_price_entry.configure(foreground='red')  # 添加红色设置
-                            self.logger.info("\033[34m✅ First_trade执行BUY UP1成功\033[0m")
-                            self.root.after(30000, self.driver.refresh)
 
                             # 发送交易邮件
                             self.send_trade_email(
@@ -1851,6 +1849,10 @@ class CryptoTrader:
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
                             )
+                            self.logger.info("\033[34m✅ First_trade执行BUY UP1成功\033[0m")
+                            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
+                            time.sleep(2)
+                            self.driver.refresh()
                             break
                         else:
                             self.logger.warning("❌  Buy Up1 交易失败,等待1秒后重试")
@@ -1897,8 +1899,7 @@ class CryptoTrader:
                             self.no5_price_entry.delete(0, tk.END)
                             self.no5_price_entry.insert(0, str(self.default_normal_sell_price))
                             self.no5_price_entry.configure(foreground='red')  # 添加红色设置
-                            self.logger.info("\033[34m✅ First_trade执行BUY DOWN1成功\033[0m")
-                            self.root.after(30000, self.driver.refresh)
+
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Down1",
@@ -1909,13 +1910,16 @@ class CryptoTrader:
                                 cash_value=self.cash_value,
                                 portfolio_value=self.portfolio_value
                             )
+
+                            self.logger.info("\033[34m✅ First_trade执行BUY DOWN1成功\033[0m")
+                            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
+                            time.sleep(2)
+                            self.driver.refresh()
                             break
                         else:
                             self.logger.warning("❌  Buy Down1 交易失败,等待1秒后重试")
                             time.sleep(1)  # 添加延时避免过于频繁的重试   
-            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-            time.sleep(2)
-            self.driver.refresh()
+            
         except ValueError as e:
             self.logger.error(f"价格转换错误: {str(e)}")
         except Exception as e:
@@ -1974,6 +1978,9 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Second_trade执行BUY UP2成功\033[0m")
+                            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
+                            time.sleep(2)
+                            self.driver.refresh()
                             break
                         else:
                             self.logger.warning("❌  Buy Up2 交易失败,等待1秒后重试")
@@ -2021,14 +2028,12 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Second_trade执行BUY DOWN2成功\033[0m")
-                        
+
                             break
                         else:
                             self.logger.warning("❌  Buy Down2 交易失败,等待1秒后重试")
                             time.sleep(1)  # 添加延时避免过于频繁的重试   
-            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-            time.sleep(2)
-            self.driver.refresh()
+            
         except ValueError as e:
             self.logger.error(f"价格转换错误: {str(e)}")
         except Exception as e:
@@ -2088,7 +2093,9 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )   
                             self.logger.info("\033[34m✅ Third_trade执行BUY UP3成功\033[0m")
-                          
+                            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
+                            time.sleep(2)
+                            self.driver.refresh()
                             break
                         else:
                             self.logger.warning("❌  Buy Up3 交易失败,等待1秒后重试")
@@ -2135,13 +2142,14 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Third_trade执行BUY DOWN3成功\033[0m")
+                            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
+                            time.sleep(2)
+                            self.driver.refresh()
                             break
                         else:
                             self.logger.warning("❌  Buy Down3 交易失败,等待1秒后重试")
                             time.sleep(1)  # 添加延时避免过于频繁的重试   
-            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-            time.sleep(2)
-            self.driver.refresh()
+            
         except ValueError as e:
             self.logger.error(f"价格转换错误: {str(e)}")
         except Exception as e:
@@ -2203,7 +2211,9 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行BUY UP4成功\033[0m")
-                      
+                            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
+                            time.sleep(2)
+                            self.driver.refresh()
                             break
                         else:
                             self.logger.warning("❌  Buy Up4 交易失败,等待2秒后重试")
@@ -2254,14 +2264,14 @@ class CryptoTrader:
                                 portfolio_value=self.portfolio_value
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行BUY DOWN4成功\033[0m")
-                       
+                            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
+                            time.sleep(2)
+                            self.driver.refresh()
                             break
                         else:
                             self.logger.warning("❌  Buy Down4 交易失败,等待1秒后重试")
                             time.sleep(1)  # 添加延时避免过于频繁的重试   
-            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-            time.sleep(2)
-            self.driver.refresh()
+            
         except ValueError as e:
             self.logger.error(f"价格转换错误: {str(e)}")
         except Exception as e:
