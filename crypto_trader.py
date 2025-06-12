@@ -434,7 +434,7 @@ class CryptoTrader:
         self.doubling_weeks_entry.insert(0, str(self.doubling_weeks))
         
         # 监控网站配置
-        url_frame = ttk.LabelFrame(scrollable_frame, text="🌐 Website Monitoring", padding=(8, 5))
+        url_frame = ttk.LabelFrame(scrollable_frame, text="Website Monitoring", padding=(8, 5))
         url_frame.pack(fill="x", padx=8, pady=6)
         
         url_container = ttk.Frame(url_frame)
@@ -455,7 +455,7 @@ class CryptoTrader:
             self.url_entry.set(current_url)
         
         # 控制按钮区域
-        control_frame = ttk.LabelFrame(scrollable_frame, text="🎮 Control Panel", padding=(8, 5))
+        control_frame = ttk.LabelFrame(scrollable_frame, text="Control Panel", padding=(8, 5))
         control_frame.pack(fill="x", padx=8, pady=6)
         
         # 主控制按钮行
@@ -505,7 +505,7 @@ class CryptoTrader:
         self.auto_find_time_combobox.bind('<<ComboboxSelected>>', self.on_auto_find_time_changed)
 
         # 交易信息显示区域
-        trading_info_frame = ttk.LabelFrame(scrollable_frame, text="📊 Trading Information", padding=(8, 5))
+        trading_info_frame = ttk.LabelFrame(scrollable_frame, text="Trading Information", padding=(8, 5))
         trading_info_frame.pack(fill="x", padx=8, pady=6)
 
         # 交易币对显示
@@ -522,9 +522,9 @@ class CryptoTrader:
         
         # 价格信息网格布局
         price_info_items = [
-            ("🌙Midnight:", "binance_zero_price_label", "0"),
-            ("⚡Now:", "binance_now_price_label", "0"),
-            ("📈:", "binance_rate_display", "0%")
+            ("Midnight:", "binance_zero_price_label", "0"),
+            ("Now:", "binance_now_price_label", "0"),
+            ("Rate:", "binance_rate_display", "0%")
         ]
         
         for i, (label_text, attr_name, default_value) in enumerate(price_info_items):
@@ -558,8 +558,8 @@ class CryptoTrader:
         
         # Up/Down 价格和份额显示
         price_items = [
-            ("📈 Up:", "yes_price_label", "Up: waiting..."),
-            ("📉 Down:", "no_price_label", "Down: waiting...")
+            ("Up:", "yes_price_label", "Up: waiting..."),
+            ("Down:", "no_price_label", "Down: waiting...")
         ]
         
         for i, (icon_text, attr_name, default_text) in enumerate(price_items):
@@ -594,8 +594,8 @@ class CryptoTrader:
         
         # Portfolio 和 Cash 显示
         balance_items = [
-            ("📊 Portfolio:", "portfolio_label", "Portfolio: waiting..."),
-            ("💵 Cash:", "cash_label", "Cash: waiting...")
+            ("Portfolio:", "portfolio_label", "Portfolio: waiting..."),
+            ("Cash:", "cash_label", "Cash: waiting...")
         ]
         
         for i, (label_text, attr_name, default_text) in enumerate(balance_items):
@@ -608,7 +608,7 @@ class CryptoTrader:
             setattr(self, attr_name, balance_label)
         
         # Yes/No 交易配置区域
-        trading_config_frame = ttk.LabelFrame(scrollable_frame, text="⚙️ Trading Configuration", padding=(8, 5))
+        trading_config_frame = ttk.LabelFrame(scrollable_frame, text="Trading Configuration", padding=(8, 5))
         trading_config_frame.pack(fill="x", padx=8, pady=6)
         
         # 创建左右分栏
@@ -616,12 +616,12 @@ class CryptoTrader:
         config_container.pack(fill="x", pady=2)
         
         # YES 区域配置
-        self.yes_frame = ttk.LabelFrame(config_container, text="📈 YES Positions", padding=(5, 3))
+        self.yes_frame = ttk.LabelFrame(config_container, text="YES Positions", padding=(5, 3))
         self.yes_frame.grid(row=0, column=0, padx=(0, 4), sticky="nsew")
         config_container.grid_columnconfigure(0, weight=1)
 
         # No 配置区域
-        self.no_frame = ttk.LabelFrame(config_container, text="📉 NO Positions", padding=(5, 3))
+        self.no_frame = ttk.LabelFrame(config_container, text="NO Positions", padding=(5, 3))
         self.no_frame.grid(row=0, column=1, padx=(4, 0), sticky="nsew")
         config_container.grid_columnconfigure(1, weight=1)
         
