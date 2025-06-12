@@ -745,12 +745,12 @@ class CryptoTrader:
         content_height = scrollable_frame.winfo_reqheight()
         
         # 计算并设置窗口的初始大小
-        final_width = 470
+        final_width = 480
         # 高度自适应，但有最小和最大值
         final_height = max(400, min(content_height + 20, 800))
 
         self.root.geometry(f'{final_width}x{final_height}+0+0')
-        self.root.minsize(470, 1050)
+        self.root.minsize(480, 1000)
         
         # 最后一次更新确保布局正确
         self.root.update_idletasks()
