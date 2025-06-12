@@ -603,7 +603,7 @@ class CryptoTrader:
             item_frame.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=10)
             
             balance_label = ttk.Label(item_frame, text=default_text, 
-                                     font=(base_font[0], 14, 'bold'), foreground='#16A34A')
+                                     font=(base_font[0], 14, 'normal'), foreground='#16A34A')
             balance_label.pack()
             setattr(self, attr_name, balance_label)
         
