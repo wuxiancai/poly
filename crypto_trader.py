@@ -1374,7 +1374,7 @@ class CryptoTrader:
                 self.down_shares_label.config(text="Down Shares: N/A")
                 
         except Exception as e:
-            self.logger.error(f"检查价格时发生错误: {str(e)}")
+            
             if "'NoneType' object has no attribute" in str(e):
                 if not self.is_restarting:
                     self.restart_browser()
