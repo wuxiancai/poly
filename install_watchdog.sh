@@ -2,7 +2,7 @@
 
 set -e
 
-# === 配置 ===
+# === 配置 ====
 SCRIPT_NAME="watchdog.py"
 SCRIPT_PATH="$HOME/$SCRIPT_NAME"
 SERVICE_NAME="watchdog"
