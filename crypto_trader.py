@@ -836,6 +836,9 @@ class CryptoTrader:
                     chrome_options.add_argument('--disable-renderer-backgrounding')
                     chrome_options.add_argument('--disable-features=TranslateUI,BlinkGenPropertyTrees,SitePerProcess,IsolateOrigins')
                     chrome_options.add_argument('--noerrdialogs')
+                    chrome_options.add_argument('--disable-infobars')
+                    chrome_options.add_argument('--disable-notifications')
+                    chrome_options.add_argument('--test-type')
 
                 self.driver = webdriver.Chrome(options=chrome_options)
             try:
@@ -1035,6 +1038,10 @@ class CryptoTrader:
                         chrome_options.add_argument('--disable-renderer-backgrounding')
                         chrome_options.add_argument('--disable-features=TranslateUI,BlinkGenPropertyTrees,SitePerProcess,IsolateOrigins')
                         chrome_options.add_argument('--noerrdialogs')
+                        chrome_options.add_argument('--disable-infobars')
+                        chrome_options.add_argument('--disable-notifications')
+                        chrome_options.add_argument('--test-type')
+                        
                     self.driver = webdriver.Chrome(options=chrome_options)
                     
                     # 验证连接
