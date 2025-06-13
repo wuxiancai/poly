@@ -2330,7 +2330,9 @@ class CryptoTrader:
                 # 检查Yes5价格匹配
                 if (10 <=yes5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[32mUp 5: {bids_price_raw}¢\033[0m 价格匹配,执行自动卖出")
-                    
+                    # 卖前刷新一次页面,预防刚买的还没有显示在页面上
+                    self.driver.refresh()
+                    time.sleep(2)
                     self.yes5_target_price = yes5_price
                             
                     while True:
@@ -2420,7 +2422,11 @@ class CryptoTrader:
                 # 检查No5价格匹配,反水卖出同方向
                 if (10 <=no5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 5: {100 - asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
-
+                    # 卖前刷新一次页面,预防刚买的还没有显示在页面上
+                    self.driver.refresh()
+                    time.sleep(2)
+                    self.no5_target_price = no5_price
+                            
                     while True:
                         # 先卖全部 Down
                         self.only_sell_no()
@@ -2723,7 +2729,7 @@ class CryptoTrader:
             tuple: (是否成功, 价格, 金额)
         """
         try:
-            for attempt in range(2):
+            for attempt in range(4):
                 self.logger.info(f"开始第{attempt + 1}次验证尝试（基于时间窗口）")
                 # 最多等待6秒钟,每1秒检查一次交易记录
                 max_wait_time = 6  # 最大等待时间
