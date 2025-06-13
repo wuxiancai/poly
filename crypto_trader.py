@@ -1341,6 +1341,8 @@ class CryptoTrader:
                 return
 
         try:
+            # 验证浏览器连接是否正常
+            self.driver.execute_script("return navigator.userAgent")
             # 获取一次价格和SHARES
             up_price_val, down_price_val, asks_shares_val, bids_shares_val = self.get_nearby_cents()
             
@@ -1372,6 +1374,11 @@ class CryptoTrader:
                 self.down_shares_label.config(text="Down Shares: N/A")
                 
         except Exception as e:
+            self.logger.error(f"检查价格时发生错误: {str(e)}")
+            if "'NoneType' object has no attribute" in str(e):
+                if not self.is_restarting:
+                    self.restart_browser()
+                return
             self.yes_price_label.config(text="Up: Fail")
             self.no_price_label.config(text="Down: Fail")
             self.up_shares_label.config(text="Up Shares: Fail")
@@ -1382,11 +1389,20 @@ class CryptoTrader:
         """获取Portfolio和Cash值"""
         if not self.driver and not self.is_restarting:
             self.restart_browser(force_restart=True)
+            return
 
-        # 等待页面完全加载
-        WebDriverWait(self.driver, 10).until(
-            lambda driver: driver.execute_script('return document.readyState') == 'complete'
-        )
+        try:
+            # 验证浏览器连接是否正常
+            self.driver.execute_script("return navigator.userAgent")
+            # 等待页面完全加载
+            WebDriverWait(self.driver, 10).until(
+                lambda driver: driver.execute_script('return document.readyState') == 'complete'
+            )
+        except Exception as e:
+            self.logger.error(f"浏览器连接异常: {str(e)}")
+            if not self.is_restarting:
+                self.restart_browser()
+            return
         
         try:
             # 取Portfolio值和Cash值
@@ -1561,6 +1577,8 @@ class CryptoTrader:
             def check_url():
                 if self.running and self.driver:
                     try:
+                        # 验证浏览器连接是否正常
+                        self.driver.execute_script("return navigator.userAgent")
                         current_page_url = self.driver.current_url # 获取当前页面URL
                         target_url = self.url_entry.get().strip() # 获取输入框中的URL,这是最原始的URL
 
@@ -1757,8 +1775,16 @@ class CryptoTrader:
                         self.logger.error(f"取消旧定时器失败: {str(e)}")
 
                 if self.running and self.driver and not self.trading:
-                    refresh_time = self.refresh_interval / 60000
-                    self.driver.refresh()
+                    try:
+                        # 验证浏览器连接是否正常
+                        self.driver.execute_script("return navigator.userAgent")
+                        refresh_time = self.refresh_interval / 60000
+                        self.driver.refresh()
+                    except Exception as e:
+                        self.logger.warning(f"浏览器连接异常，无法刷新页面: {str(e)}")
+                        # 尝试重启浏览器
+                        if not self.is_restarting:
+                            self.restart_browser()
                 else:
                     self.logger.info("刷新失败(else)")
                     self.logger.info(f"trading={self.trading}")
@@ -3467,6 +3493,8 @@ class CryptoTrader:
             return
             
         try:
+            # 验证浏览器连接是否正常
+            self.driver.execute_script("return navigator.userAgent")
             # 获取 XPathConfig 中的所有属性
             xpath_config = XPathConfig()
             # 定义要排除的 XPath 属性
@@ -3495,6 +3523,12 @@ class CryptoTrader:
                     except (TimeoutException, NoSuchElementException):
                         self.logger.warning(f"❌ {attr} 定位失败: {first_xpath}")
                         failed_xpaths.append((attr, first_xpath))
+                    except Exception as e:
+                        self.logger.error(f"监控失败: {str(e)}")
+                        if "'NoneType' object has no attribute" in str(e):
+                            if not self.is_restarting:
+                                self.restart_browser()
+                            return
             
             # 如果有失败的 XPath，发送邮件
             if failed_xpaths:
@@ -3521,6 +3555,9 @@ class CryptoTrader:
             
         except Exception as e:
             self.logger.error(f"❌  监控 XPath 元素时发生错误: {str(e)}")
+            if "'NoneType' object has no attribute" in str(e):
+                if not self.is_restarting:
+                    self.restart_browser()
         finally:
             # 每隔 1 小时检查一次,先关闭之前的定时器
             if self.monitor_xpath_timer:
@@ -3566,6 +3603,22 @@ class CryptoTrader:
         """自动找币"""
         self.logger.info("✅ 开始自动找币")
         try:
+            # 检查浏览器状态，如果为None则尝试重启
+            if self.driver is None:
+                self.logger.warning("浏览器未初始化，尝试重启...")
+                if not self.restart_browser(force_restart=True):
+                    self.logger.error("浏览器重启失败，无法执行自动找币")
+                    return
+            
+            # 验证浏览器连接是否正常
+            try:
+                self.driver.execute_script("return navigator.userAgent")
+            except Exception as e:
+                self.logger.warning(f"浏览器连接异常: {e}，尝试重启...")
+                if not self.restart_browser(force_restart=True):
+                    self.logger.error("浏览器重启失败，无法执行自动找币")
+                    return
+            
             self.stop_url_monitoring()
             self.stop_refresh_page()
             # 保存原始窗口句柄，确保在整个过程中有一个稳定的引用
@@ -3604,13 +3657,27 @@ class CryptoTrader:
             
         except Exception as e:
             self.logger.error(f"自动找币异常: {str(e)}")
-            self.find_54_coin(coin_type)
+            # 避免无限递归，使用延迟重试而不是直接递归调用
+            self.logger.info("5秒后将重试自动找币...")
+            self.root.after(5000, lambda: self.find_54_coin(coin_type))
 
     def find_new_weekly_url(self, coin):
         """在Polymarket市场搜索指定币种的周合约地址,只返回URL"""
         try:
             if self.trading:
                 return
+
+            # 检查浏览器状态
+            if self.driver is None:
+                self.logger.error("浏览器未初始化，无法执行搜索")
+                return None
+            
+            # 验证浏览器连接是否正常
+            try:
+                self.driver.execute_script("return navigator.userAgent")
+            except Exception as e:
+                self.logger.error(f"浏览器连接异常: {e}，无法执行搜索")
+                return None
 
             # 保存当前窗口句柄作为局部变量，用于本方法内部使用
             original_tab = self.driver.current_window_handle
@@ -3740,6 +3807,18 @@ class CryptoTrader:
     def click_today_card(self):
         """使用Command/Ctrl+Click点击包含今天日期的卡片,打开新标签页"""
         try:
+            # 检查浏览器状态
+            if self.driver is None:
+                self.logger.error("浏览器未初始化，无法点击卡片")
+                return False
+            
+            # 验证浏览器连接是否正常
+            try:
+                self.driver.execute_script("return navigator.userAgent")
+            except Exception as e:
+                self.logger.error(f"浏览器连接异常: {e}，无法点击卡片")
+                return False
+            
             # 获取当前日期字符串，比如 "April 18"
             if platform.system() == 'Darwin':  # macOS
                 today_str = datetime.now().strftime("%B %-d")  # macOS格式
@@ -3777,7 +3856,7 @@ class CryptoTrader:
 
         except Exception as e:
             self.logger.error(f"查找并点击今天日期卡片失败: {str(e)}")
-            self.click_today_card()
+            return False
 
     def get_zero_time_cash(self):
         """获取币安BTC实时价格,并在中国时区00:00触发"""
