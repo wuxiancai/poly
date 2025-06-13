@@ -1767,7 +1767,7 @@ class CryptoTrader:
     def refresh_page(self):
         """定时刷新页面"""
         # 生成随机的5-10分钟（以毫秒为单位）
-        random_minutes = random.uniform(2, 6)
+        random_minutes = random.uniform(8, 20)
         self.refresh_interval = int(random_minutes * 60000)  # 转换为毫秒
 
         with self.refresh_page_lock:
