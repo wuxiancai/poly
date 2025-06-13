@@ -147,6 +147,9 @@ if [ -x "$SCRIPT_DIR/google-chrome" ]; then
         --disable-renderer-backgrounding \
         --disable-features=TranslateUI,BlinkGenPropertyTrees,SitePerProcess,IsolateOrigins \
         --noerrdialogs \
+        --disable-infobars \
+        --disable-notifications \
+        --test-type \
         --user-data-dir="$HOME/ChromeDebug" \
         about:blank
 else
