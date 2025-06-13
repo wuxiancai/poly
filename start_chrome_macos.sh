@@ -119,6 +119,9 @@ echo -e "${GREEN}启动 Chrome 中...${NC}"
     --disable-translate \
     --no-first-run \
     --disable-extensions \
+    --disable-infobars \
+    --disable-notifications \
+    --test-type \
     --user-data-dir="$HOME/ChromeDebug" \
     https://polymarket.com/markets/crypto
 
