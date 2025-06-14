@@ -2721,7 +2721,7 @@ class CryptoTrader:
             tuple: (是否成功, 价格, 金额)
         """
         try:
-            for attempt in range(4):
+            for attempt in range(3):
                 self.logger.info(f"开始第{attempt + 1}次验证尝试（基于时间窗口）")
                 # 最多等待6秒钟,每1秒检查一次交易记录
                 max_wait_time = 6  # 最大等待时间
@@ -2730,7 +2730,7 @@ class CryptoTrader:
                 
                 while time.time() < end_time:
                     # 等待历史记录元素出现
-                    history_element = self._wait_for_element(XPathConfig.HISTORY, timeout=2)
+                    history_element = self._wait_for_element(XPathConfig.HISTORY, timeout=3, silent=True)
                     
                     if history_element:
                         # 获取历史记录文本
@@ -2738,12 +2738,11 @@ class CryptoTrader:
                         self.logger.info(f"找到交易记录: \033[34m{history_text}\033[0m")
                         
                         # 构建更灵活的匹配模式: "Bought xxx Down at" 或 "Sold xxx Down at"
-                        # 修复正则匹配问题：匹配完整格式如"Bought 81 Down at 52¢ ($42.20)"
-                        pattern = rf"{action_type}\s+\d+\s+{direction}\s+at\s+\d+¢\s+\(\$\d+\.\d+\)"
+                        # 简化正则匹配：只需要匹配关键词bought和down即可
+                        pattern = rf"{action_type}.*?{direction}"
                         
                         # 检查是否包含预期的交易记录
                         self.logger.info(f"正在匹配模式: {pattern} 在文本: {history_text}")
-
                         if re.search(pattern, history_text, re.IGNORECASE):
                             # 提取价格和金额 - 优化正则表达式
                             price_match = re.search(r'at\s+(\d+\.?\d*)¢', history_text)
