@@ -23,9 +23,14 @@ EMAIL_TO = "huacaihuijin@126.com"
 
 CPU_LOW = 30
 CPU_HIGH = 95
-MEM_LOW_MB = 850
+MEM_LOW_MB = 920
+MEM_HIGH_MB = 1700
+# 获取当前主机名
+HOSTNAME = socket.gethostname()
 
 def send_email(subject, body):
+    full_subject = f"[{HOSTNAME}] {subject}"
+    full_body = f"主机名: {HOSTNAME}\n\n{body}"
     try:
         msg = MIMEText(body)
         msg['Subject'] = subject
@@ -49,6 +54,8 @@ def check_and_alert():
 
     if mem_used_mb < MEM_LOW_MB:
         send_email("⚠️ 内存使用过低", f"当前内存使用：{mem_used_mb:.1f}MB")
+    elif mem_used_mb > MEM_HIGH_MB:
+        send_email("⚠️ 内存使用过高", f"当前内存使用：{mem_used_mb:.1f}MB")
 
 if __name__ == "__main__":
     check_and_alert()
