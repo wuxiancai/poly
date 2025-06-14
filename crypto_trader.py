@@ -2353,9 +2353,9 @@ class CryptoTrader:
                         self.sell_count = 0
                         self.trade_count = 0
 
-                        # 重置YES2 价格为默认值
+                        # 重置YES2 价格为默认值+1
                         self.yes2_price_entry.delete(0, tk.END)
-                        self.yes2_price_entry.insert(0, str(self.default_target_price))
+                        self.yes2_price_entry.insert(0, str(self.default_target_price+1))
                         self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
                         break
                     
@@ -2446,9 +2446,9 @@ class CryptoTrader:
                         self.sell_count = 0
                         self.trade_count = 0
 
-                        # 重置NO2 价格为默认值
+                        # 重置NO2 价格为默认值+1
                         self.no2_price_entry.delete(0, tk.END)
-                        self.no2_price_entry.insert(0, str(self.default_target_price))
+                        self.no2_price_entry.insert(0, str(self.default_target_price+1))
                         self.no2_price_entry.configure(foreground='red')  # 添加红色设置
 
                         break
