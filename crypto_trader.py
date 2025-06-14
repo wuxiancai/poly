@@ -2743,11 +2743,15 @@ class CryptoTrader:
                         
                         # 检查是否包含预期的交易记录
                         self.logger.info(f"正在匹配模式: {pattern} 在文本: {history_text}")
+
                         if re.search(pattern, history_text, re.IGNORECASE):
                             # 提取价格和金额 - 优化正则表达式
                             price_match = re.search(r'at\s+(\d+\.?\d*)¢', history_text)
+                            self.logger.info(f"price_match: {price_match}")
                             amount_match = re.search(r'\(\$(\d+\.\d+)\)', history_text)
+                            self.logger.info(f"amount_match: {amount_match}")
                             shares_match = re.search(rf'{action_type}\s+(\d+)\s+{direction}', history_text)
+                            self.logger.info(f"shares_match: {shares_match}")
                             self.price = float(price_match.group(1)) if price_match else 0
                             self.amount = float(amount_match.group(1)) if amount_match else 0
                             self.shares = int(shares_match.group(1)) if shares_match else 0
