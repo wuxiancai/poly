@@ -2729,7 +2729,7 @@ class CryptoTrader:
                 end_time = time.time() + max_wait_time
                 
                 while time.time() < end_time:
-                    # 等待历史记录元素出现
+                    # 等待历史记录元素出现                  
                     history_element = self._wait_for_element(XPathConfig.HISTORY, timeout=3)
                     
                     if history_element:
