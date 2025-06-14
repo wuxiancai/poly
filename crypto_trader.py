@@ -1884,8 +1884,7 @@ class CryptoTrader:
                             )
                             self.logger.info("\033[34m✅ First_trade执行BUY UP1成功\033[0m")
                             # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-                            time.sleep(2)
-                            self.driver.refresh()
+                            self.root.after(30000, lambda: self.driver.refresh())
                             break
                         else:
                             self.logger.warning("❌  Buy Up1 交易失败,等待1秒后重试")
@@ -1946,8 +1945,7 @@ class CryptoTrader:
 
                             self.logger.info("\033[34m✅ First_trade执行BUY DOWN1成功\033[0m")
                             # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-                            time.sleep(2)
-                            self.driver.refresh()
+                            self.root.after(30000, lambda: self.driver.refresh())
                             break
                         else:
                             self.logger.warning("❌  Buy Down1 交易失败,等待1秒后重试")
@@ -2012,8 +2010,7 @@ class CryptoTrader:
                             )
                             self.logger.info("\033[34m✅ Second_trade执行BUY UP2成功\033[0m")
                             # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-                            time.sleep(2)
-                            self.driver.refresh()
+                            self.root.after(30000, lambda: self.driver.refresh())
                             break
                         else:
                             self.logger.warning("❌  Buy Up2 交易失败,等待1秒后重试")
@@ -2062,8 +2059,7 @@ class CryptoTrader:
                             )
                             self.logger.info("\033[34m✅ Second_trade执行BUY DOWN2成功\033[0m")
                             # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-                            time.sleep(2)
-                            self.driver.refresh()
+                            self.root.after(30000, lambda: self.driver.refresh())
                             break
                         else:
                             self.logger.warning("❌  Buy Down2 交易失败,等待1秒后重试")
@@ -2129,8 +2125,7 @@ class CryptoTrader:
                             )   
                             self.logger.info("\033[34m✅ Third_trade执行BUY UP3成功\033[0m")
                             # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-                            time.sleep(2)
-                            self.driver.refresh()
+                            self.root.after(30000, lambda: self.driver.refresh())
                             break
                         else:
                             self.logger.warning("❌  Buy Up3 交易失败,等待1秒后重试")
@@ -2178,8 +2173,7 @@ class CryptoTrader:
                             )
                             self.logger.info("\033[34m✅ Third_trade执行BUY DOWN3成功\033[0m")
                             # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-                            time.sleep(2)
-                            self.driver.refresh()
+                            self.root.after(30000, lambda: self.driver.refresh())
                             break
                         else:
                             self.logger.warning("❌  Buy Down3 交易失败,等待1秒后重试")
@@ -2247,8 +2241,7 @@ class CryptoTrader:
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行BUY UP4成功\033[0m")
                             # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-                            time.sleep(2)
-                            self.driver.refresh()
+                            self.root.after(30000, lambda: self.driver.refresh())
                             break
                         else:
                             self.logger.warning("❌  Buy Up4 交易失败,等待2秒后重试")
@@ -2300,8 +2293,7 @@ class CryptoTrader:
                             )
                             self.logger.info("\033[34m✅ Forth_trade执行BUY DOWN4成功\033[0m")
                             # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-                            time.sleep(2)
-                            self.driver.refresh()
+                            self.root.after(30000, lambda: self.driver.refresh())
                             break
                         else:
                             self.logger.warning("❌  Buy Down4 交易失败,等待1秒后重试")
