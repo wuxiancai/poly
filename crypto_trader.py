@@ -2738,14 +2738,16 @@ class CryptoTrader:
                         self.logger.info(f"找到交易记录: \033[34m{history_text}\033[0m")
                         
                         # 构建更灵活的匹配模式: "Bought xxx Down at" 或 "Sold xxx Down at"
-                        pattern = rf"{action_type}.*?{direction}"
+                        # 修复正则匹配问题：匹配完整格式如"Bought 81 Down at 52¢ ($42.20)"
+                        pattern = rf"{action_type}\s+\d+\s+{direction}\s+at\s+\d+¢\s+\(\$\d+\.\d+\)"
                         
                         # 检查是否包含预期的交易记录
+                        self.logger.info(f"正在匹配模式: {pattern} 在文本: {history_text}")
                         if re.search(pattern, history_text, re.IGNORECASE):
-                            # 提取价格和金额
-                            price_match = re.search(r'at (\d+\.?\d*)¢', history_text)
-                            amount_match = re.search(r'\$(\d+\.?\d*)', history_text)
-                            shares_match = re.search(r'(\d+)', history_text)
+                            # 提取价格和金额 - 优化正则表达式
+                            price_match = re.search(r'at\s+(\d+\.?\d*)¢', history_text)
+                            amount_match = re.search(r'\(\$(\d+\.\d+)\)', history_text)
+                            shares_match = re.search(rf'{action_type}\s+(\d+)\s+{direction}', history_text)
                             self.price = float(price_match.group(1)) if price_match else 0
                             self.amount = float(amount_match.group(1)) if amount_match else 0
                             self.shares = int(shares_match.group(1)) if shares_match else 0
