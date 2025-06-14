@@ -2619,7 +2619,7 @@ class CryptoTrader:
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value
             )
-            self.logger.info(f"卖出 Up 3 SHARES: {yes3_shares} 成功")
+            self.logger.info(f"✅ 卖出 \033[32mUp 3 SHARES: {yes3_shares} 成功\033[0m")
             self.driver.refresh()    
         except Exception as e:
             self.logger.info(f"❌ only_sell_yes3执行失败,重试")
@@ -2665,7 +2665,7 @@ class CryptoTrader:
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value
             )
-            self.logger.info(f"卖出 Down 3 SHARES: {no3_shares} 成功")
+            self.logger.info(f"✅ 卖出 \033[32mDown 3 SHARES: {no3_shares} 成功\033[0m")
             self.driver.refresh()
         except Exception as e:
             self.logger.info(f"❌ only_sell_no3执行失败,重试")
@@ -2747,11 +2747,11 @@ class CryptoTrader:
                         if re.search(pattern, history_text, re.IGNORECASE):
                             # 提取价格和金额 - 优化正则表达式
                             price_match = re.search(r'at\s+(\d+\.?\d*)¢', history_text)
-                            self.logger.info(f"price_match: {price_match}")
+                            
                             amount_match = re.search(r'\(\$(\d+\.\d+)\)', history_text)
-                            self.logger.info(f"amount_match: {amount_match}")
+                            
                             shares_match = re.search(rf'{action_type}\s+(\d+)\s+{direction}', history_text)
-                            self.logger.info(f"shares_match: {shares_match}")
+                            
                             self.price = float(price_match.group(1)) if price_match else 0
                             self.amount = float(amount_match.group(1)) if amount_match else 0
                             self.shares = int(shares_match.group(1)) if shares_match else 0
