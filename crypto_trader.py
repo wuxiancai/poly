@@ -2267,7 +2267,7 @@ class CryptoTrader:
                         time.sleep(0.5)
                         # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
                         self.buy_yes_button.invoke()
-                        
+
                         time.sleep(2)
                         if self.Verify_buy_no():
                             
@@ -2538,12 +2538,15 @@ class CryptoTrader:
     def only_sell_yes(self):
         """只卖出YES"""
         self.logger.info("\033[32m执行only_sell_yes\033[0m")
-
         self.position_sell_yes_button.invoke()
         time.sleep(0.5)
         self.sell_confirm_button.invoke()
         time.sleep(0.5)
-        
+        # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
+        self.buy_yes_button.invoke()
+        time.sleep(0.5)
+        self.buy_button.invoke()
+
         time.sleep(2)
         if self._verify_trade('Sold', 'Up')[0]:
              # 增加卖出计数
@@ -2571,6 +2574,10 @@ class CryptoTrader:
         self.position_sell_no_button.invoke()
         time.sleep(0.5)
         self.sell_confirm_button.invoke()
+        # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
+        self.buy_yes_button.invoke()
+        time.sleep(0.5)
+        self.buy_button.invoke()
 
         time.sleep(2)
         if self._verify_trade('Sold', 'Down')[0]:
@@ -2614,6 +2621,10 @@ class CryptoTrader:
             shares_input.send_keys(str(yes3_shares))
             time.sleep(0.5)
             self.sell_confirm_button.invoke()
+            # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
+            self.buy_yes_button.invoke()
+            time.sleep(0.5)
+            self.buy_button.invoke()
 
             time.sleep(2)
             # 验证是否卖出成功
@@ -2660,7 +2671,11 @@ class CryptoTrader:
             shares_input.send_keys(str(no3_shares))
             time.sleep(0.5)
             self.sell_confirm_button.invoke()
-
+            # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
+            self.buy_yes_button.invoke()
+            time.sleep(0.5)
+            self.buy_button.invoke()
+            
             time.sleep(2)
             if self._verify_trade('Sold', 'Down')[0]:
                 self.logger.info(f"卖 Down 3 SHARES 成功")
