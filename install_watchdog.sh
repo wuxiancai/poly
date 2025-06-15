@@ -46,6 +46,8 @@ def send_email(subject, body):
 def check_and_alert():
     cpu_percent = psutil.cpu_percent(interval=1)
     mem_used_mb = (psutil.virtual_memory().total - psutil.virtual_memory().available) / 1024 / 1024
+    disk_usage = psutil.disk_usage('/')
+    disk_free_gb = disk_usage.free / 1024 / 1024 / 1024
 
     if cpu_percent > CPU_HIGH:
         send_email("⚠️ CPU 过载", f"CPU 使用率过高：{cpu_percent:.1f}%")
@@ -57,6 +59,9 @@ def check_and_alert():
     elif mem_used_mb > MEM_HIGH_MB:
         send_email("⚠️ 内存使用过高", f"当前内存使用：{mem_used_mb:.1f}MB")
 
+    if disk_free_gb < 1:
+        send_email("⚠️ 磁盘空间不足", f"可用磁盘空间仅 {disk_free_gb:.2f} GB")
+        
 if __name__ == "__main__":
     check_and_alert()
 EOF
