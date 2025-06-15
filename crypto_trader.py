@@ -1367,13 +1367,14 @@ class CryptoTrader:
                 self.up_shares_label.config(text=f"Up Shares: {asks_shares_val:.1f}")
                 self.down_shares_label.config(text=f"Down Shares: {bids_shares_val:.1f}")
                 
-                # 执行所有交易检查函数
-                self.First_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
-                self.Second_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
-                self.Third_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
-                self.Forth_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
-                self.Sell_yes(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
-                self.Sell_no(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                # 执行所有交易检查函数（仅在没有交易进行时）
+                if not self.trading:
+                    self.First_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.Second_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.Third_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.Forth_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.Sell_yes(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.Sell_no(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
             else:
                 self.yes_price_label.config(text="Up: N/A")
                 self.no_price_label.config(text="Down: N/A")
@@ -3102,7 +3103,7 @@ class CryptoTrader:
                 content = f"""
                 交易价格: {price:.2f}¢
                 交易金额: ${amount:.2f}
-                交易数量: {shares}
+                SHARES: {shares}
                 当前买入次数: {self.trade_count}
                 当前卖出次数: {self.sell_count}
                 当前 CASH 值: {str_cash_value}
