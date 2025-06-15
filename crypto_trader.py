@@ -1789,7 +1789,7 @@ class CryptoTrader:
                         refresh_time = self.refresh_interval / 60000
                         self.driver.refresh()
                     except Exception as e:
-                        self.logger.warning(f"浏览器连接异常，无法刷新页面: {str(e)}")
+                        self.logger.warning(f"浏览器连接异常，无法刷新页面")
                         # 尝试重启浏览器
                         if not self.is_restarting:
                             self.restart_browser()
@@ -2336,6 +2336,7 @@ class CryptoTrader:
                 if (10 <=yes5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[32mUp 5: {bids_price_raw}¢\033[0m 价格匹配,执行自动卖出")
                     # 卖前刷新一次页面,预防刚买的还没有显示在页面上
+                    time.sleep(2)
                     self.driver.refresh()
                     time.sleep(2)
                     self.yes5_target_price = yes5_price
@@ -2344,10 +2345,6 @@ class CryptoTrader:
                         # 先卖 Down
                         self.only_sell_yes()
                         self.logger.info(f"卖完 Up 后，再卖 Down 3 SHARES")
-
-                        # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚卖出的
-                        time.sleep(2)
-                        self.driver.refresh()
 
                         self.only_sell_no3()
 
@@ -2380,9 +2377,6 @@ class CryptoTrader:
                     while True:
                         # 执行卖出YES操作
                         self.only_sell_yes()
-                        
-                        time.sleep(2)
-                        self.driver.refresh()
 
                         self.logger.info("卖完 Up 后，再卖 Down")
                         # 卖 Down 之前先检查是否有 Down 标签
@@ -2428,6 +2422,7 @@ class CryptoTrader:
                 if (10 <=no5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 5: {100 - asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
                     # 卖前刷新一次页面,预防刚买的还没有显示在页面上
+                    time.sleep(2)
                     self.driver.refresh()
                     time.sleep(2)
                     self.no5_target_price = no5_price
@@ -2436,10 +2431,6 @@ class CryptoTrader:
                         # 先卖全部 Down
                         self.only_sell_no()
                         self.logger.info(f"卖完 Down 后，再卖 Up3 SHARES")
-                        
-                        # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚卖出的
-                        time.sleep(2)
-                        self.driver.refresh()
                         
                         self.only_sell_yes3()
 
@@ -2475,9 +2466,6 @@ class CryptoTrader:
                         # 卖完 Down 后，自动再卖 Up                      
                         self.only_sell_no()
                         self.logger.info("卖完 Down 后，再卖 Up")
-
-                        time.sleep(1)
-                        self.driver.refresh()
 
                         if self.find_position_label_yes():
                             self.only_sell_yes()
@@ -2542,12 +2530,12 @@ class CryptoTrader:
         time.sleep(0.5)
         self.sell_confirm_button.invoke()
         time.sleep(0.5)
+
         # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
         self.buy_yes_button.invoke()
         time.sleep(0.5)
         self.buy_button.invoke()
 
-        time.sleep(2)
         if self._verify_trade('Sold', 'Up')[0]:
              # 增加卖出计数
             self.sell_count += 1
@@ -2574,12 +2562,12 @@ class CryptoTrader:
         self.position_sell_no_button.invoke()
         time.sleep(0.5)
         self.sell_confirm_button.invoke()
+        time.sleep(0.5)
         # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
         self.buy_yes_button.invoke()
         time.sleep(0.5)
         self.buy_button.invoke()
 
-        time.sleep(2)
         if self._verify_trade('Sold', 'Down')[0]:
             # 增加卖出计数
             self.sell_count += 1
@@ -2621,12 +2609,13 @@ class CryptoTrader:
             shares_input.send_keys(str(yes3_shares))
             time.sleep(0.5)
             self.sell_confirm_button.invoke()
+            time.sleep(0.5)
+
             # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
             self.buy_yes_button.invoke()
             time.sleep(0.5)
             self.buy_button.invoke()
 
-            time.sleep(2)
             # 验证是否卖出成功
             if self._verify_trade('Sold', 'Up')[0]:
                 self.logger.info(f"卖 Up 3 SHARES 成功")
@@ -2644,7 +2633,7 @@ class CryptoTrader:
                 portfolio_value=self.portfolio_value
             )
             self.logger.info(f"✅ 卖出 \033[32mUp 3 SHARES: {yes3_shares} 成功\033[0m")
-            self.driver.refresh()    
+   
         except Exception as e:
             self.logger.info(f"❌ only_sell_yes3执行失败,重试")
             time.sleep(1)
@@ -2671,12 +2660,13 @@ class CryptoTrader:
             shares_input.send_keys(str(no3_shares))
             time.sleep(0.5)
             self.sell_confirm_button.invoke()
+            time.sleep(0.5)
+
             # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
             self.buy_yes_button.invoke()
             time.sleep(0.5)
             self.buy_button.invoke()
             
-            time.sleep(2)
             if self._verify_trade('Sold', 'Down')[0]:
                 self.logger.info(f"卖 Down 3 SHARES 成功")
 
@@ -2694,7 +2684,7 @@ class CryptoTrader:
                 portfolio_value=self.portfolio_value
             )
             self.logger.info(f"✅ 卖出 \033[32mDown 3 SHARES: {no3_shares} 成功\033[0m")
-            self.driver.refresh()
+
         except Exception as e:
             self.logger.info(f"❌ only_sell_no3执行失败,重试")
             time.sleep(1)
@@ -3249,18 +3239,18 @@ class CryptoTrader:
                     position_label_up = None
                     position_label_up = self.driver.find_element(By.XPATH, XPathConfig.POSITION_UP_LABEL[0])
                     if position_label_up is not None and position_label_up:
-                        self.logger.info(f"找到了Up持仓标签: {position_label_up.text}")
+                        self.logger.info("✅ find-element,找到了Up持仓标签: {position_label_up.text}")
                         return True
                     else:
-                        self.logger.info("USE FIND-element,未找到Up持仓标签")
+                        self.logger.info("❌ find_element,未找到Up持仓标签")
                         return False
                 except NoSuchElementException:
                     position_label_up = self._find_element_with_retry(XPathConfig.POSITION_UP_LABEL, timeout=3, silent=True)
                     if position_label_up is not None and position_label_up:
-                        self.logger.info(f"找到了Up持仓标签: {position_label_up.text}")
+                        self.logger.info(f"✅ with-retry,找到了Up持仓标签: {position_label_up.text}")
                         return True
                     else:
-                        #self.logger.info("use with-retry,未找到Up持仓标签")
+                        self.logger.info("❌ use with-retry,未找到Up持仓标签")
                         return False
                          
             except TimeoutException:
@@ -3292,18 +3282,18 @@ class CryptoTrader:
                     position_label_down = None
                     position_label_down = self.driver.find_element(By.XPATH, XPathConfig.POSITION_DOWN_LABEL[0])
                     if position_label_down is not None and position_label_down:
-                        self.logger.info(f"use find-element,找到了Down持仓标签: {position_label_down.text}")
+                        self.logger.info(f"✅ find-element,找到了Down持仓标签: {position_label_down.text}")
                         return True
                     else:
-                        self.logger.info("use find-element,未找到Down持仓标签")
+                        self.logger.info("❌ find-element,未找到Down持仓标签")
                         return False
                 except NoSuchElementException:
                     position_label_down = self._find_element_with_retry(XPathConfig.POSITION_DOWN_LABEL, timeout=3, silent=True)
                     if position_label_down is not None and position_label_down:
-                        self.logger.info(f"use with-retry,找到了Down持仓标签: {position_label_down.text}")
+                        self.logger.info(f"✅ with-retry,找到了Down持仓标签: {position_label_down.text}")
                         return True
                     else:
-                        #self.logger.info("use with-retry,未找到Down持仓标签")
+                        self.logger.info("❌ with-retry,未找到Down持仓标签")
                         return False
                                
             except TimeoutException:
