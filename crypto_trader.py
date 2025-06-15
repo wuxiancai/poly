@@ -1415,9 +1415,9 @@ class CryptoTrader:
             # 取Portfolio值和Cash值
             self.cash_value = None
             self.portfolio_value = None
-            # 使用缓存机制获取Portfolio和Cash值
-            portfolio_element = self.find_element_cached('PORTFOLIO_VALUE', timeout=3, silent=True)
-            cash_element = self.find_element_cached('CASH_VALUE', timeout=3, silent=True)
+            # 不使用缓存机制获取Portfolio和Cash值
+        portfolio_element = self._wait_for_element(XPathConfig.PORTFOLIO_VALUE, timeout=3)
+        cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=3)
             
             if portfolio_element and cash_element:
                 self.cash_value = cash_element.text
@@ -1666,17 +1666,17 @@ class CryptoTrader:
                     self.logger.info("✅ 已点击Google登录按钮")
                     
                     # 不再固定等待15秒，而是循环检测CASH值
-                    max_attempts = 15  # 最多检测15次
+                    max_attempts = 10  # 最多检测15次
                     check_interval = 2  # 每2秒检测一次
                     cash_value = None
                     
                     for attempt in range(max_attempts):
                         try:
-                            # 使用缓存机制尝试获取CASH值
-                            cash_element = self.find_element_cached('CASH_VALUE', timeout=1, silent=True)
+                            # 不使用缓存机制尝试获取CASH值
+                            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=1)
                             if cash_element:
                                 cash_value = cash_element.text
-                                self.logger.info(f"✅ 第{attempt+1}次尝试: 已获取CASH值: {cash_value}")
+                                
                                 break
                         except NoSuchElementException:
                             self.logger.info(f"⏳ 第{attempt+1}次尝试: 等待登录完成...")
@@ -2722,13 +2722,14 @@ class CryptoTrader:
         """
         try:
             for attempt in range(3):
-                self.logger.info(f"开始第{attempt + 1}次验证尝试（基于时间窗口）")
-                # 最多等待6秒钟,每1秒检查一次交易记录
-                max_wait_time = 6  # 最大等待时间
+                self.logger.info(f"开始第{attempt + 1}次验证尝试（基于次数重试）")
+                # 重试6次,每次等待1秒检查交易记录
+                max_retries = 6  # 最大重试次数
                 wait_interval = 1  # 检查间隔
-                end_time = time.time() + max_wait_time
                 
-                while time.time() < end_time:
+                for retry in range(max_retries):
+                    self.logger.info(f"第{retry + 1}次检查交易记录（共{max_retries}次）")
+                    
                     # 等待历史记录元素出现                  
                     history_element = self._wait_for_element(XPathConfig.HISTORY, timeout=3)
                     
@@ -2742,7 +2743,7 @@ class CryptoTrader:
                         direction_found = re.search(rf"\b{direction}\b", history_text, re.IGNORECASE)
                         
                         # 检查是否同时包含action_type和direction
-                        self.logger.info(f"查找 {action_type}: {'找到' if action_found else '未找到'}, 查找 {direction}: {'找到' if direction_found else '未找到'} 在文本: {history_text}")
+                        self.logger.info(f"{'找到' if action_found else '未找到'} + {'找到' if direction_found else '未找到'}")
                         if action_found and direction_found:
                             # 提取价格和金额 - 优化正则表达式
                             price_match = re.search(r'at\s+(\d+\.?\d*)¢', history_text)
@@ -2755,9 +2756,19 @@ class CryptoTrader:
                             
                             self.logger.info(f"✅ 交易验证成功: \033[32m{action_type} {direction} 价格: {self.price} 金额: {self.amount} Shares: {self.shares}\033[0m")
                             return True, self.price, self.amount, self.shares
+                    
+                    # 如果不是最后一次重试，等待1秒后继续
+                    if retry < max_retries - 1:
+                        self.logger.info(f"交易记录未出现或不匹配,等待{wait_interval}秒后重试...")
+                        time.sleep(wait_interval)
+                    
+                # 6次重试结束，刷新页面
+                self.logger.info(f"第{attempt + 1}次尝试的6次重试结束,刷新页面")
+                self.driver.refresh()
+                time.sleep(2)  # 刷新后等待页面加载
             
             # 超时未找到匹配的交易记录
-            self.logger.warning(f"❌ 交易验证失败: 未找到 {action_type} {direction} (已尝试2轮,每轮{max_wait_time}秒时间窗口)")
+            self.logger.warning(f"❌ 交易验证失败: 未找到 {action_type} {direction} (已尝试3轮,每轮6次重试)")
             return False, 0, 0
                 
         except Exception as e:
@@ -2996,14 +3007,11 @@ class CryptoTrader:
     """以下代码是交易过程中的功能性函数,买卖及确认买卖成功,从第 2529 行到第 2703 行"""
     def position_yes_cash(self):
         """获取当前持仓YES的金额"""
-        try:
-            yes_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
-        except NoSuchElementException:
-            yes_element = self._find_element_with_retry(
-                XPathConfig.HISTORY,
-                timeout=3,
-                silent=True
-            )
+        yes_element = self._wait_for_element(
+            XPathConfig.HISTORY,
+            timeout=3,
+            silent=True
+        )
         text = yes_element.text
         amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
         yes_value = float(amount_match.group(1))
@@ -3012,14 +3020,11 @@ class CryptoTrader:
     
     def position_no_cash(self):
         """获取当前持仓NO的金额"""
-        try:
-            no_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
-        except NoSuchElementException:
-            no_element = self._find_element_with_retry(
-                XPathConfig.HISTORY,
-                timeout=3,
-                silent=True
-            )
+        no_element = self._wait_for_element(
+            XPathConfig.HISTORY,
+            timeout=3,
+            silent=True
+        )
         text = no_element.text
         amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
         no_value = float(amount_match.group(1))
@@ -3498,7 +3503,7 @@ class CryptoTrader:
             excluded_attrs = ['ACCEPT_BUTTON', 'LOGIN_BUTTON', 'LOGIN_WITH_GOOGLE_BUTTON','HISTORY',
                               'POSITION_SELL_BUTTON', 'POSITION_SELL_YES_BUTTON', 'POSITION_SELL_NO_BUTTON',
                               'POSITION_UP_LABEL', 'POSITION_DOWN_LABEL', 'POSITION_YES_VALUE', 'POSITION_NO_VALUE',
-                              'SEARCH_CONFIRM_BUTTON','SEARCH_INPUT','SPREAD'
+                              'SEARCH_CONFIRM_BUTTON','SEARCH_INPUT','SPREAD','CASH_VALUE','PORTFOLIO_VALUE'
                               ]
             # 获取所有 XPath 属性，排除指定的属性
             xpath_attrs = [attr for attr in dir(xpath_config) 
@@ -3858,18 +3863,20 @@ class CryptoTrader:
     def get_zero_time_cash(self):
         """获取币安BTC实时价格,并在中国时区00:00触发"""
         try:
-            # 使用缓存机制零点获取 CASH 的值
-            cash_element = self.find_element_cached('CASH_VALUE', timeout=3, silent=True)
+            # 不使用缓存机制零点获取 CASH 的值
+            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=3)
             if cash_element:
                 cash_value = cash_element.text
             else:
-                raise NoSuchElementException("无法找到CASH值元素")
+                self.logger.warning("无法找到CASH值元素")
+                return
             
             # 使用正则表达式提取数字
             cash_match = re.search(r'\$?([\d,]+\.?\d*)', cash_value)
 
             if not cash_match:
-                raise ValueError("❌ 无法从Cash值中提取数字")
+                self.logger.error("❌ 无法从Cash值中提取数字")
+                return
 
             # 移除逗号并转换为浮点数
             self.zero_time_cash_value = round(float(cash_match.group(1).replace(',', '')), 2)
@@ -3880,7 +3887,7 @@ class CryptoTrader:
             self.root.after(2000, self.schedule_update_amount)
             self.logger.info("✅ 设置 YES/NO 金额成功!")
         except Exception as e:
-            self.get_zero_time_cash()
+            self.logger.error(f"获取零点CASH值时发生错误: {str(e)}")
         finally:
             # 计算下一个00:10的时间
             now = datetime.now()
