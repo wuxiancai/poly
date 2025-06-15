@@ -2749,8 +2749,6 @@ class CryptoTrader:
                         direction_found = re.search(rf"\b{direction}\b", history_text, re.IGNORECASE)
                         
                         if action_found and direction_found:
-                            # 检查是否同时包含action_type和direction
-                            self.logger.info(f"找到: {action_found} + {direction_found}")
                             # 提取价格和金额 - 优化正则表达式
                             price_match = re.search(r'at\s+(\d+\.?\d*)¢', history_text)
                             amount_match = re.search(r'\(\$(\d+\.\d+)\)', history_text)
