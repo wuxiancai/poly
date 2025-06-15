@@ -1415,9 +1415,9 @@ class CryptoTrader:
             # 取Portfolio值和Cash值
             self.cash_value = None
             self.portfolio_value = None
-            # 使用缓存机制获取Portfolio和Cash值
-            portfolio_element = self.find_element_cached('PORTFOLIO_VALUE', timeout=3, silent=True)
-            cash_element = self.find_element_cached('CASH_VALUE', timeout=3, silent=True)
+            # 不使用缓存机制获取Portfolio和Cash值
+            portfolio_element = self._wait_for_element(XPathConfig.PORTFOLIO_VALUE, timeout=3, silent=True)
+            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=3, silent=True)
             
             if portfolio_element and cash_element:
                 self.cash_value = cash_element.text
@@ -1672,8 +1672,8 @@ class CryptoTrader:
                     
                     for attempt in range(max_attempts):
                         try:
-                            # 使用缓存机制尝试获取CASH值
-                            cash_element = self.find_element_cached('CASH_VALUE', timeout=1, silent=True)
+                            # 不使用缓存机制尝试获取CASH值
+                            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=1, silent=True)
                             if cash_element:
                                 cash_value = cash_element.text
                                 self.logger.info(f"✅ 第{attempt+1}次尝试: 已获取CASH值: {cash_value}")
@@ -3007,14 +3007,11 @@ class CryptoTrader:
     """以下代码是交易过程中的功能性函数,买卖及确认买卖成功,从第 2529 行到第 2703 行"""
     def position_yes_cash(self):
         """获取当前持仓YES的金额"""
-        try:
-            yes_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
-        except NoSuchElementException:
-            yes_element = self._find_element_with_retry(
-                XPathConfig.HISTORY,
-                timeout=3,
-                silent=True
-            )
+        yes_element = self._wait_for_element(
+            XPathConfig.HISTORY,
+            timeout=3,
+            silent=True
+        )
         text = yes_element.text
         amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
         yes_value = float(amount_match.group(1))
@@ -3023,14 +3020,11 @@ class CryptoTrader:
     
     def position_no_cash(self):
         """获取当前持仓NO的金额"""
-        try:
-            no_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
-        except NoSuchElementException:
-            no_element = self._find_element_with_retry(
-                XPathConfig.HISTORY,
-                timeout=3,
-                silent=True
-            )
+        no_element = self._wait_for_element(
+            XPathConfig.HISTORY,
+            timeout=3,
+            silent=True
+        )
         text = no_element.text
         amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
         no_value = float(amount_match.group(1))
@@ -3509,7 +3503,7 @@ class CryptoTrader:
             excluded_attrs = ['ACCEPT_BUTTON', 'LOGIN_BUTTON', 'LOGIN_WITH_GOOGLE_BUTTON','HISTORY',
                               'POSITION_SELL_BUTTON', 'POSITION_SELL_YES_BUTTON', 'POSITION_SELL_NO_BUTTON',
                               'POSITION_UP_LABEL', 'POSITION_DOWN_LABEL', 'POSITION_YES_VALUE', 'POSITION_NO_VALUE',
-                              'SEARCH_CONFIRM_BUTTON','SEARCH_INPUT','SPREAD'
+                              'SEARCH_CONFIRM_BUTTON','SEARCH_INPUT','SPREAD','CASH_VALUE','PORTFOLIO_VALUE'
                               ]
             # 获取所有 XPath 属性，排除指定的属性
             xpath_attrs = [attr for attr in dir(xpath_config) 
@@ -3869,8 +3863,8 @@ class CryptoTrader:
     def get_zero_time_cash(self):
         """获取币安BTC实时价格,并在中国时区00:00触发"""
         try:
-            # 使用缓存机制零点获取 CASH 的值
-            cash_element = self.find_element_cached('CASH_VALUE', timeout=3, silent=True)
+            # 不使用缓存机制零点获取 CASH 的值
+            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=3, silent=True)
             if cash_element:
                 cash_value = cash_element.text
             else:
