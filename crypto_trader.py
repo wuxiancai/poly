@@ -1416,8 +1416,8 @@ class CryptoTrader:
             self.cash_value = None
             self.portfolio_value = None
             # 不使用缓存机制获取Portfolio和Cash值
-        portfolio_element = self._wait_for_element(XPathConfig.PORTFOLIO_VALUE, timeout=3)
-        cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=3)
+            portfolio_element = self._wait_for_element(XPathConfig.PORTFOLIO_VALUE, timeout=3)
+            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=3)
             
             if portfolio_element and cash_element:
                 self.cash_value = cash_element.text
