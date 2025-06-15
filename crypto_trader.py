@@ -1905,6 +1905,7 @@ class CryptoTrader:
 
                         time.sleep(2)
                         if self.Verify_buy_no():
+                            self.driver.refresh()
                             self.buy_no1_amount = float(self.no1_amount_entry.get())
                             # 增加交易次数
                             self.trade_count += 1
@@ -2031,6 +2032,7 @@ class CryptoTrader:
                             
                         time.sleep(2)
                         if self.Verify_buy_no():
+                            self.driver.refresh()
                             self.buy_no2_amount = float(self.no2_amount_entry.get())
                             # 重置Yes2和No2价格为0
                             self.yes2_price_entry.delete(0, tk.END)
@@ -2145,6 +2147,7 @@ class CryptoTrader:
                     
                         time.sleep(2)
                         if self.Verify_buy_no():
+                            self.driver.refresh()
                             self.buy_no3_amount = float(self.no3_amount_entry.get())
                             
                             # 重置Yes3和No3价格为0
@@ -2260,6 +2263,8 @@ class CryptoTrader:
 
                         time.sleep(2)
                         if self.Verify_buy_no():
+                            self.driver.refresh()
+                            self.buy_no4_amount = float(self.no4_amount_entry.get())
                             # 重置Yes4和No4价格为0
                             self.yes4_price_entry.delete(0, tk.END)
                             self.yes4_price_entry.insert(0, "0")
