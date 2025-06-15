@@ -1416,8 +1416,8 @@ class CryptoTrader:
             self.cash_value = None
             self.portfolio_value = None
             # 不使用缓存机制获取Portfolio和Cash值
-            portfolio_element = self._wait_for_element(XPathConfig.PORTFOLIO_VALUE, timeout=3, silent=True)
-            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=3, silent=True)
+        portfolio_element = self._wait_for_element(XPathConfig.PORTFOLIO_VALUE, timeout=3)
+        cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=3)
             
             if portfolio_element and cash_element:
                 self.cash_value = cash_element.text
@@ -1673,7 +1673,7 @@ class CryptoTrader:
                     for attempt in range(max_attempts):
                         try:
                             # 不使用缓存机制尝试获取CASH值
-                            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=1, silent=True)
+                            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=1)
                             if cash_element:
                                 cash_value = cash_element.text
                                 
@@ -3864,17 +3864,19 @@ class CryptoTrader:
         """获取币安BTC实时价格,并在中国时区00:00触发"""
         try:
             # 不使用缓存机制零点获取 CASH 的值
-            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=3, silent=True)
+            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=3)
             if cash_element:
                 cash_value = cash_element.text
             else:
-                raise NoSuchElementException("无法找到CASH值元素")
+                self.logger.warning("无法找到CASH值元素")
+                return
             
             # 使用正则表达式提取数字
             cash_match = re.search(r'\$?([\d,]+\.?\d*)', cash_value)
 
             if not cash_match:
-                raise ValueError("❌ 无法从Cash值中提取数字")
+                self.logger.error("❌ 无法从Cash值中提取数字")
+                return
 
             # 移除逗号并转换为浮点数
             self.zero_time_cash_value = round(float(cash_match.group(1).replace(',', '')), 2)
@@ -3885,7 +3887,7 @@ class CryptoTrader:
             self.root.after(2000, self.schedule_update_amount)
             self.logger.info("✅ 设置 YES/NO 金额成功!")
         except Exception as e:
-            self.get_zero_time_cash()
+            self.logger.error(f"获取零点CASH值时发生错误: {str(e)}")
         finally:
             # 计算下一个00:10的时间
             now = datetime.now()
