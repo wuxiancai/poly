@@ -2722,13 +2722,14 @@ class CryptoTrader:
         """
         try:
             for attempt in range(3):
-                self.logger.info(f"开始第{attempt + 1}次验证尝试（基于时间窗口）")
-                # 最多等待6秒钟,每1秒检查一次交易记录
-                max_wait_time = 6  # 最大等待时间
+                self.logger.info(f"开始第{attempt + 1}次验证尝试（基于次数重试）")
+                # 重试6次,每次等待1秒检查交易记录
+                max_retries = 6  # 最大重试次数
                 wait_interval = 1  # 检查间隔
-                end_time = time.time() + max_wait_time
                 
-                while time.time() < end_time:
+                for retry in range(max_retries):
+                    self.logger.info(f"第{retry + 1}次检查交易记录（共{max_retries}次）")
+                    
                     # 等待历史记录元素出现                  
                     history_element = self._wait_for_element(XPathConfig.HISTORY, timeout=3)
                     
@@ -2742,7 +2743,7 @@ class CryptoTrader:
                         direction_found = re.search(rf"\b{direction}\b", history_text, re.IGNORECASE)
                         
                         # 检查是否同时包含action_type和direction
-                        self.logger.info(f"查找 {action_type}: {'找到' if action_found else '未找到'}, 查找 {direction}: {'找到' if direction_found else '未找到'} 在文本: {history_text}")
+                        self.logger.info(f"{'找到' if action_found else '未找到'}+{'找到' if direction_found else '未找到'}")
                         if action_found and direction_found:
                             # 提取价格和金额 - 优化正则表达式
                             price_match = re.search(r'at\s+(\d+\.?\d*)¢', history_text)
@@ -2756,13 +2757,18 @@ class CryptoTrader:
                             self.logger.info(f"✅ 交易验证成功: \033[32m{action_type} {direction} 价格: {self.price} 金额: {self.amount} Shares: {self.shares}\033[0m")
                             return True, self.price, self.amount, self.shares
                     
-                # 6秒时间窗口结束，刷新页面
-                self.logger.info(f"第{attempt + 1}次尝试的6秒时间窗口结束,刷新页面")
+                    # 如果不是最后一次重试，等待1秒后继续
+                    if retry < max_retries - 1:
+                        self.logger.info(f"交易记录未出现或不匹配,等待{wait_interval}秒后重试...")
+                        time.sleep(wait_interval)
+                    
+                # 6次重试结束，刷新页面
+                self.logger.info(f"第{attempt + 1}次尝试的6次重试结束,刷新页面")
                 self.driver.refresh()
                 time.sleep(2)  # 刷新后等待页面加载
             
             # 超时未找到匹配的交易记录
-            self.logger.warning(f"❌ 交易验证失败: 未找到 {action_type} {direction} (已尝试2轮,每轮{max_wait_time}秒时间窗口)")
+            self.logger.warning(f"❌ 交易验证失败: 未找到 {action_type} {direction} (已尝试3轮,每轮6次重试)")
             return False, 0, 0
                 
         except Exception as e:
