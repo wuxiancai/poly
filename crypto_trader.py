@@ -2756,12 +2756,6 @@ class CryptoTrader:
                             self.logger.info(f"✅ 交易验证成功: \033[32m{action_type} {direction} 价格: {self.price} 金额: {self.amount} Shares: {self.shares}\033[0m")
                             return True, self.price, self.amount, self.shares
                     
-                    # 等待一段时间后再次检查
-                    remaining_time = end_time - time.time()
-                    if remaining_time > 0:
-                        self.logger.info(f"交易记录未出现或不匹配,等待{wait_interval}秒后重试...（剩余时间: {remaining_time:.1f}秒）")
-                        time.sleep(wait_interval)
-                
                 # 6秒时间窗口结束，刷新页面
                 self.logger.info(f"第{attempt + 1}次尝试的6秒时间窗口结束,刷新页面")
                 self.driver.refresh()
