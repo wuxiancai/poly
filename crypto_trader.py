@@ -1666,7 +1666,7 @@ class CryptoTrader:
                     self.logger.info("✅ 已点击Google登录按钮")
                     
                     # 不再固定等待15秒，而是循环检测CASH值
-                    max_attempts = 15  # 最多检测15次
+                    max_attempts = 10  # 最多检测15次
                     check_interval = 2  # 每2秒检测一次
                     cash_value = None
                     
@@ -1676,7 +1676,7 @@ class CryptoTrader:
                             cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=1, silent=True)
                             if cash_element:
                                 cash_value = cash_element.text
-                                self.logger.info(f"✅ 第{attempt+1}次尝试: 已获取CASH值: {cash_value}")
+                                
                                 break
                         except NoSuchElementException:
                             self.logger.info(f"⏳ 第{attempt+1}次尝试: 等待登录完成...")
