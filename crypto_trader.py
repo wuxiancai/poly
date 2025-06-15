@@ -1768,7 +1768,7 @@ class CryptoTrader:
     def refresh_page(self):
         """定时刷新页面"""
         # 生成随机的5-10分钟（以毫秒为单位）
-        random_minutes = random.uniform(5, 15)
+        random_minutes = random.uniform(3, 10)
         self.refresh_interval = int(random_minutes * 60000)  # 转换为毫秒
 
         with self.refresh_page_lock:
@@ -1902,10 +1902,12 @@ class CryptoTrader:
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
                         time.sleep(0.5)
+                        # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
+                        self.buy_yes_button.invoke()
 
                         time.sleep(2)
                         if self.Verify_buy_no():
-                            self.driver.refresh()
+                            
                             self.buy_no1_amount = float(self.no1_amount_entry.get())
                             # 增加交易次数
                             self.trade_count += 1
@@ -2029,7 +2031,8 @@ class CryptoTrader:
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
                         time.sleep(0.5)
-                            
+                        # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
+                        self.buy_yes_button.invoke() 
                         time.sleep(2)
                         if self.Verify_buy_no():
                             
@@ -2144,7 +2147,8 @@ class CryptoTrader:
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
                         time.sleep(0.5)
-                    
+                        # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
+                        self.buy_yes_button.invoke()
                         time.sleep(2)
                         if self.Verify_buy_no():
                             
@@ -2260,7 +2264,10 @@ class CryptoTrader:
                         self.amount_no4_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
-
+                        time.sleep(0.5)
+                        # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
+                        self.buy_yes_button.invoke()
+                        
                         time.sleep(2)
                         if self.Verify_buy_no():
                             
