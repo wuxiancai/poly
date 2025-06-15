@@ -2032,7 +2032,7 @@ class CryptoTrader:
                             
                         time.sleep(2)
                         if self.Verify_buy_no():
-                            self.driver.refresh()
+                            
                             self.buy_no2_amount = float(self.no2_amount_entry.get())
                             # 重置Yes2和No2价格为0
                             self.yes2_price_entry.delete(0, tk.END)
@@ -2147,7 +2147,7 @@ class CryptoTrader:
                     
                         time.sleep(2)
                         if self.Verify_buy_no():
-                            self.driver.refresh()
+                            
                             self.buy_no3_amount = float(self.no3_amount_entry.get())
                             
                             # 重置Yes3和No3价格为0
@@ -2263,7 +2263,7 @@ class CryptoTrader:
 
                         time.sleep(2)
                         if self.Verify_buy_no():
-                            self.driver.refresh()
+                            
                             self.buy_no4_amount = float(self.no4_amount_entry.get())
                             # 重置Yes4和No4价格为0
                             self.yes4_price_entry.delete(0, tk.END)
@@ -2736,32 +2736,40 @@ class CryptoTrader:
                 for retry in range(max_retries):
                     self.logger.info(f"第{retry + 1}次检查交易记录（共{max_retries}次）")
                     
-                    # 等待历史记录元素出现                  
-                    history_element = self._wait_for_element(XPathConfig.HISTORY, timeout=3)
-                    
-                    if history_element:
-                        # 获取历史记录文本
-                        history_text = history_element.text
-                        self.logger.info(f"找到交易记录: \033[34m{history_text}\033[0m")
+                    try:
+                        # 等待历史记录元素出现                  
+                        history_element = self._wait_for_element(XPathConfig.HISTORY, timeout=3)
                         
-                        # 分别查找action_type和direction，避免同时匹配导致的问题
-                        action_found = re.search(rf"\b{action_type}\b", history_text, re.IGNORECASE)
-                        direction_found = re.search(rf"\b{direction}\b", history_text, re.IGNORECASE)
-                        
-                        if action_found and direction_found:
-                            # 提取价格和金额 - 优化正则表达式
-                            price_match = re.search(r'at\s+(\d+\.?\d*)¢', history_text)
-                            amount_match = re.search(r'\(\$(\d+\.\d+)\)', history_text)
-                            # 提取SHARES - shares是Bought/Sold后的第一个数字
-                            shares_match = re.search(r'(?:Bought|Sold)\s+(\d+(?:\.\d+)?)', history_text, re.IGNORECASE)
+                        if history_element:
+                            # 获取历史记录文本
+                            history_text = history_element.text
+                            self.logger.info(f"找到交易记录: \033[34m{history_text}\033[0m")
                             
-                            self.price = float(price_match.group(1)) if price_match else 0
-                            self.amount = float(amount_match.group(1)) if amount_match else 0
-                            # shares可能是浮点数，先转为float再转为int
-                            self.shares = int(float(shares_match.group(1))) if shares_match else 0
+                            # 分别查找action_type和direction，避免同时匹配导致的问题
+                            action_found = re.search(rf"\b{action_type}\b", history_text, re.IGNORECASE)
+                            direction_found = re.search(rf"\b{direction}\b", history_text, re.IGNORECASE)
+                            
+                            if action_found and direction_found:
+                                # 提取价格和金额 - 优化正则表达式
+                                price_match = re.search(r'at\s+(\d+\.?\d*)¢', history_text)
+                                amount_match = re.search(r'\(\$(\d+\.\d+)\)', history_text)
+                                # 提取SHARES - shares是Bought/Sold后的第一个数字
+                                shares_match = re.search(r'(?:Bought|Sold)\s+(\d+(?:\.\d+)?)', history_text, re.IGNORECASE)
+                                
+                                self.price = float(price_match.group(1)) if price_match else 0
+                                self.amount = float(amount_match.group(1)) if amount_match else 0
+                                # shares可能是浮点数，先转为float再转为int
+                                self.shares = int(float(shares_match.group(1))) if shares_match else 0
 
-                            self.logger.info(f"✅ \033[32m交易验证成功: {action_type} {direction} 价格: {self.price} 金额: {self.amount} Shares: {self.shares}\033[0m")
-                            return True, self.price, self.amount
+                                self.logger.info(f"✅ \033[32m交易验证成功: {action_type} {direction} 价格: {self.price} 金额: {self.amount} Shares: {self.shares}\033[0m")
+                                return True, self.price, self.amount, self.shares
+                    
+                    except StaleElementReferenceException:
+                        self.logger.warning(f"检测到stale element错误,重新定位元素（第{retry + 1}次重试）")
+                        continue  # 继续下一次重试，不退出循环
+                    except Exception as e:
+                        self.logger.warning(f"元素操作异常: {str(e)}")
+                        continue
                     
                     # 如果不是最后一次重试，等待1秒后继续
                     if retry < max_retries - 1:
