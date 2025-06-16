@@ -1221,33 +1221,34 @@ class CryptoTrader:
     def get_nearby_cents(self):
         """获取spread附近的价格数字"""
         try:
-            # 获取并立即提取UP价格
-            up_price_element = self._wait_for_element(XPathConfig.ASKS_PRICE, timeout=2)
-            if not up_price_element:
+            # 使用原始find_element方法，避免_wait_for_element的问题
+            try:
+                up_price_element = self.driver.find_element(By.XPATH, XPathConfig.ASKS_PRICE[0])
+                up_price_text = up_price_element.text
+            except (NoSuchElementException, StaleElementReferenceException):
                 self.logger.warning("无法获取UP价格元素")
                 return None, None, None, None
-            up_price_text = up_price_element.text  # 立即提取文本
             
-            # 获取并立即提取DOWN价格
-            down_price_element = self._wait_for_element(XPathConfig.BIDS_PRICE, timeout=2)
-            if not down_price_element:
+            try:
+                down_price_element = self.driver.find_element(By.XPATH, XPathConfig.BIDS_PRICE[0])
+                down_price_text = down_price_element.text
+            except (NoSuchElementException, StaleElementReferenceException):
                 self.logger.warning("无法获取DOWN价格元素")
                 return None, None, None, None
-            down_price_text = down_price_element.text  # 立即提取文本
             
-            # 获取并立即提取UP份额
-            up_shares_element = self._wait_for_element(XPathConfig.ASKS_SHARES, timeout=2)
-            if not up_shares_element:
+            try:
+                up_shares_element = self.driver.find_element(By.XPATH, XPathConfig.ASKS_SHARES[0])
+                up_shares_text = up_shares_element.text
+            except (NoSuchElementException, StaleElementReferenceException):
                 self.logger.warning("无法获取UP份额元素")
                 return None, None, None, None
-            up_shares_text = up_shares_element.text  # 立即提取文本
             
-            # 获取并立即提取DOWN份额
-            down_shares_element = self._wait_for_element(XPathConfig.BIDS_SHARES, timeout=2)
-            if not down_shares_element:
+            try:
+                down_shares_element = self.driver.find_element(By.XPATH, XPathConfig.BIDS_SHARES[0])
+                down_shares_text = down_shares_element.text
+            except (NoSuchElementException, StaleElementReferenceException):
                 self.logger.warning("无法获取DOWN份额元素")
                 return None, None, None, None
-            down_shares_text = down_shares_element.text  # 立即提取文本
             
             # 后续处理文本数据...
             # 解析价格
