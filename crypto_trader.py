@@ -1227,24 +1227,17 @@ class CryptoTrader:
         up_shares_val = None
         down_shares_val = None
 
-        up_price_val = self.driver.find_element(By.XPATH, XPathConfig.ASKS_PRICE[0])
-        up_price_val = up_price_val.text
+        up_price_val = self.driver.find_element(By.XPATH, XPathConfig.ASKS_PRICE[0]).text
+        up_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', up_price_val).group(1)
         self.logger.info(f"asks_price: {up_price_val}")
 
-        up_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', up_price_val)
-        self.logger.info(f"asks_price: {up_price_val}")
+        down_price_val = self.driver.find_element(By.XPATH, XPathConfig.BIDS_PRICE[0]).text
+        down_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', down_price_val).group(1)
+        self.logger.info(f"bids_price: {down_price_val}")
 
-        down_price_val = self.driver.find_element(By.XPATH, XPathConfig.BIDS_PRICE[0])
-        down_price_val = down_price_val.text
-        self.logger.info(f"bids_price: {down_price_val}")
-        down_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', down_price_val)
-        self.logger.info(f"bids_price: {down_price_val}")
-        
-        up_shares_val = self.driver.find_element(By.XPATH, XPathConfig.ASKS_SHARES[0])
-        up_shares_val = up_shares_val.text
+        up_shares_val = self.driver.find_element(By.XPATH, XPathConfig.ASKS_SHARES[0]).text
         self.logger.info(f"asks_shares: {up_shares_val}")
-        down_shares_val = self.driver.find_element(By.XPATH, XPathConfig.BIDS_SHARES[0])
-        down_shares_val = down_shares_val.text
+        down_shares_val = self.driver.find_element(By.XPATH, XPathConfig.BIDS_SHARES[0]).text
         self.logger.info(f"bids_shares: {down_shares_val}")
     
         if up_price_val is not None: # Check for None before float conversion
