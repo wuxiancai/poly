@@ -1226,28 +1226,28 @@ class CryptoTrader:
                 up_price_element = self.driver.find_element(By.XPATH, XPathConfig.ASKS_PRICE[0])
                 up_price_text = up_price_element.text
             except (NoSuchElementException, StaleElementReferenceException):
-                self.logger.warning("无法获取UP价格元素")
+                
                 return None, None, None, None
             
             try:
                 down_price_element = self.driver.find_element(By.XPATH, XPathConfig.BIDS_PRICE[0])
                 down_price_text = down_price_element.text
             except (NoSuchElementException, StaleElementReferenceException):
-                self.logger.warning("无法获取DOWN价格元素")
+                
                 return None, None, None, None
             
             try:
                 up_shares_element = self.driver.find_element(By.XPATH, XPathConfig.ASKS_SHARES[0])
                 up_shares_text = up_shares_element.text
             except (NoSuchElementException, StaleElementReferenceException):
-                self.logger.warning("无法获取UP份额元素")
+                
                 return None, None, None, None
             
             try:
                 down_shares_element = self.driver.find_element(By.XPATH, XPathConfig.BIDS_SHARES[0])
                 down_shares_text = down_shares_element.text
             except (NoSuchElementException, StaleElementReferenceException):
-                self.logger.warning("无法获取DOWN份额元素")
+                
                 return None, None, None, None
             
             # 后续处理文本数据...
