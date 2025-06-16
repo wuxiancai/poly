@@ -2255,7 +2255,7 @@ class CryptoTrader:
             
     def Sell_yes(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
         """当YES5价格等于实时Yes价格时自动卖出"""
-        self.stop_refresh_page()
+        
         try:
             if not self.driver and not self.is_restarting:
                 self.restart_browser(force_restart=True)
@@ -2270,6 +2270,7 @@ class CryptoTrader:
                 # 检查Yes5价格匹配
                 if (10 <=yes5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[32mUp 5: {bids_price_raw}¢\033[0m 价格匹配,执行自动卖出")
+                    self.stop_refresh_page()
                     # 卖前刷新一次页面,预防刚买的还没有显示在页面上
                     time.sleep(2)
                     self.driver.refresh()
@@ -2302,11 +2303,12 @@ class CryptoTrader:
                         self.yes2_price_entry.delete(0, tk.END)
                         self.yes2_price_entry.insert(0, str(self.default_target_price+1))
                         self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
+                        self.refresh_page()
                         break
                     
                 elif yes5_price >= 50 and 0 <= price_diff <= 1.1 and (bids_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[32mUp 5: {asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
-                    
+                    self.stop_refresh_page()
                     self.yes5_target_price = yes5_price
                             
                     while True:
@@ -2333,6 +2335,7 @@ class CryptoTrader:
                                 no_entry.configure(foreground='black')
                         # 在所有操作完成后,重置交易
                         self.root.after(0, self.reset_trade)
+                        self.refresh_page()
                         break
                     
         except Exception as e:
@@ -2340,7 +2343,7 @@ class CryptoTrader:
             
         finally:
             self.trading = False
-            self.refresh_page()
+            
             
     def Sell_no(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
         """当NO4价格等于实时No价格时自动卖出"""
@@ -2358,6 +2361,7 @@ class CryptoTrader:
                 # 检查No5价格匹配,反水卖出同方向
                 if (10 <=no5_price <= 47) and (-2 <= price_diff <= 1) and (bids_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 5: {100 - asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
+                    self.stop_refresh_page()
                     # 卖前刷新一次页面,预防刚买的还没有显示在页面上
                     time.sleep(2)
                     self.driver.refresh()
@@ -2391,12 +2395,12 @@ class CryptoTrader:
                         self.no2_price_entry.delete(0, tk.END)
                         self.no2_price_entry.insert(0, str(self.default_target_price+1))
                         self.no2_price_entry.configure(foreground='red')  # 添加红色设置
-
+                        self.refresh_page()
                         break
                     
                 elif no5_price >= 50 and (0 <= price_diff <= 1.1) and (bids_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 5: {100 - asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
-
+                    self.stop_refresh_page()
                     self.no5_target_price = no5_price
                     
                     while True:
@@ -2421,6 +2425,7 @@ class CryptoTrader:
                                 no_entry.configure(foreground='black')
                         # 在所有操作完成后,重置交易
                         self.root.after(0, self.reset_trade)
+                        self.refresh_page()
                         break
                 
         except Exception as e:
@@ -2428,7 +2433,7 @@ class CryptoTrader:
             
         finally:
             self.trading = False
-            self.refresh_page()
+            
 
     def reset_trade(self):
         """重置交易"""
