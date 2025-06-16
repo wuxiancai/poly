@@ -3338,12 +3338,13 @@ class CryptoTrader:
         if self.xpath_cache_update_timer:
             self.root.after_cancel(self.xpath_cache_update_timer)
         
-        # 24小时后重新初始化缓存
+        # 1小时后重新初始化缓存
+        one_hour_ms = 60 * 60 * 1000  # 1小时 = 3600000毫秒
         self.xpath_cache_update_timer = self.root.after(
-            self.xpath_cache_duration, 
+            one_hour_ms, 
             self._update_xpath_cache
         )
-        self.logger.info("⏰ 已安排24小时后更新XPATH缓存")
+        self.logger.info("⏰ 已安排1小时后更新XPATH缓存")
     
     def _update_xpath_cache(self):
         """定时更新XPATH缓存"""
@@ -3358,6 +3359,13 @@ class CryptoTrader:
         
         new_cache_size = len(self.xpath_cache)
         self.logger.info(f"✅ XPATH缓存更新完成: {old_cache_size} -> {new_cache_size} 项")
+        
+        # 安排下一次1小时后的更新
+        one_hour_ms = 60 * 60 * 1000
+        self.xpath_cache_update_timer = self.root.after(
+            one_hour_ms, 
+            self._update_xpath_cache
+        )
     
     def _is_xpath_cache_valid(self):
         """检查XPATH缓存是否仍然有效"""
@@ -3407,27 +3415,6 @@ class CryptoTrader:
             if not silent:
                 self.logger.error(f"查找元素失败 {xpath_attr_name}: {str(e)}")
             return None
-
-    def switch_to_frame_containing_element(self, xpath, timeout=10):
-        """
-        自动切换到包含指定xpath元素的iframe。
-        - xpath: 你要找的元素的xpath,比如 '(//span[@class="c-ggujGL"])[2]'
-        """
-        self.driver.switch_to.default_content()  # 先回到主文档
-        frames = self.driver.find_elements(By.TAG_NAME, "iframe")  # 找到所有 iframe
-
-        for i, frame in enumerate(frames):
-            self.driver.switch_to.frame(frame)
-            try:
-                WebDriverWait(self.driver, timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
-                self.logger.info(f"成功切换到第 {i} 个 iframe")
-                return True
-            except:
-                self.driver.switch_to.default_content()  # 如果没找到，切回主文档，继续下一个
-                continue
-
-        self.logger.info("没有找到包含元素的 iframe")
-        return False
 
     def monitor_xpath_elements(self):
         """使用当前浏览器实例监控 XPath 元素"""
