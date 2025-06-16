@@ -36,26 +36,25 @@ class XPathConfig:
     # 6.Sell No 按钮长期有效
     SELL_NO_BUTTON = [
         '//button[.//span[contains(text(), "Down")] and .//span[contains(text(), "¢")]]',
-        '//button[.//span[contains(text(), "No")] and .//span[contains(text(), "¢")]]'
-        
+        '//button[.//span[contains(text(), "No")] and .//span[contains(text(), "¢")]]'   
     ]
 
     # 7.Buy-确认买入按钮
     BUY_CONFIRM_BUTTON = [
-        '//button[@class="c-bDcLpV c-bDcLpV-fLyPyt-color-blue c-bDcLpV-ileGDsu-css"]',
-        '(//*[normalize-space(.)="Max"]/ancestor::div/following-sibling::div//button)[1]'
+        '(//*[normalize-space(.)="Max"]/ancestor::div/following-sibling::div//button)[1]',
+        '//button[@class="c-bDcLpV c-bDcLpV-fLyPyt-color-blue c-bDcLpV-ileGDsu-css"]'
         ]
 
     # 8.Sell-卖出按钮
     SELL_CONFIRM_BUTTON = [
-        '//button[@class="c-bDcLpV c-bDcLpV-fLyPyt-color-blue c-bDcLpV-ileGDsu-css"]',
-        '(//*[normalize-space(.)="Max"]/ancestor::div/following-sibling::div//button)[1]'
+        '(//*[normalize-space(.)="Max"]/ancestor::div/following-sibling::div//button)[1]',
+        '//button[@class="c-bDcLpV c-bDcLpV-fLyPyt-color-blue c-bDcLpV-ileGDsu-css"]'
         ]
 
     # 9.Amount输入框长期有效
     AMOUNT_INPUT = [
-        '//input[@id="market-order-amount-input"]',
-        '(//*[normalize-space(.)="Amount"]/ancestor::*[2]//input)[1]'
+        '(//*[normalize-space(.)="Amount"]/ancestor::*[2]//input)[1]',
+        '//input[@id="market-order-amount-input"]'
         ]
 
     # 10.Position-Up标签长期有效
