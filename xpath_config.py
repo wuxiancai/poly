@@ -41,8 +41,9 @@ class XPathConfig:
 
     # 7.Buy-确认买入按钮
     BUY_CONFIRM_BUTTON = [
-        '//button[@class="c-bDcLpV c-bDcLpV-fLyPyt-color-blue c-bDcLpV-ileGDsu-css"]',
-        '(//*[normalize-space(.)="Max"]/ancestor::div/following-sibling::div//button)[1]'
+        
+        '(//*[normalize-space(.)="Max"]/ancestor::div/following-sibling::div//button)[1]',
+        '//button[@class="c-bDcLpV c-bDcLpV-fLyPyt-color-blue c-bDcLpV-ileGDsu-css"]'
         ]
 
     # 8.Sell-卖出按钮
