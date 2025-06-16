@@ -1228,13 +1228,17 @@ class CryptoTrader:
         down_shares_val = None
         try:  
             up_price_val_text = self.driver.find_element(By.XPATH, XPathConfig.ASKS_PRICE).text
-            up_price_val = re.search(r'(\d+(?:\.\d+)?)\$', up_price_val_text)
+            self.logger.info(f"asks_price: {up_price_val_text}")
+            up_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', up_price_val_text)
 
             down_price_val_text = self.driver.find_element(By.XPATH, XPathConfig.BIDS_PRICE).text
-            down_price_val = re.search(r'(\d+(?:\.\d+)?)\$', down_price_val_text)
+            self.logger.info(f"bids_price: {down_price_val_text}")
+            down_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', down_price_val_text)
 
             up_shares_val = self.driver.find_element(By.XPATH, XPathConfig.ASKS_SHARES).text
+            self.logger.info(f"asks_shares: {up_shares_val}")
             down_shares_val = self.driver.find_element(By.XPATH, XPathConfig.BIDS_SHARES).text
+            self.logger.info(f"bids_shares: {down_shares_val}")
         
             if up_price_val is not None: # Check for None before float conversion
                 up_price_val = round(float(up_price_val), 2)
@@ -1270,7 +1274,7 @@ class CryptoTrader:
             self.driver.execute_script("return navigator.userAgent")
             # 获取一次价格和SHARES
             up_price_val, down_price_val, asks_shares_val, bids_shares_val = self.get_nearby_cents()
-            self.logger.info(f"up_price_val: {up_price_val}, down_price_val: {down_price_val}, asks_shares_val: {asks_shares_val}, bids_shares_val: {bids_shares_val}")
+            #self.logger.info(f"up_price_val: {up_price_val}, down_price_val: {down_price_val}, asks_shares_val: {asks_shares_val}, bids_shares_val: {bids_shares_val}")
             if up_price_val is not None and down_price_val is not None and asks_shares_val is not None and bids_shares_val is not None:
                 # 将原始的 '¢' 单位价格转换为 0-100 的百分比价格用于显示和逻辑判断
                 # asks_price (up_price) 是直接的 '¢' 值
