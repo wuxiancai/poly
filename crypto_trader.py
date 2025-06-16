@@ -2255,6 +2255,7 @@ class CryptoTrader:
             
     def Sell_yes(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
         """当YES5价格等于实时Yes价格时自动卖出"""
+        self.stop_refresh_page()
         try:
             if not self.driver and not self.is_restarting:
                 self.restart_browser(force_restart=True)
@@ -2339,9 +2340,11 @@ class CryptoTrader:
             
         finally:
             self.trading = False
+            self.refresh_page()
             
     def Sell_no(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
         """当NO4价格等于实时No价格时自动卖出"""
+        self.stop_refresh_page()
         try:
             if not self.driver and not self.is_restarting:
                 self.restart_browser(force_restart=True)
@@ -2425,6 +2428,7 @@ class CryptoTrader:
             
         finally:
             self.trading = False
+            self.refresh_page()
 
     def reset_trade(self):
         """重置交易"""
