@@ -1222,115 +1222,33 @@ class CryptoTrader:
         """获取spread附近的价格数字"""
         # 根据规律直接获取对应位置的值
         up_price_val = None
-        asks_shares_val = None
         down_price_val = None
-        bids_shares_val = None
 
-        # 使用缓存机制定位 Spread 元素
-        keyword_element = self.find_element_cached('SPREAD', timeout=3, silent=True)
-        if not keyword_element:
-            #self.logger.warning(f"SPREAD元素最终未找到: {keyword_element}")
-            return None, None, None, None   
-        # 获取container
-        container = None
-        try:
-            container = keyword_element.find_element(By.XPATH, './ancestor::div[3]')
-        except NoSuchElementException:
-            #self.logger.warning(f"SPREAD元素 '{keyword_element.text}' 的ancestor::div[3] (container) 未找到")
-            return None, None, None, None
-        
-        if not container:
-            #self.logger.warning("Container for SPREAD not found (was None after trying to get ancestor).")
-            return None, None, None, None         
-        # 取兄弟节点
-        above_element_texts = []
-        below_element_texts = []
-        try:
-            # JavaScript to get trimmed text content of previous and next siblings in one call
-            js_combined = '''
-                const container = arguments[0];
-                const result = { above_texts: [], below_texts: [] };
-
-                let above_e = container;
-                while (above_e = above_e.previousElementSibling) {
-                    let txt = "";
-                    try { txt = above_e.innerText || above_e.textContent || ""; } catch (err) {}
-                    result.above_texts.push(txt.trim());
-                }
-
-                let below_e = container;
-                while (below_e = below_e.nextElementSibling) {
-                    let txt = "";
-                    try { txt = below_e.innerText || below_e.textContent || ""; } catch (err) {}
-                    result.below_texts.push(txt.trim());
-                }
-                return result;
-            '''
-            
-            # Execute the combined JavaScript
-            sibling_texts_result = self.driver.execute_script(js_combined, container)
-            above_element_texts = sibling_texts_result.get('above_texts', [])
-            below_element_texts = sibling_texts_result.get('below_texts', [])
-
-        except StaleElementReferenceException:
-            #self.logger.warning("获取兄弟节点文本时发生StaleElementReferenceException (可能由于container失效)")
-            return None, None, None, None
-        except Exception as e:
-            #self.logger.error(f"执行JavaScript获取兄弟节点文本失败: {str(e)}")
-            return None, None, None, None
-        
-        up_price_str = None
-        asks_shares_str = None
-        
-        if len(above_element_texts) >= 3: # Need at least 3 elements for a block
-            for i in range(len(above_element_texts) - 2): 
-                total_value_candidate = above_element_texts[i]
-                shares_candidate = above_element_texts[i+1]
-                price_candidate = above_element_texts[i+2]
-
-                # Check if the candidates form a valid price block
-                if '$' in total_value_candidate and '¢' in price_candidate:
-                    # Validate shares format
-                    cleaned_shares = shares_candidate.replace(',', '')
-                    if re.fullmatch(r'\d+\.?\d*', cleaned_shares) or re.fullmatch(r'\d+', cleaned_shares):
-                        # Validate price format
-                        price_match_obj = re.search(r'(\d+\.?\d*)¢', price_candidate)
-                        if price_match_obj:
-                            up_price_str = price_match_obj.group(1)
-                            asks_shares_str = cleaned_shares
-                            #self.logger.info(f"Found UP price (ask): {up_price_str} from '{price_candidate}', shares: {asks_shares_str} from '{shares_candidate}'")
-                            break
-        down_price_str = None
-        bids_shares_str = None
-        # For "down" (bids), the pattern is Price Cents, then Shares
-        if len(below_element_texts) >= 2: # Need at least 2 elements
-            for i in range(len(below_element_texts) - 1):
-                current_text = below_element_texts[i] 
-                next_text = below_element_texts[i+1] 
-                
-                if '¢' in current_text:
-                    price_match_obj = re.search(r'(\d+\.?\d*)¢', current_text)
-                    if price_match_obj:
-                        potential_shares_cleaned = next_text.replace(',', '')
-                        if re.fullmatch(r'\d+\.?\d*', potential_shares_cleaned) or re.fullmatch(r'\d+', potential_shares_cleaned):
-                            down_price_str = price_match_obj.group(1)
-                            # Use the cleaned shares value directly
-                            bids_shares_str = potential_shares_cleaned 
-                            #self.logger.info(f"Found DOWN price (bid): {down_price_str} from '{current_text}', shares: {bids_shares_str} from '{next_text}'")
-                            break 
+        up_shares_val = None
+        down_shares_val = None
         try:  
-            if up_price_str is not None: # Check for None before float conversion
-                up_price_val = round(float(up_price_str), 2)
-            if asks_shares_str is not None:
-                asks_shares_val = float(asks_shares_str.replace(',', ''))
-            
-            if down_price_str is not None:
-                down_price_val = round(float(down_price_str), 2)
-            if bids_shares_str is not None:
-                bids_shares_val = float(bids_shares_str.replace(',', ''))
+            up_price_val_text = self.driver.find_element(By.XPATH, XPathConfig.ASKS_PRICE).text
+            up_price_val = re.search(r'(\d+(?:\.\d+)?)\$', up_price_val_text)
+
+            down_price_val_text = self.driver.find_element(By.XPATH, XPathConfig.BIDS_PRICE).text
+            down_price_val = re.search(r'(\d+(?:\.\d+)?)\$', down_price_val_text)
+
+            up_shares_val = self.driver.find_element(By.XPATH, XPathConfig.ASKS_SHARES).text
+            down_shares_val = self.driver.find_element(By.XPATH, XPathConfig.BIDS_SHARES).text
+        
+            if up_price_val is not None: # Check for None before float conversion
+                up_price_val = round(float(up_price_val), 2)
+            if down_price_val is not None:
+                down_price_val = round(float(down_price_val), 2)
+
+            if up_shares_val is not None:
+                up_shares_val = float(down_shares_val.replace(',', ''))
+            if down_shares_val is not None:
+                down_shares_val = float(down_shares_val.replace(',', ''))
+
             #self.logger.info(f"up_price_val: {up_price_val}, down_price_val: {down_price_val}, asks_shares_val: {asks_shares_val}, bids_shares_val: {bids_shares_val}")           
-            return up_price_val, down_price_val, asks_shares_val, bids_shares_val 
-             
+            return up_price_val, down_price_val, up_shares_val, down_shares_val 
+            
         except ValueError as e:
             #self.logger.error(f"数值转换错误: {e}. Values: up_p='{up_price_str}', ask_s='{asks_shares_str}', down_p='{down_price_str}', bid_s='{bids_shares_str}'")
             return None, None, None, None
@@ -1351,11 +1269,7 @@ class CryptoTrader:
             # 验证浏览器连接是否正常
             self.driver.execute_script("return navigator.userAgent")
             # 获取一次价格和SHARES
-            #up_price_val, down_price_val, asks_shares_val, bids_shares_val = self.get_nearby_cents()
-            up_price_val = self._wait_for_element(XPathConfig.ASKS_PRICE, timeout=3)
-            down_price_val = self._wait_for_element(XPathConfig.BIDS_PRICE, timeout=3)
-            asks_shares_val = self._wait_for_element(XPathConfig.ASKS_SHARES, timeout=3)
-            bids_shares_val = self._wait_for_element(XPathConfig.BIDS_SHARES, timeout=3)
+            up_price_val, down_price_val, asks_shares_val, bids_shares_val = self.get_nearby_cents()
             
             if up_price_val is not None and down_price_val is not None and asks_shares_val is not None and bids_shares_val is not None:
                 # 将原始的 '¢' 单位价格转换为 0-100 的百分比价格用于显示和逻辑判断
