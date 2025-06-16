@@ -41,20 +41,22 @@ class XPathConfig:
 
     # 7.Buy-确认买入按钮
     BUY_CONFIRM_BUTTON = [
-        '(//*[normalize-space(.)="Max"]/ancestor::div/following-sibling::div//button)[1]',
-        '//button[@class="c-bDcLpV c-bDcLpV-fLyPyt-color-blue c-bDcLpV-ileGDsu-css"]'
+        '//button[@class="c-bDcLpV c-bDcLpV-fLyPyt-color-blue c-bDcLpV-ileGDsu-css"]',
+        '(//*[normalize-space(.)="Max"]/ancestor::div/following-sibling::div//button)[1]'
         ]
 
     # 8.Sell-卖出按钮
     SELL_CONFIRM_BUTTON = [
-        '(//*[normalize-space(.)="Max"]/ancestor::div/following-sibling::div//button)[1]',
-        '//button[@class="c-bDcLpV c-bDcLpV-fLyPyt-color-blue c-bDcLpV-ileGDsu-css"]'
+        '//button[@class="c-bDcLpV c-bDcLpV-fLyPyt-color-blue c-bDcLpV-ileGDsu-css"]',
+        '(//*[normalize-space(.)="Max"]/ancestor::div/following-sibling::div//button)[1]'
+        
         ]
 
     # 9.Amount输入框长期有效
     AMOUNT_INPUT = [
-        '(//*[normalize-space(.)="Amount"]/ancestor::*[2]//input)[1]',
-        '//input[@id="market-order-amount-input"]'
+        '//input[@id="market-order-amount-input"]',
+        '(//*[normalize-space(.)="Amount"]/ancestor::*[2]//input)[1]'
+        
         ]
 
     # 10.Position-Up标签长期有效
