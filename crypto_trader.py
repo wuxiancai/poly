@@ -1220,38 +1220,54 @@ class CryptoTrader:
 
     def get_nearby_cents(self):
         """获取spread附近的价格数字"""
-        # 根据规律直接获取对应位置的值
-        up_price_val = None
-        down_price_val = None
-
-        up_shares_val = None
-        down_shares_val = None
-        # 获取 UP 价格
-        up_price_val = self.driver.find_element(By.XPATH, XPathConfig.ASKS_PRICE[0]).text
-        up_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', up_price_val).group(1)
-        
-        # 获取 DOWN 价格
-        down_price_val = self.driver.find_element(By.XPATH, XPathConfig.BIDS_PRICE[0]).text
-        down_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', down_price_val).group(1)
-        
-        # 获取 UP SHARES
-        up_shares_val = self.driver.find_element(By.XPATH, XPathConfig.ASKS_SHARES[0]).text
-        # 获取 DOWN SHARES
-        down_shares_val = self.driver.find_element(By.XPATH, XPathConfig.BIDS_SHARES[0]).text
-        
-    
-        if up_price_val is not None:
-            up_price_val = round(float(up_price_val), 2)
-        if down_price_val is not None:
-            down_price_val = round(float(down_price_val), 2)
-
-        if up_shares_val is not None:
-            up_shares_val = float(up_shares_val.replace(',', ''))
-        if down_shares_val is not None:
-            down_shares_val = float(down_shares_val.replace(',', ''))
-
-        #self.logger.info(f"up_price_val: {up_price_val}, down_price_val: {down_price_val}, asks_shares_val: {up_shares_val}, bids_shares_val: {down_shares_val}")           
-        return up_price_val, down_price_val, up_shares_val, down_shares_val 
+        try:
+            # 使用_wait_for_element替代直接find_element
+            up_price_element = self._wait_for_element(XPathConfig.ASKS_PRICE, timeout=3)
+            if not up_price_element:
+                self.logger.warning("无法获取UP价格元素")
+                return None, None, None, None
+                
+            down_price_element = self._wait_for_element(XPathConfig.BIDS_PRICE, timeout=3)
+            if not down_price_element:
+                self.logger.warning("无法获取DOWN价格元素")
+                return None, None, None, None
+                
+            up_shares_element = self._wait_for_element(XPathConfig.ASKS_SHARES, timeout=3)
+            if not up_shares_element:
+                self.logger.warning("无法获取UP份额元素")
+                return None, None, None, None
+                
+            down_shares_element = self._wait_for_element(XPathConfig.BIDS_SHARES, timeout=3)
+            if not down_shares_element:
+                self.logger.warning("无法获取DOWN份额元素")
+                return None, None, None, None
+            
+            # 提取价格数据
+            up_price_text = up_price_element.text
+            down_price_text = down_price_element.text
+            up_shares_text = up_shares_element.text
+            down_shares_text = down_shares_element.text
+            
+            # 解析价格
+            up_price_match = re.search(r'(\d+(?:\.\d+)?)\¢', up_price_text)
+            down_price_match = re.search(r'(\d+(?:\.\d+)?)\¢', down_price_text)
+            
+            if not up_price_match or not down_price_match:
+                self.logger.warning("价格格式解析失败")
+                return None, None, None, None
+                
+            up_price_val = round(float(up_price_match.group(1)), 2)
+            down_price_val = round(float(down_price_match.group(1)), 2)
+            
+            # 解析份额
+            up_shares_val = float(up_shares_text.replace(',', '')) if up_shares_text else None
+            down_shares_val = float(down_shares_text.replace(',', '')) if down_shares_text else None
+            
+            return up_price_val, down_price_val, up_shares_val, down_shares_val
+            
+        except Exception as e:
+            self.logger.error(f"获取价格数据失败: {str(e)}")
+            return None, None, None, None 
         
     def check_prices(self):
         """检查价格变化"""
