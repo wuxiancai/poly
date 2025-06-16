@@ -1226,27 +1226,27 @@ class CryptoTrader:
 
         up_shares_val = None
         down_shares_val = None
-
+        # 获取 UP 价格
         up_price_val = self.driver.find_element(By.XPATH, XPathConfig.ASKS_PRICE[0]).text
         up_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', up_price_val).group(1)
-        self.logger.info(f"asks_price: {up_price_val}")
-
+        
+        # 获取 DOWN 价格
         down_price_val = self.driver.find_element(By.XPATH, XPathConfig.BIDS_PRICE[0]).text
         down_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', down_price_val).group(1)
-        self.logger.info(f"bids_price: {down_price_val}")
-
+        
+        # 获取 UP SHARES
         up_shares_val = self.driver.find_element(By.XPATH, XPathConfig.ASKS_SHARES[0]).text
-        self.logger.info(f"asks_shares: {up_shares_val}")
+        # 获取 DOWN SHARES
         down_shares_val = self.driver.find_element(By.XPATH, XPathConfig.BIDS_SHARES[0]).text
-        self.logger.info(f"bids_shares: {down_shares_val}")
+        
     
-        if up_price_val is not None: # Check for None before float conversion
+        if up_price_val is not None:
             up_price_val = round(float(up_price_val), 2)
         if down_price_val is not None:
             down_price_val = round(float(down_price_val), 2)
 
         if up_shares_val is not None:
-            up_shares_val = float(down_shares_val.replace(',', ''))
+            up_shares_val = float(up_shares_val.replace(',', ''))
         if down_shares_val is not None:
             down_shares_val = float(down_shares_val.replace(',', ''))
 
