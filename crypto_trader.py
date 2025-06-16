@@ -1221,33 +1221,35 @@ class CryptoTrader:
     def get_nearby_cents(self):
         """获取spread附近的价格数字"""
         try:
-            # 使用_wait_for_element替代直接find_element
-            up_price_element = self._wait_for_element(XPathConfig.ASKS_PRICE, timeout=3)
+            # 获取并立即提取UP价格
+            up_price_element = self._wait_for_element(XPathConfig.ASKS_PRICE, timeout=2)
             if not up_price_element:
                 self.logger.warning("无法获取UP价格元素")
                 return None, None, None, None
-                
-            down_price_element = self._wait_for_element(XPathConfig.BIDS_PRICE, timeout=3)
+            up_price_text = up_price_element.text  # 立即提取文本
+            
+            # 获取并立即提取DOWN价格
+            down_price_element = self._wait_for_element(XPathConfig.BIDS_PRICE, timeout=2)
             if not down_price_element:
                 self.logger.warning("无法获取DOWN价格元素")
                 return None, None, None, None
-                
-            up_shares_element = self._wait_for_element(XPathConfig.ASKS_SHARES, timeout=3)
+            down_price_text = down_price_element.text  # 立即提取文本
+            
+            # 获取并立即提取UP份额
+            up_shares_element = self._wait_for_element(XPathConfig.ASKS_SHARES, timeout=2)
             if not up_shares_element:
                 self.logger.warning("无法获取UP份额元素")
                 return None, None, None, None
-                
-            down_shares_element = self._wait_for_element(XPathConfig.BIDS_SHARES, timeout=3)
+            up_shares_text = up_shares_element.text  # 立即提取文本
+            
+            # 获取并立即提取DOWN份额
+            down_shares_element = self._wait_for_element(XPathConfig.BIDS_SHARES, timeout=2)
             if not down_shares_element:
                 self.logger.warning("无法获取DOWN份额元素")
                 return None, None, None, None
+            down_shares_text = down_shares_element.text  # 立即提取文本
             
-            # 提取价格数据
-            up_price_text = up_price_element.text
-            down_price_text = down_price_element.text
-            up_shares_text = up_shares_element.text
-            down_shares_text = down_shares_element.text
-            
+            # 后续处理文本数据...
             # 解析价格
             up_price_match = re.search(r'(\d+(?:\.\d+)?)\¢', up_price_text)
             down_price_match = re.search(r'(\d+(?:\.\d+)?)\¢', down_price_text)
@@ -1267,8 +1269,8 @@ class CryptoTrader:
             
         except Exception as e:
             self.logger.error(f"获取价格数据失败: {str(e)}")
-            return None, None, None, None 
-        
+            return None, None, None, None
+
     def check_prices(self):
         """检查价格变化"""
         # 直接检查driver是否存在，不存在就重启
