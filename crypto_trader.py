@@ -1246,7 +1246,7 @@ class CryptoTrader:
             if down_shares_val is not None:
                 down_shares_val = float(down_shares_val.replace(',', ''))
 
-            #self.logger.info(f"up_price_val: {up_price_val}, down_price_val: {down_price_val}, asks_shares_val: {asks_shares_val}, bids_shares_val: {bids_shares_val}")           
+            self.logger.info(f"up_price_val: {up_price_val}, down_price_val: {down_price_val}, asks_shares_val: {asks_shares_val}, bids_shares_val: {bids_shares_val}")           
             return up_price_val, down_price_val, up_shares_val, down_shares_val 
             
         except ValueError as e:
