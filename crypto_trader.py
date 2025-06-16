@@ -1351,7 +1351,11 @@ class CryptoTrader:
             # 验证浏览器连接是否正常
             self.driver.execute_script("return navigator.userAgent")
             # 获取一次价格和SHARES
-            up_price_val, down_price_val, asks_shares_val, bids_shares_val = self.get_nearby_cents()
+            #up_price_val, down_price_val, asks_shares_val, bids_shares_val = self.get_nearby_cents()
+            up_price_val = self._wait_for_element(XPathConfig.ASKS_PRICE, timeout=3)
+            down_price_val = self._wait_for_element(XPathConfig.BIDS_PRICE, timeout=3)
+            asks_shares_val = self._wait_for_element(XPathConfig.ASKS_SHARES, timeout=3)
+            bids_shares_val = self._wait_for_element(XPathConfig.BIDS_SHARES, timeout=3)
             
             if up_price_val is not None and down_price_val is not None and asks_shares_val is not None and bids_shares_val is not None:
                 # 将原始的 '¢' 单位价格转换为 0-100 的百分比价格用于显示和逻辑判断
@@ -3528,8 +3532,8 @@ class CryptoTrader:
             # 定义要排除的 XPath 属性
             excluded_attrs = ['ACCEPT_BUTTON', 'LOGIN_BUTTON', 'LOGIN_WITH_GOOGLE_BUTTON','HISTORY',
                               'POSITION_SELL_BUTTON', 'POSITION_SELL_YES_BUTTON', 'POSITION_SELL_NO_BUTTON',
-                              'POSITION_UP_LABEL', 'POSITION_DOWN_LABEL', 'POSITION_YES_VALUE', 'POSITION_NO_VALUE',
-                              'SEARCH_CONFIRM_BUTTON','SEARCH_INPUT','SPREAD','CASH_VALUE','PORTFOLIO_VALUE'
+                              'POSITION_UP_LABEL', 'POSITION_DOWN_LABEL', 'SEARCH_CONFIRM_BUTTON',
+                              'SEARCH_INPUT','SPREAD','CASH_VALUE','PORTFOLIO_VALUE','PORTFOLIO_VALUE'
                               ]
             # 获取所有 XPath 属性，排除指定的属性
             xpath_attrs = [attr for attr in dir(xpath_config) 
