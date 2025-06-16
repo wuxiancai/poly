@@ -1226,39 +1226,32 @@ class CryptoTrader:
 
         up_shares_val = None
         down_shares_val = None
-        try:  
-            up_price_val_text = self.driver.find_element(By.XPATH, XPathConfig.ASKS_PRICE).text
-            self.logger.info(f"asks_price: {up_price_val_text}")
-            up_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', up_price_val_text)
 
-            down_price_val_text = self.driver.find_element(By.XPATH, XPathConfig.BIDS_PRICE).text
-            self.logger.info(f"bids_price: {down_price_val_text}")
-            down_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', down_price_val_text)
+        up_price_val_text = self.driver.find_element(By.XPATH, XPathConfig.ASKS_PRICE[0])
+        self.logger.info(f"asks_price: {up_price_val_text}")
+        up_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', up_price_val_text)
 
-            up_shares_val = self.driver.find_element(By.XPATH, XPathConfig.ASKS_SHARES).text
-            self.logger.info(f"asks_shares: {up_shares_val}")
-            down_shares_val = self.driver.find_element(By.XPATH, XPathConfig.BIDS_SHARES).text
-            self.logger.info(f"bids_shares: {down_shares_val}")
-        
-            if up_price_val is not None: # Check for None before float conversion
-                up_price_val = round(float(up_price_val), 2)
-            if down_price_val is not None:
-                down_price_val = round(float(down_price_val), 2)
+        down_price_val_text = self.driver.find_element(By.XPATH, XPathConfig.BIDS_PRICE[0])
+        self.logger.info(f"bids_price: {down_price_val_text}")
+        down_price_val = re.search(r'(\d+(?:\.\d+)?)\¢', down_price_val_text)
 
-            if up_shares_val is not None:
-                up_shares_val = float(down_shares_val.replace(',', ''))
-            if down_shares_val is not None:
-                down_shares_val = float(down_shares_val.replace(',', ''))
+        up_shares_val = self.driver.find_element(By.XPATH, XPathConfig.ASKS_SHARES[0])
+        self.logger.info(f"asks_shares: {up_shares_val}")
+        down_shares_val = self.driver.find_element(By.XPATH, XPathConfig.BIDS_SHARES[0])
+        self.logger.info(f"bids_shares: {down_shares_val}")
+    
+        if up_price_val is not None: # Check for None before float conversion
+            up_price_val = round(float(up_price_val), 2)
+        if down_price_val is not None:
+            down_price_val = round(float(down_price_val), 2)
 
-            #self.logger.info(f"up_price_val: {up_price_val}, down_price_val: {down_price_val}, asks_shares_val: {up_shares_val}, bids_shares_val: {down_shares_val}")           
-            return up_price_val, down_price_val, up_shares_val, down_shares_val 
-            
-        except ValueError as e:
-            #self.logger.error(f"数值转换错误: {e}. Values: up_p='{up_price_str}', ask_s='{asks_shares_str}', down_p='{down_price_str}', bid_s='{bids_shares_str}'")
-            return None, None, None, None
-        except Exception as e: # Catch any other unexpected errors during conversion
-            #self.logger.error(f"解析价格和股数时发生未知错误: {str(e)}")
-            return None, None, None, None
+        if up_shares_val is not None:
+            up_shares_val = float(down_shares_val.replace(',', ''))
+        if down_shares_val is not None:
+            down_shares_val = float(down_shares_val.replace(',', ''))
+
+        #self.logger.info(f"up_price_val: {up_price_val}, down_price_val: {down_price_val}, asks_shares_val: {up_shares_val}, bids_shares_val: {down_shares_val}")           
+        return up_price_val, down_price_val, up_shares_val, down_shares_val 
         
     def check_prices(self):
         """检查价格变化"""
