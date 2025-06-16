@@ -1246,7 +1246,7 @@ class CryptoTrader:
             if down_shares_val is not None:
                 down_shares_val = float(down_shares_val.replace(',', ''))
 
-            self.logger.info(f"up_price_val: {up_price_val}, down_price_val: {down_price_val}, asks_shares_val: {up_shares_val}, bids_shares_val: {down_shares_val}")           
+            #self.logger.info(f"up_price_val: {up_price_val}, down_price_val: {down_price_val}, asks_shares_val: {up_shares_val}, bids_shares_val: {down_shares_val}")           
             return up_price_val, down_price_val, up_shares_val, down_shares_val 
             
         except ValueError as e:
@@ -1270,7 +1270,7 @@ class CryptoTrader:
             self.driver.execute_script("return navigator.userAgent")
             # 获取一次价格和SHARES
             up_price_val, down_price_val, asks_shares_val, bids_shares_val = self.get_nearby_cents()
-            
+            self.logger.info(f"up_price_val: {up_price_val}, down_price_val: {down_price_val}, asks_shares_val: {asks_shares_val}, bids_shares_val: {bids_shares_val}")
             if up_price_val is not None and down_price_val is not None and asks_shares_val is not None and bids_shares_val is not None:
                 # 将原始的 '¢' 单位价格转换为 0-100 的百分比价格用于显示和逻辑判断
                 # asks_price (up_price) 是直接的 '¢' 值
