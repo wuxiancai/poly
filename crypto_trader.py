@@ -3719,7 +3719,7 @@ class CryptoTrader:
 
                         self.start_url_monitoring()
                         self.refresh_page()
-
+                        return new_url
                     else:
                         # 关闭当前详情URL标签页
                         self.driver.close()
