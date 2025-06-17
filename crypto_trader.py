@@ -110,6 +110,7 @@ class CryptoTrader:
         # 添加定时器
         self.refresh_page_timer = None  # 用于存储定时器ID
         self.url_check_timer = None
+
         # 添加登录状态监控定时器
         self.login_check_timer = None
         self.monitor_xpath_timer = None
@@ -119,12 +120,6 @@ class CryptoTrader:
         self.comparison_binance_price_timer = None
         self.schedule_auto_find_coin_timer = None
         
-        # XPATH缓存系统 - 用于提升元素查找性能
-        self.xpath_cache = {}  # 存储已验证可用的XPATH
-        self.xpath_cache_timestamp = None  # 缓存创建时间戳
-        self.xpath_cache_update_timer = None  # 缓存更新定时器
-        self.xpath_cache_duration = 24 * 60 * 60 * 1000  # 24小时缓存有效期(毫秒)
-
         # 添加URL and refresh_page监控锁
         self.url_monitoring_lock = threading.Lock()
         self.refresh_page_lock = threading.Lock()
@@ -140,7 +135,7 @@ class CryptoTrader:
         self.doubling_weeks = 35
 
         # 默认买价
-        self.default_target_price = 52 # 不修改
+        self.default_target_price = 53 # 不修改
         # 默认反水卖价
         self.default_sell_price_backwater = 47 # 不修改
         # 默认卖价
@@ -153,8 +148,8 @@ class CryptoTrader:
         self.price_premium = 3 # 不修改
 
         # 买入触发条件之一:最少成交数量SHARES
-        self.asks_shares = 200 # 不修改
-        self.bids_shares = 200 # 不修改
+        self.asks_shares = 100 # 不修改
+        self.bids_shares = 100 # 不修改
         
         # 按钮区域按键 WIDTH
         self.button_width = 8 # 不修改
@@ -850,9 +845,6 @@ class CryptoTrader:
                 )
                 self.logger.info("\033[34m✅ 浏览器启动成功!\033[0m")
                 
-                # 初始化XPATH缓存 - 提升后续元素查找性能
-                self._initialize_xpath_cache()
-                
                 # 保存配置
                 if 'website' not in self.config:
                     self.config['website'] = {}
@@ -1056,9 +1048,6 @@ class CryptoTrader:
                         self.logger.info(f"✅ 成功加载页面: {target_url}")
                     
                     self.logger.info("✅ 浏览器连接成功")
-                    
-                    # 重新初始化XPATH缓存 - 提升后续元素查找性能
-                    self._initialize_xpath_cache()
 
                     # 连接成功后，重置监控线程
                     self._restore_monitoring_state()
@@ -1220,7 +1209,6 @@ class CryptoTrader:
     def get_nearby_cents(self):
         """获取spread附近的价格数字"""
         try:
-            # 使用原始find_element方法，避免_wait_for_element的问题
             try:
                 up_price_element = self.driver.find_element(By.XPATH, XPathConfig.ASKS_PRICE[0])
                 up_price_text = up_price_element.text
@@ -1351,9 +1339,9 @@ class CryptoTrader:
             # 取Portfolio值和Cash值
             self.cash_value = None
             self.portfolio_value = None
-            # 不使用缓存机制获取Portfolio和Cash值
-            portfolio_element = self._wait_for_element(XPathConfig.PORTFOLIO_VALUE, timeout=3)
-            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=3)
+            # 获取Portfolio和Cash值
+            portfolio_element = self.driver.find_element(By.XPATH, XPathConfig.PORTFOLIO_VALUE[0])
+            cash_element = self.driver.find_element(By.XPATH, XPathConfig.CASH_VALUE[0])
             
             if portfolio_element and cash_element:
                 self.cash_value = cash_element.text
@@ -1416,11 +1404,11 @@ class CryptoTrader:
     def set_yes1_no1_default_target_price(self):
         """设置默认目标价格"""
         self.yes1_price_entry.delete(0, tk.END)
-        self.yes1_price_entry.insert(0, self.default_target_price)
+        self.yes1_price_entry.insert(0, "52")
         self.yes1_price_entry.configure(foreground='red')
 
         self.no1_price_entry.delete(0, tk.END)
-        self.no1_price_entry.insert(0, self.default_target_price)
+        self.no1_price_entry.insert(0, "52")
         self.no1_price_entry.configure(foreground='red')
         self.logger.info(f"\033[34m✅ 设置买入价格{self.default_target_price}成功\033[0m")
         self.close_windows()
@@ -1585,8 +1573,7 @@ class CryptoTrader:
         # 检查是否已经登录
         try:
             # 查找登录按钮
-            # 使用缓存机制查找登录按钮
-            login_button = self.find_element_cached('LOGIN_BUTTON', timeout=3, silent=True)
+            login_button = self.driver.find_element(By.XPATH, XPathConfig.LOGIN_BUTTON[0])
             if login_button:
                 self.logger.info("✅ 已发现登录按钮,尝试登录")
                 self.stop_url_monitoring()
@@ -1595,8 +1582,8 @@ class CryptoTrader:
                 login_button.click()
                 time.sleep(1)
                 
-                # 使用缓存机制查找Google登录按钮
-                google_login_button = self.find_element_cached('LOGIN_WITH_GOOGLE_BUTTON', timeout=3, silent=True)
+                # 查找Google登录按钮
+                google_login_button = self.driver.find_element(By.XPATH, XPathConfig.LOGIN_WITH_GOOGLE_BUTTON[0])
                 if google_login_button:
                     google_login_button.click()
                     self.logger.info("✅ 已点击Google登录按钮")
@@ -1608,8 +1595,8 @@ class CryptoTrader:
                     
                     for attempt in range(max_attempts):
                         try:
-                            # 不使用缓存机制尝试获取CASH值
-                            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=1)
+                            # 获取CASH值
+                            cash_element = self.driver.find_element(By.XPATH, XPathConfig.CASH_VALUE[0])
                             if cash_element:
                                 cash_value = cash_element.text
                                 
@@ -1633,8 +1620,8 @@ class CryptoTrader:
                             self.buy_confirm_button.invoke()
                             time.sleep(1)
                             
-                            # 使用缓存机制查找Accept按钮
-                            accept_button = self.find_element_cached('ACCEPT_BUTTON', timeout=2, silent=True)
+                            # 查找Accept按钮
+                            accept_button = self.driver.find_element(By.XPATH, XPathConfig.ACCEPT_BUTTON[0])
                             if accept_button:
                                 try:
                                     accept_button.click()
@@ -1861,7 +1848,7 @@ class CryptoTrader:
                             self.yes2_price_entry.insert(0, str(self.default_target_price))
                             self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
 
-                            # 设置 Yes5和No5价格为0.98
+                            # 设置 Yes5和No5价格为0.99
                             self.yes5_price_entry = self.yes_frame.grid_slaves(row=8, column=1)[0]
                             self.yes5_price_entry.delete(0, tk.END)
                             self.yes5_price_entry.insert(0, str(self.default_normal_sell_price))
@@ -2634,9 +2621,8 @@ class CryptoTrader:
             self.position_sell_yes_button.invoke()
             time.sleep(0.5)
 
-            # 使用缓存机制找到SHARES输入框(与 AMOUNT_INPUT 相同)
-            shares_input = self.find_element_cached('AMOUNT_INPUT', timeout=3, silent=True)                   
-
+            # 找到SHARES输入框(与 AMOUNT_INPUT 相同)
+            shares_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
             # 清除 SHARES 输入为 0,然后再插入需要卖的 SHARES
             shares_input.clear()
             time.sleep(0.5)
@@ -2679,8 +2665,8 @@ class CryptoTrader:
             self.position_sell_no_button.invoke()
             time.sleep(0.5)
             
-            # 使用缓存机制找到输入框
-            shares_input = self.find_element_cached('AMOUNT_INPUT', timeout=3, silent=True)
+            # 找到输入框
+            shares_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
             
             # 设置 SHARES_input 为 0,然后再插入需要卖的 SHARES                       
             shares_input.clear()
@@ -2775,7 +2761,7 @@ class CryptoTrader:
                     
                     try:
                         # 等待历史记录元素出现                  
-                        history_element = self._wait_for_element(XPathConfig.HISTORY, timeout=3)
+                        history_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
                         
                         if history_element:
                             # 获取历史记录文本
@@ -2826,32 +2812,6 @@ class CryptoTrader:
             self.logger.error(f"交易验证失败: {str(e)}")
             return False, 0, 0
 
-    def _wait_for_element(self, xpath_list, timeout=10, poll_frequency=0.5):
-        """智能等待元素出现
-        
-        Args:
-            xpath_list: XPath列表
-            timeout: 超时时间（秒）
-            poll_frequency: 轮询频率（秒）
-            
-        Returns:
-            WebElement: 找到的元素,未找到则返回None
-        """
-        if not self.driver:
-            return None
-            
-        end_time = time.time() + timeout
-        while time.time() < end_time:
-            for xpath in xpath_list:
-                try:
-                    element = self.driver.find_element(By.XPATH, xpath)
-                    if element and element.is_displayed():
-                        return element
-                except (NoSuchElementException, StaleElementReferenceException):
-                    pass
-            time.sleep(poll_frequency)
-        return None
-          
     def click_buy_confirm_button(self):
         try:
             buy_confirm_button = self.driver.find_element(By.XPATH, XPathConfig.BUY_CONFIRM_BUTTON[0])
@@ -2974,8 +2934,8 @@ class CryptoTrader:
         try:
             if not self.driver and not self.is_restarting:
                 self.restart_browser(force_restart=True)
-            # 使用缓存机制查找买按钮
-            button = self.find_element_cached('BUY_BUTTON', timeout=3, silent=True)
+            # 查找买按钮
+            button = self.driver.find_element(By.XPATH, XPathConfig.BUY_BUTTON[0])
             button.click()
             
         except Exception as e:
@@ -2987,8 +2947,8 @@ class CryptoTrader:
             if not self.driver and not self.is_restarting:
                 self.restart_browser(force_restart=True)
             
-            # 使用缓存机制查找买YES按钮
-            button = self.find_element_cached('BUY_YES_BUTTON', timeout=3, silent=True)
+            # 查找买YES按钮
+            button = self.driver.find_element(By.XPATH, XPathConfig.BUY_YES_BUTTON[0])
             button.click()
             
         except Exception as e:
@@ -2999,8 +2959,8 @@ class CryptoTrader:
         try:
             if not self.driver and not self.is_restarting:
                 self.restart_browser(force_restart=True)
-            # 使用缓存机制查找买NO按钮
-            button = self.find_element_cached('BUY_NO_BUTTON', timeout=3, silent=True)
+            # 查找买NO按钮
+            button = self.driver.find_element(By.XPATH, XPathConfig.BUY_NO_BUTTON[0])
             button.click()
             
         except Exception as e:
@@ -3016,8 +2976,8 @@ class CryptoTrader:
             button = event.widget if event else self.amount_button
             button_text = button.cget("text")
 
-            # 使用缓存机制找到输入框
-            amount_input = self.find_element_cached('AMOUNT_INPUT', timeout=3, silent=True)
+            # 找到输入框
+            amount_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
 
             # 清空输入框
             amount_input.clear()
@@ -3055,33 +3015,8 @@ class CryptoTrader:
               
         except Exception as e:
             self.logger.error(f"Amount操作失败: {str(e)}")
-    """以下代码是交易过程中的功能性函数,买卖及确认买卖成功,从第 2529 行到第 2703 行"""
-    def position_yes_cash(self):
-        """获取当前持仓YES的金额"""
-        yes_element = self._wait_for_element(
-            XPathConfig.HISTORY,
-            timeout=3,
-            silent=True
-        )
-        text = yes_element.text
-        amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-        yes_value = float(amount_match.group(1))
-        self.logger.info(f"当前持仓YES的金额: {yes_value}")
-        return yes_value
     
-    def position_no_cash(self):
-        """获取当前持仓NO的金额"""
-        no_element = self._wait_for_element(
-            XPathConfig.HISTORY,
-            timeout=3,
-            silent=True
-        )
-        text = no_element.text
-        amount_match = re.search(r'\$(\d+\.?\d*)', text)  # 匹配 $数字 格式
-        no_value = float(amount_match.group(1))
-        self.logger.info(f"当前持仓NO的金额: {no_value}")
-        return no_value
-
+    
     def close_windows(self):
         """关闭多余窗口"""
         # 检查并关闭多余的窗口，只保留一个
@@ -3334,34 +3269,13 @@ class CryptoTrader:
         return False
       
     def _find_element_with_retry(self, xpaths, timeout=3, silent=False):
-        """优化版XPATH元素查找(增强空值处理) - 支持缓存机制"""
+        """优化版XPATH元素查找(增强空值处理)"""
         try:
-            # 如果传入的是XPathConfig的属性名(字符串)，先从缓存中获取最优XPATH
-            if isinstance(xpaths, str):
-                cached_xpath = self._get_cached_xpath(xpaths)
-                if cached_xpath:
-                    try:
-                        element = WebDriverWait(self.driver, timeout).until(
-                            EC.element_to_be_clickable((By.XPATH, cached_xpath))
-                        )
-                        return element
-                    except TimeoutException:
-                        if not silent:
-                            self.logger.warning(f"缓存XPATH失效，回退到完整搜索: {cached_xpath}")
-                        # 缓存失效，移除该缓存项
-                        self._remove_cached_xpath(xpaths)
-                        # 获取完整的XPATH列表进行搜索
-                        xpaths = getattr(XPathConfig, xpaths, [])
-                
-            # 原有的遍历逻辑
             for i, xpath in enumerate(xpaths, 1):
                 try:
                     element = WebDriverWait(self.driver, timeout).until(
                         EC.element_to_be_clickable((By.XPATH, xpath))
                     )
-                    # 如果找到元素，更新缓存(仅当传入的是属性名时)
-                    if isinstance(xpaths, str):
-                        self._update_cached_xpath(xpaths, xpath)
                     return element
                 except TimeoutException:
                     if not silent:
@@ -3372,162 +3286,6 @@ class CryptoTrader:
                 raise
         return None
     
-    def _initialize_xpath_cache(self):
-        """初始化XPATH缓存 - 程序启动时执行一次"""
-        if not self.driver:
-            self.logger.warning("浏览器未启动,无法初始化XPATH缓存")
-            return
-            
-        self.logger.info("🔄 开始初始化XPATH缓存...")
-        start_time = time.time()
-        
-        try:
-            # 获取XPathConfig中所有固定不变的XPATH属性
-            # 这些XPATH通常是页面的基础元素，变化频率较低
-            stable_xpath_attrs = [
-                'LOGIN_BUTTON', 'BUY_BUTTON', 'BUY_YES_BUTTON', 'BUY_NO_BUTTON',
-                'SELL_YES_BUTTON', 'SELL_NO_BUTTON', 'BUY_CONFIRM_BUTTON', 
-                'SELL_CONFIRM_BUTTON', 'AMOUNT_INPUT', 'PORTFOLIO_VALUE', 
-                'CASH_VALUE', 'LOGIN_WITH_GOOGLE_BUTTON', 'ACCEPT_BUTTON'
-            ]
-            
-            cached_count = 0
-            total_count = len(stable_xpath_attrs)
-            
-            for attr_name in stable_xpath_attrs:
-                try:
-                    xpath_list = getattr(XPathConfig, attr_name, [])
-                    if not xpath_list:
-                        continue
-                        
-                    # 测试每个XPATH，找到第一个可用的
-                    for xpath in xpath_list:
-                        try:
-                            WebDriverWait(self.driver, 2).until(
-                                EC.presence_of_element_located((By.XPATH, xpath))
-                            )
-                            # 找到可用的XPATH，加入缓存
-                            self.xpath_cache[attr_name] = xpath
-                            cached_count += 1
-                            #self.logger.debug(f"✅ 缓存XPATH: {attr_name} -> {xpath[:50]}...")
-                            break
-                        except (TimeoutException, NoSuchElementException):
-                            continue
-                            
-                except Exception as e:
-                    self.logger.warning(f"⚠️ 初始化{attr_name}缓存失败: {str(e)}")
-                    continue
-            
-            # 记录缓存创建时间
-            self.xpath_cache_timestamp = time.time()
-            
-            elapsed_time = time.time() - start_time
-            #self.logger.info(f"✅ XPATH缓存初始化完成: {cached_count}/{total_count} 项缓存，耗时 {elapsed_time:.2f}秒")
-            
-            # 启动24小时定时更新
-            self._schedule_xpath_cache_update()
-            
-        except Exception as e:
-            self.logger.error(f"❌ XPATH缓存初始化失败: {str(e)}")
-    
-    def _get_cached_xpath(self, attr_name):
-        """从缓存中获取XPATH"""
-        return self.xpath_cache.get(attr_name)
-    
-    def _update_cached_xpath(self, attr_name, xpath):
-        """更新XPATH缓存"""
-        if attr_name not in self.xpath_cache or self.xpath_cache[attr_name] != xpath:
-            self.xpath_cache[attr_name] = xpath
-            #self.logger.debug(f"🔄 更新XPATH缓存: {attr_name} -> {xpath[:50]}...")
-    
-    def _remove_cached_xpath(self, attr_name):
-        """移除失效的XPATH缓存"""
-        if attr_name in self.xpath_cache:
-            removed_xpath = self.xpath_cache.pop(attr_name)
-            self.logger.warning(f"🗑️ 移除失效XPATH缓存: {attr_name} -> {removed_xpath[:50]}...")
-    
-    def _schedule_xpath_cache_update(self):
-        """安排24小时后更新XPATH缓存"""
-        if self.xpath_cache_update_timer:
-            self.root.after_cancel(self.xpath_cache_update_timer)
-        
-        # 1小时后重新初始化缓存
-        one_hour_ms = 60 * 60 * 1000  # 1小时 = 3600000毫秒
-        self.xpath_cache_update_timer = self.root.after(
-            one_hour_ms, 
-            self._update_xpath_cache
-        )
-        #self.logger.info("⏰ 已安排1小时后更新XPATH缓存")
-    
-    def _update_xpath_cache(self):
-        """定时更新XPATH缓存"""
-        
-        # 清空旧缓存
-        old_cache_size = len(self.xpath_cache)
-        self.xpath_cache.clear()
-        
-        # 重新初始化缓存
-        self._initialize_xpath_cache()
-        
-        new_cache_size = len(self.xpath_cache)
-        #self.logger.info(f"✅ XPATH缓存更新完成: {old_cache_size} -> {new_cache_size} 项")
-        
-        # 安排下一次1小时后的更新
-        one_hour_ms = 60 * 60 * 1000
-        self.xpath_cache_update_timer = self.root.after(
-            one_hour_ms, 
-            self._update_xpath_cache
-        )
-    
-    def _is_xpath_cache_valid(self):
-        """检查XPATH缓存是否仍然有效"""
-        if not self.xpath_cache_timestamp:
-            return False
-        
-        current_time = time.time()
-        cache_age = current_time - self.xpath_cache_timestamp
-        return cache_age < (self.xpath_cache_duration / 1000)  # 转换为秒
-    
-    def find_element_cached(self, xpath_attr_name, timeout=3, silent=False):
-        """使用缓存机制查找元素的便捷方法
-        
-        Args:
-            xpath_attr_name (str): XPathConfig中的属性名,如'BUY_BUTTON'
-            timeout (int): 超时时间(秒)
-            silent (bool): 是否静默模式
-            
-        Returns:
-            WebElement or None: 找到的元素或None
-        """
-        try:
-            # 首先尝试从缓存获取
-            cached_xpath = self._get_cached_xpath(xpath_attr_name)
-            if cached_xpath:
-                try:
-                    element = WebDriverWait(self.driver, timeout).until(
-                        EC.element_to_be_clickable((By.XPATH, cached_xpath))
-                    )
-                    return element
-                except TimeoutException:
-                    if not silent:
-                        self.logger.warning(f"缓存XPATH失效,回退到完整搜索: {xpath_attr_name}")
-                    # 缓存失效，移除该缓存项
-                    self._remove_cached_xpath(xpath_attr_name)
-            
-            # 缓存未命中或失效，使用完整的XPATH列表
-            xpath_list = getattr(XPathConfig, xpath_attr_name, [])
-            if not xpath_list:
-                if not silent:
-                    self.logger.warning(f"未找到XPATH配置: {xpath_attr_name}")
-                return None
-                
-            return self._find_element_with_retry(xpath_list, timeout, silent)
-            
-        except Exception as e:
-            if not silent:
-                self.logger.error(f"查找元素失败 {xpath_attr_name}: {str(e)}")
-            return None
-
     def monitor_xpath_elements(self):
         """使用当前浏览器实例监控 XPath 元素"""
         if not self.driver and not self.is_restarting:
@@ -3748,8 +3506,8 @@ class CryptoTrader:
                 search_text = 'XRP Up or Down on'
             
             try:
-                # 使用缓存机制查找搜索框
-                search_box = self.find_element_cached('SEARCH_INPUT', timeout=3, silent=True)
+                # 查找搜索框
+                search_box = self.driver.find_element(By.XPATH, XPathConfig.SEARCH_INPUT[0])
                 
                 # 创建ActionChains对象
                 actions = ActionChains(self.driver)
@@ -3903,8 +3661,8 @@ class CryptoTrader:
     def get_zero_time_cash(self):
         """获取币安BTC实时价格,并在中国时区00:00触发"""
         try:
-            # 不使用缓存机制零点获取 CASH 的值
-            cash_element = self._wait_for_element(XPathConfig.CASH_VALUE, timeout=3)
+            # 获取零点CASH值
+            cash_element = self.driver.find_element(By.XPATH, XPathConfig.CASH_VALUE[0])
             if cash_element:
                 cash_value = cash_element.text
             else:
