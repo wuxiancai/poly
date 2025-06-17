@@ -153,8 +153,8 @@ class CryptoTrader:
         self.price_premium = 3 # 不修改
 
         # 买入触发条件之一:最少成交数量SHARES
-        self.asks_shares = 100 # 不修改
-        self.bids_shares = 100# 不修改
+        self.asks_shares = 200 # 不修改
+        self.bids_shares = 200 # 不修改
         
         # 按钮区域按键 WIDTH
         self.button_width = 8 # 不修改
@@ -1703,7 +1703,7 @@ class CryptoTrader:
     def refresh_page(self):
         """定时刷新页面"""
         # 生成随机的5-10分钟（以毫秒为单位）
-        random_minutes = random.uniform(3, 10)
+        random_minutes = random.uniform(2, 7)
         self.refresh_interval = int(random_minutes * 60000)  # 转换为毫秒
 
         with self.refresh_page_lock:
