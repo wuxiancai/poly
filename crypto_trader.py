@@ -615,28 +615,28 @@ class CryptoTrader:
         config_container = ttk.Frame(trading_config_frame)
         config_container.pack(fill="x", pady=2)
         
-        # YES 区域配置
-        self.yes_frame = ttk.LabelFrame(config_container, text="YES Positions", padding=(5, 3))
+        # Up 区域配置
+        self.yes_frame = ttk.LabelFrame(config_container, text="Up Positions", padding=(5, 3))
         self.yes_frame.grid(row=0, column=0, padx=(0, 4), sticky="nsew")
         config_container.grid_columnconfigure(0, weight=1)
 
-        # No 配置区域
-        self.no_frame = ttk.LabelFrame(config_container, text="NO Positions", padding=(5, 3))
+        # Down 配置区域
+        self.no_frame = ttk.LabelFrame(config_container, text="Down Positions", padding=(5, 3))
         self.no_frame.grid(row=0, column=1, padx=(4, 0), sticky="nsew")
         config_container.grid_columnconfigure(1, weight=1)
         
-        # YES 配置项
-        yes_configs = [
-            ("Yes1", "yes1_price_entry", "yes1_amount_entry", 
+        # Up 配置项
+        up_configs = [
+            ("Up1", "yes1_price_entry", "yes1_amount_entry", 
              str(self.config['trading']['Yes1']['target_price']), 
              str(self.config['trading']['Yes1']['amount'])),
-            ("Yes2", "yes2_price_entry", "yes2_amount_entry", "0", "0"),
-            ("Yes3", "yes3_price_entry", "yes3_amount_entry", "0", "0"),
-            ("Yes4", "yes4_price_entry", "yes4_amount_entry", "0", "0"),
-            ("Yes5", "yes5_price_entry", None, "0", "0")
+            ("Up2", "yes2_price_entry", "yes2_amount_entry", "0", "0"),
+            ("Up3", "yes3_price_entry", "yes3_amount_entry", "0", "0"),
+            ("Up4", "yes4_price_entry", "yes4_amount_entry", "0", "0"),
+            ("Up5", "yes5_price_entry", None, "0", "0")
         ]
         
-        for i, (label, price_attr, amount_attr, price_val, amount_val) in enumerate(yes_configs):
+        for i, (label, price_attr, amount_attr, price_val, amount_val) in enumerate(up_configs):
             row_base = i * 2
             
             # 价格标签和输入框
@@ -659,18 +659,18 @@ class CryptoTrader:
         # 配置列权重
         self.yes_frame.grid_columnconfigure(1, weight=1)
 
-        # NO 配置项
-        no_configs = [
-            ("No1", "no1_price_entry", "no1_amount_entry", 
+        # Down 配置项
+        down_configs = [
+            ("Down1", "no1_price_entry", "no1_amount_entry", 
              str(self.config['trading']['No1']['target_price']), 
              str(self.config['trading']['No1']['amount'])),
-            ("No2", "no2_price_entry", "no2_amount_entry", "0", "0"),
-            ("No3", "no3_price_entry", "no3_amount_entry", "0", "0"),
-            ("No4", "no4_price_entry", "no4_amount_entry", "0", "0"),
-            ("No5", "no5_price_entry", None, "0", "0")
+            ("Down2", "no2_price_entry", "no2_amount_entry", "0", "0"),
+            ("Down3", "no3_price_entry", "no3_amount_entry", "0", "0"),
+            ("Down4", "no4_price_entry", "no4_amount_entry", "0", "0"),
+            ("Down5", "no5_price_entry", None, "0", "0")
         ]
         
-        for i, (label, price_attr, amount_attr, price_val, amount_val) in enumerate(no_configs):
+        for i, (label, price_attr, amount_attr, price_val, amount_val) in enumerate(down_configs):
             row_base = i * 2
             
             # 价格标签和输入框
@@ -701,22 +701,22 @@ class CryptoTrader:
         button_configs = [
             # 第一行：主要交易按钮
             [("buy_button", "Buy", self.click_buy),
-             ("buy_yes_button", "Buy-Yes", self.click_buy_yes),
-             ("buy_no_button", "Buy-No", self.click_buy_no),
+             ("buy_yes_button", "Buy-Up", self.click_buy_yes),
+             ("buy_no_button", "Buy-Down", self.click_buy_no),
              ("buy_confirm_button", "Buy-conf", self.click_buy_confirm_button)],
             # 第二行：Yes金额按钮
-            [("amount_yes1_button", "Amount-Y1", None),
-             ("amount_yes2_button", "Amount-Y2", None),
-             ("amount_yes3_button", "Amount-Y3", None),
-             ("amount_yes4_button", "Amount-Y4", None)],
+            [("amount_yes1_button", "Amount-U1", None),
+             ("amount_yes2_button", "Amount-U2", None),
+             ("amount_yes3_button", "Amount-U3", None),
+             ("amount_yes4_button", "Amount-U4", None)],
             # 第三行：No金额按钮
-            [("amount_no1_button", "Amount-N1", None),
-             ("amount_no2_button", "Amount-N2", None),
-             ("amount_no3_button", "Amount-N3", None),
-             ("amount_no4_button", "Amount-N4", None)],
+            [("amount_no1_button", "Amount-D1", None),
+             ("amount_no2_button", "Amount-D2", None),
+             ("amount_no3_button", "Amount-D3", None),
+             ("amount_no4_button", "Amount-D4", None)],
             # 第四行：卖出按钮
-            [("position_sell_yes_button", "P-Sell-Yes", self.click_position_sell_yes),
-             ("position_sell_no_button", "P-Sell-No", self.click_position_sell_no),
+            [("position_sell_yes_button", "P-Sell-Up", self.click_position_sell_yes),
+             ("position_sell_no_button", "P-Sell-Down", self.click_position_sell_no),
              ("sell_confirm_button", "Sell-conf", self.click_sell_confirm_button),
              (None, None, None)]  # 占位符
         ]
