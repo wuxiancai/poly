@@ -717,8 +717,8 @@ class CryptoTrader:
              ("amount_no3_button", "Amount-Down3", None),
              ("amount_no4_button", "Amount-Down4", None)],
             # 第五行：卖出按钮
-            [("position_sell_yes_button", "P-Sell-Up", self.click_position_sell_yes),
-             ("position_sell_no_button", "P-Sell-Down", self.click_position_sell_no),
+            [("position_sell_yes_button", "Positions-Sell-Up", self.click_position_sell_yes),
+             ("position_sell_no_button", "Positions-Sell-Down", self.click_position_sell_no),
              ("sell_confirm_button", "Sell-confirm", self.click_sell_confirm_button)]
         ]
         
