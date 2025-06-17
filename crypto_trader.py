@@ -3,6 +3,7 @@
 import platform
 import tkinter as tk
 from tkinter import E, ttk, messagebox
+from turtle import down
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -522,7 +523,7 @@ class CryptoTrader:
         binance_container = ttk.Frame(binance_price_frame)
         binance_container.pack(pady=2)
         
-        # 价格信息网格布局
+        # 币安价格信息网格布局
         price_info_items = [
             ("Midnight:", "binance_zero_price_label", "0"),
             ("Now:", "binance_now_price_label", "0"),
@@ -1307,6 +1308,8 @@ class CryptoTrader:
                     self.Forth_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
                     self.Sell_yes(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
                     self.Sell_no(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.Sell_up_20(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.Sell_down_20(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
             else:
                 self.yes_price_label.config(text="Up: N/A")
                 self.no_price_label.config(text="Down: N/A")
@@ -2341,8 +2344,7 @@ class CryptoTrader:
             
         finally:
             self.trading = False
-            
-            
+       
     def Sell_no(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
         """当NO4价格等于实时No价格时自动卖出"""
         
@@ -2432,6 +2434,102 @@ class CryptoTrader:
         finally:
             self.trading = False
             
+    def Sell_up_20(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
+        """
+        如果UP 价格先到 20,那么必定先买的 UP
+        当 UP 价格在晚上 22 点前涨或者跌 1%的情况下,UP 的实时价格等于 20 时,卖出全部 UP
+        """
+        try:
+            if not self.driver and not self.is_restarting:
+                self.restart_browser(force_restart=True)
+
+            if asks_price_raw is not None and  bids_price_raw is not None and asks_price_raw <= 20:
+                # 第一步,先获取当前时间和币安几个涨跌百分比
+                current_time = datetime.datetime.now()
+                binance_rate = float(self.binance_rate_label.cget("text"))
+
+                # 第二步,判断当前时间是否早于晚上 22 点,价格小于 20,且币安涨跌百分比必须大于 1%或者小于-1%
+                if current_time.hour <= 22 and (binance_rate >= 1.01 or binance_rate <= -1.01):
+                    # 第三步,卖出 UP 全部
+                    self.trading = True  # 开始交易
+                    self.only_sell_yes()
+
+                    # 第四步,查找 52 在哪个 ENTRY
+                    up3_price = self.yes3_price_entry.get()
+                    up4_price = self.yes4_price_entry.get()
+
+                    if up3_price == "52":
+                        try:
+                            up1_amount = float(self.yes1_amount_entry.get().strip() or "0")
+                            up3_amount = float(self.yes3_amount_entry.get().strip() or "0")
+                            up3_total_amount = up1_amount + up3_amount
+
+                            # 先清除原来的金额
+                            self.yes3_amount_entry.delete(0, tk.END)
+                            self.yes3_amount_entry.config(text=f"{up3_total_amount:.2f}")
+                        except ValueError as e:
+                            self.logger.error(f"❌ 数量转换失败: {str(e)}")
+
+                    if up4_price == "52":
+                        try:
+                            up2_amount = float(self.yes2_amount_entry.get().strip() or "0")
+                            up4_amount = float(self.yes4_amount_entry.get().strip() or "0") 
+                            up4_total_amount = up2_amount + up4_amount
+                            # 先清除原来的金额
+                            self.yes2_amount_entry.delete(0, tk.END)
+                            self.yes4_amount_entry.config(text=f"{up4_total_amount:.2f}")
+                        except ValueError as e:
+                            self.logger.error(f"❌ 数量转换失败: {str(e)}")
+        except Exception as e:
+            self.logger.error(f"❌ Sell_up_20执行失败: {str(e)}")
+            
+        finally:
+            self.trading = False
+
+    def Sell_down_20(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
+        """
+        如果 DOWN 价格先到 20,那么必定先买的 DOWN
+        当 DOWN 价格在晚上 22 点前涨或者跌 1%的情况下,DOWN 的实时价格等于 20 时,卖出全部 DOWN
+        """
+        try:
+            if not self.driver and not self.is_restarting:
+                self.restart_browser(force_restart=True)
+
+            if asks_price_raw is not None and bids_price_raw is not None and bids_price_raw <= 20: 
+                # 第一步,先获取当前时间和币安几个涨跌百分比
+                current_time = datetime.datetime.now()
+                binance_rate = float(self.binance_rate_label.cget("text"))
+
+                # 第二步,判断当前时间是否早于晚上 22 点,价格小于 20,且币安涨跌百分比必须大于 1%或者小于-1%
+                if current_time.hour <= 22 and (binance_rate >= 1.01 or binance_rate <= -1.01):
+                    # 第三步,卖出 DOWN 全部
+                    self.trading = True  # 开始交易
+                    self.only_sell_no()
+
+                    # 第四步,查找 52 在哪个 ENTRY
+                    down3_price = self.no3_price_entry.get()
+                    down4_price = self.no4_price_entry.get()
+                    
+                    if down3_price == "52":
+                        down1_amount = float(self.no1_amount_entry.get().strip())
+                        down3_amount = float(self.no3_amount_entry.get().strip())
+                        down3_total_amount = down1_amount + down3_amount
+
+                        self.no3_amount_entry.delete(0, tk.END)
+                        self.no3_amount_entry.config(text=f"{down3_total_amount:.2f}")
+
+                    if down4_price == "52":
+                        down2_amount = float(self.no2_amount_entry.get().strip())
+                        down4_amount = float(self.no4_amount_entry.get().strip())
+                        down4_total_amount = down2_amount + down4_amount
+
+                        self.no4_amount_entry.delete(0, tk.END)
+                        self.no4_amount_entry.config(text=f"{down4_total_amount:.2f}")
+        except Exception as e:
+            self.logger.error(f"❌ Sell_down_20执行失败: {str(e)}")
+            
+        finally:
+            self.trading = False
 
     def reset_trade(self):
         """重置交易"""
@@ -2938,30 +3036,30 @@ class CryptoTrader:
             # 清空输入框
             amount_input.clear()
             # 根据按钮文本获取对应的金额
-            if button_text == "Amount-Y1":
+            if button_text == "Amount-Up1":
                 amount = self.yes1_amount_entry.get()
-            elif button_text == "Amount-Y2":
+            elif button_text == "Amount-Up2":
                 yes2_amount_entry = self.yes_frame.grid_slaves(row=3, column=1)[0]
                 amount = yes2_amount_entry.get()
-            elif button_text == "Amount-Y3":
+            elif button_text == "Amount-Up3":
                 yes3_amount_entry = self.yes_frame.grid_slaves(row=5, column=1)[0]
                 amount = yes3_amount_entry.get()
-            elif button_text == "Amount-Y4":
+            elif button_text == "Amount-Up4":
                 yes4_amount_entry = self.yes_frame.grid_slaves(row=7, column=1)[0]
                 amount = yes4_amount_entry.get()
             
             # No 按钮
-            elif button_text == "Amount-N1":
+            elif button_text == "Amount-Down1":
                 no1_amount_entry = self.no_frame.grid_slaves(row=1, column=1)[0]
                 amount = no1_amount_entry.get()
-            elif button_text == "Amount-N2":
+            elif button_text == "Amount-Down2":
 
                 no2_amount_entry = self.no_frame.grid_slaves(row=3, column=1)[0]
                 amount = no2_amount_entry.get()
-            elif button_text == "Amount-N3":
+            elif button_text == "Amount-Down3":
                 no3_amount_entry = self.no_frame.grid_slaves(row=5, column=1)[0]
                 amount = no3_amount_entry.get()
-            elif button_text == "Amount-N4":
+            elif button_text == "Amount-Down4":
                 no4_amount_entry = self.no_frame.grid_slaves(row=7, column=1)[0]
                 amount = no4_amount_entry.get()
             else:
