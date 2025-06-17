@@ -517,7 +517,7 @@ class CryptoTrader:
         self.trading_pair_label.pack(side=tk.LEFT)
 
         # 币安价格信息
-        binance_container = ttk.Frame(trading_info_frame)
+        binance_container = ttk.Frame(scrollable_frame)
         binance_container.pack(fill="x", pady=2)
         
         # 价格信息网格布局
