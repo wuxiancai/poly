@@ -517,8 +517,8 @@ class CryptoTrader:
         self.trading_pair_label.pack(side=tk.LEFT)
 
         # 币安价格信息
-        binance_price_frame = ttk.LabelFrame(scrollable_frame, text="Binance Price", padding=(8, 5))
-        binance_price_frame.pack(fill="x", padx=8, pady=6, anchor="center")
+        binance_price_frame = ttk.LabelFrame(scrollable_frame, text="Binance Price", padding=(8, 5), style='Black.TLabelframe')
+        binance_price_frame.pack(fill="x", padx=8, pady=6)
 
         binance_container = ttk.Frame(binance_price_frame)
         binance_container.pack(pady=2)
@@ -750,10 +750,10 @@ class CryptoTrader:
         # 计算并设置窗口的初始大小
         final_width = 500
         # 高度自适应，但有最小和最大值
-        final_height = max(400, min(content_height + 20, 800))
+        final_height = max(300, min(content_height + 20, 800))
 
         self.root.geometry(f'{final_width}x{final_height}+0+0')
-        self.root.minsize(500, 1000)
+        self.root.minsize(300, 1000)
         
         # 最后一次更新确保布局正确
         self.root.update_idletasks()
