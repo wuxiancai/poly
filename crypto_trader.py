@@ -517,8 +517,11 @@ class CryptoTrader:
         self.trading_pair_label.pack(side=tk.LEFT)
 
         # 币安价格信息
-        binance_container = ttk.Frame(scrollable_frame)
-        binance_container.pack(fill="x", pady=2)
+        binance_price_frame = ttk.LabelFrame(scrollable_frame, text="Binance Price", padding=(8, 5))
+        binance_price_frame.pack(fill="x", padx=8, pady=6, anchor="center")
+
+        binance_container = ttk.Frame(binance_price_frame)
+        binance_container.pack(pady=2)
         
         # 价格信息网格布局
         price_info_items = [
@@ -529,7 +532,7 @@ class CryptoTrader:
         
         for i, (label_text, attr_name, default_value) in enumerate(price_info_items):
             item_frame = ttk.Frame(binance_container)
-            item_frame.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+            item_frame.pack(side=tk.LEFT, padx=5)
             
             ttk.Label(item_frame, text=label_text, style='Black.TLabel').pack(side=tk.LEFT)
             
