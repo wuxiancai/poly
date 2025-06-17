@@ -493,12 +493,13 @@ class CryptoTrader:
         self.reset_count_label.pack(side=tk.LEFT, padx=(0, 15))
         
         # 自动找币时间选择
-        auto_find_frame = ttk.Frame(control_frame)
+        auto_find_frame = ttk.Frame(main_controls)
         auto_find_frame.pack(fill="x", pady=2)
         
-        ttk.Label(auto_find_frame, text="Auto Find Coin Time:", style='Black.TLabel').pack(side=tk.LEFT, padx=(0, 5))
+        #ttk.Label(auto_find_frame, text="Auto Find Coin Time:", style='Black.TLabel').pack(side=tk.LEFT, padx=(0, 5))
         self.auto_find_time_combobox = ttk.Combobox(auto_find_frame, values=['1:00', '2:00', '3:00', '4:00'], width=5, state='readonly')
         self.auto_find_time_combobox.pack(side=tk.LEFT, padx=2)
+        
         # 从配置文件加载保存的时间设置
         saved_time = self.config.get('auto_find_time', '2:00')
         self.auto_find_time_combobox.set(saved_time)
