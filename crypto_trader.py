@@ -747,8 +747,8 @@ class CryptoTrader:
         
         # 计算并设置窗口的初始大小
         final_width = 500
-        # 高度自适应，但有最小和最大值
-        final_height = max(300, min(content_height + 20, 800))
+        # 高度自适应，确保能显示所有内容
+        final_height = max(300, content_height + 50)
 
         self.root.geometry(f'{final_width}x{final_height}+0+0')
         self.root.minsize(300, final_height)
