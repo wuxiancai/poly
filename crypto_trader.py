@@ -505,11 +505,11 @@ class CryptoTrader:
         self.auto_find_time_combobox.bind('<<ComboboxSelected>>', self.on_auto_find_time_changed)
 
         # 交易信息显示区域
-        trading_info_frame = ttk.LabelFrame(scrollable_frame, text="Trading Information", padding=(8, 5))
-        trading_info_frame.pack(fill="x", padx=8, pady=6)
+        #trading_info_frame = ttk.LabelFrame(scrollable_frame, text="Trading Information", padding=(8, 5))
+        #trading_info_frame.pack(fill="x", padx=8, pady=6)
 
         # 交易币对显示
-        pair_container = ttk.Frame(trading_info_frame)
+        pair_container = ttk.Frame(scrollable_frame)
         pair_container.pack(fill="x", pady=2)
         
         ttk.Label(pair_container, text="Trading Pair:", style='Black.TLabel').pack(side=tk.LEFT, padx=(8, 5))
@@ -608,11 +608,11 @@ class CryptoTrader:
             setattr(self, attr_name, balance_label)
         
         # Yes/No 交易配置区域
-        trading_config_frame = ttk.LabelFrame(scrollable_frame, text="Trading Configuration", padding=(8, 5))
-        trading_config_frame.pack(fill="x", padx=8, pady=6)
+        #trading_config_frame = ttk.LabelFrame(scrollable_frame, text="", padding=(8, 5))
+        #trading_config_frame.pack(fill="x", padx=8, pady=6)
         
         # 创建左右分栏
-        config_container = ttk.Frame(trading_config_frame)
+        config_container = ttk.Frame(scrollable_frame)
         config_container.pack(fill="x", pady=2)
         
         # Up 区域配置
