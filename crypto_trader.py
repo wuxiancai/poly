@@ -2574,11 +2574,6 @@ class CryptoTrader:
         self.sell_confirm_button.invoke()
         time.sleep(0.5)
 
-        # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
-        self.buy_yes_button.invoke()
-        time.sleep(0.5)
-        self.buy_button.invoke()
-
         if self._verify_trade('Sold', 'Up')[0]:
              # 增加卖出计数
             self.sell_count += 1
@@ -2606,10 +2601,6 @@ class CryptoTrader:
         time.sleep(0.5)
         self.sell_confirm_button.invoke()
         time.sleep(0.5)
-        # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
-        self.buy_yes_button.invoke()
-        time.sleep(0.5)
-        self.buy_button.invoke()
 
         if self._verify_trade('Sold', 'Down')[0]:
             # 增加卖出计数
@@ -2654,11 +2645,6 @@ class CryptoTrader:
             self.sell_confirm_button.invoke()
             time.sleep(0.5)
 
-            # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
-            self.buy_yes_button.invoke()
-            time.sleep(0.5)
-            self.buy_button.invoke()
-
             # 验证是否卖出成功
             if self._verify_trade('Sold', 'Up')[0]:
                 self.logger.info(f"卖 Up 3 SHARES 成功")
@@ -2676,7 +2662,7 @@ class CryptoTrader:
                 portfolio_value=self.portfolio_value
             )
             self.logger.info(f"✅ 卖出 \033[32mUp 3 SHARES: {yes3_shares} 成功\033[0m")
-   
+            self.driver.refresh()
         except Exception as e:
             self.logger.info(f"❌ only_sell_yes3执行失败,重试")
             time.sleep(1)
@@ -2704,11 +2690,6 @@ class CryptoTrader:
             time.sleep(0.5)
             self.sell_confirm_button.invoke()
             time.sleep(0.5)
-
-            # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
-            self.buy_yes_button.invoke()
-            time.sleep(0.5)
-            self.buy_button.invoke()
             
             if self._verify_trade('Sold', 'Down')[0]:
                 self.logger.info(f"卖 Down 3 SHARES 成功")
@@ -2726,8 +2707,9 @@ class CryptoTrader:
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value
             )
+            
             self.logger.info(f"✅ 卖出 \033[32mDown 3 SHARES: {no3_shares} 成功\033[0m")
-
+            self.driver.refresh()
         except Exception as e:
             self.logger.info(f"❌ only_sell_no3执行失败,重试")
             time.sleep(1)
