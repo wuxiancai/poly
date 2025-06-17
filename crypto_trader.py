@@ -3043,7 +3043,12 @@ class CryptoTrader:
             try:
                 hostname = socket.gethostname()
                 sender = 'huacaihuijin@126.com'
-                receiver = 'huacaihuijin@126.com'
+                
+                # 根据HOSTNAME决定邮件接收者
+                receivers = ['huacaihuijin@126.com']  # 默认接收者，必须接收所有邮件
+                if 'ZZY' in hostname:
+                    receivers.append('272763832@qq.com')  # 如果HOSTNAME包含ZZY，添加QQ邮箱
+                
                 app_password = 'PUaRF5FKeKJDrYH7'  # 有效期 180 天，请及时更新，下次到期日 2025-11-29
                 
                 # 获取交易币对信息
@@ -3060,7 +3065,7 @@ class CryptoTrader:
                 subject = f'{hostname}重启{self.reset_trade_count}次第{count_in_subject}次{trade_type}-{trading_pair}'
                 msg['Subject'] = Header(subject, 'utf-8')
                 msg['From'] = sender
-                msg['To'] = receiver
+                msg['To'] = ', '.join(receivers)
 
                 # 修复格式化字符串问题，确保cash_value和portfolio_value是字符串
                 str_cash_value = str(cash_value)
@@ -3084,8 +3089,8 @@ class CryptoTrader:
                 
                 try:
                     server.login(sender, app_password)
-                    server.sendmail(sender, receiver, msg.as_string())
-                    self.logger.info(f"✅ \033[34m邮件发送成功: {trade_type}\033[0m")
+                    server.sendmail(sender, receivers, msg.as_string())
+                    self.logger.info(f"✅ \033[34m邮件发送成功: {trade_type} -> {', '.join(receivers)}\033[0m")
                     return  # 发送成功,退出重试循环
                 except Exception as e:
                     self.logger.error(f"❌ SMTP操作失败 (尝试 {attempt + 1}/{max_retries}): {str(e)}")
