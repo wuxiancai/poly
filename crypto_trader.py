@@ -387,7 +387,9 @@ class CryptoTrader:
             'LeftAligned.TButton': {'anchor': 'w', 'foreground': '#212529', 'padding': (1, 1)},
             'Red.TLabelframe.Label': {'foreground': '#dc3545'},
             'LeftBlack.TButton': {'foreground': '#212529', 'font': base_font},
-            'Black.TLabelframe': {'font': small_font, 'foreground': '#212529', 'anchor': 'center'}
+            'Black.TLabelframe': {'font': small_font, 'foreground': '#212529', 'anchor': 'center'},
+            'Centered.TLabelframe': {'font': base_font, 'foreground': '#212529'},
+            'Centered.TLabelframe.Label': {'font': base_font, 'foreground': '#212529', 'anchor': 'center'}
         }
         
         for style_name, config in styles_config.items():
@@ -517,7 +519,7 @@ class CryptoTrader:
         self.trading_pair_label.pack(side=tk.LEFT)
 
         # 币安价格信息
-        binance_price_frame = ttk.LabelFrame(scrollable_frame, text="Binance Price", padding=(8, 5), style='Black.TLabelframe')
+        binance_price_frame = ttk.LabelFrame(scrollable_frame, text="Binance Price", padding=(8, 5), style='Centered.TLabelframe')
         binance_price_frame.pack(fill="x", padx=8, pady=6)
 
         binance_container = ttk.Frame(binance_price_frame)
@@ -610,11 +612,7 @@ class CryptoTrader:
             balance_label.pack()
             setattr(self, attr_name, balance_label)
         
-        # Yes/No 交易配置区域
-        #trading_config_frame = ttk.LabelFrame(scrollable_frame, text="", padding=(8, 5))
-        #trading_config_frame.pack(fill="x", padx=8, pady=6)
-        
-        # 创建左右分栏
+        # 创建UP 和 DOWN 价格和金额左右分栏
         config_container = ttk.Frame(scrollable_frame)
         config_container.pack(fill="x", pady=2)
         
@@ -705,23 +703,23 @@ class CryptoTrader:
             # 第一行：主要交易按钮
             [("buy_button", "Buy", self.click_buy),
              ("buy_yes_button", "Buy-Up", self.click_buy_yes),
-             ("buy_no_button", "Buy-Down", self.click_buy_no),
-             ("buy_confirm_button", "Buy-conf", self.click_buy_confirm_button)],
-            # 第二行：Yes金额按钮
-            [("amount_yes1_button", "Amount-U1", None),
-             ("amount_yes2_button", "Amount-U2", None),
-             ("amount_yes3_button", "Amount-U3", None),
-             ("amount_yes4_button", "Amount-U4", None)],
-            # 第三行：No金额按钮
-            [("amount_no1_button", "Amount-D1", None),
-             ("amount_no2_button", "Amount-D2", None),
-             ("amount_no3_button", "Amount-D3", None),
-             ("amount_no4_button", "Amount-D4", None)],
-            # 第四行：卖出按钮
+             ("buy_no_button", "Buy-Down", self.click_buy_no)],
+            # 第二行：确认和金额按钮
+            [("buy_confirm_button", "Buy-confirm", self.click_buy_confirm_button),
+             ("amount_yes1_button", "Amount-Up1", None),
+             ("amount_yes2_button", "Amount-Up2", None)],
+            # 第三行：Yes金额按钮
+            [("amount_yes3_button", "Amount-Up3", None),
+             ("amount_yes4_button", "Amount-Up4", None),
+             ("amount_no1_button", "Amount-Down1", None)],
+            # 第四行：No金额按钮
+            [("amount_no2_button", "Amount-Down2", None),
+             ("amount_no3_button", "Amount-Down3", None),
+             ("amount_no4_button", "Amount-Down4", None)],
+            # 第五行：卖出按钮
             [("position_sell_yes_button", "P-Sell-Up", self.click_position_sell_yes),
              ("position_sell_no_button", "P-Sell-Down", self.click_position_sell_no),
-             ("sell_confirm_button", "Sell-conf", self.click_sell_confirm_button),
-             (None, None, None)]  # 占位符
+             ("sell_confirm_button", "Sell-confirm", self.click_sell_confirm_button)]
         ]
         
         for row, button_row in enumerate(button_configs):
@@ -739,7 +737,7 @@ class CryptoTrader:
                     setattr(self, attr_name, button)
         
         # 配置列权重使按钮均匀分布
-        for i in range(4):
+        for i in range(3):
             trade_frame.grid_columnconfigure(i, weight=1)
             
         # 窗口自适应内容大小
