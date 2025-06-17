@@ -506,16 +506,12 @@ class CryptoTrader:
         # 绑定时间选择变化事件
         self.auto_find_time_combobox.bind('<<ComboboxSelected>>', self.on_auto_find_time_changed)
 
-        # 交易信息显示区域
-        #trading_info_frame = ttk.LabelFrame(scrollable_frame, text="Trading Information", padding=(8, 5))
-        #trading_info_frame.pack(fill="x", padx=8, pady=6)
-
         # 交易币对显示
         pair_container = ttk.Frame(scrollable_frame)
         pair_container.pack(fill="x", pady=2)
         
         ttk.Label(pair_container, text="Trading Pair:", style='Black.TLabel').pack(side=tk.LEFT, padx=(8, 5))
-        self.trading_pair_label = ttk.Label(pair_container, text="Trader-type", style='Black.TLabel')
+        self.trading_pair_label = ttk.Label(pair_container, text="----", style='Black.TLabel')
         self.trading_pair_label.pack(side=tk.LEFT)
 
         # 币安价格信息
