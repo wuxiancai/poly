@@ -751,7 +751,7 @@ class CryptoTrader:
         final_height = max(300, min(content_height + 20, 800))
 
         self.root.geometry(f'{final_width}x{final_height}+0+0')
-        self.root.minsize(300, 1000)
+        self.root.minsize(300, final_height)
         
         # 最后一次更新确保布局正确
         self.root.update_idletasks()
