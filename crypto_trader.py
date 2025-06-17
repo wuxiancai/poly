@@ -2447,9 +2447,11 @@ class CryptoTrader:
                 # 第一步,先获取当前时间和币安几个涨跌百分比
                 current_time = datetime.datetime.now()
                 binance_rate = float(self.binance_rate_label.cget("text"))
+                position_up = self.find_position_label_yes()
+                position_down = self.find_position_label_no()
 
-                # 第二步,判断当前时间是否早于晚上 22 点,价格小于 20,且币安涨跌百分比必须大于 1%或者小于-1%
-                if current_time.hour <= 22 and (binance_rate >= 1.01 or binance_rate <= -1.01):
+                # 第二步,判断当前时间是否早于晚上 22 点,价格小于 20,且币安涨跌百分比必须大于 1%或者小于-1%,且仓位在 UP 方向
+                if current_time.hour <= 22 and (binance_rate >= 1.01 or binance_rate <= -1.01) and position_up and position_up:
                     # 第三步,卖出 UP 全部
                     self.trading = True  # 开始交易
                     self.only_sell_yes()
@@ -2499,9 +2501,11 @@ class CryptoTrader:
                 # 第一步,先获取当前时间和币安几个涨跌百分比
                 current_time = datetime.datetime.now()
                 binance_rate = float(self.binance_rate_label.cget("text"))
-
-                # 第二步,判断当前时间是否早于晚上 22 点,价格小于 20,且币安涨跌百分比必须大于 1%或者小于-1%
-                if current_time.hour <= 22 and (binance_rate >= 1.01 or binance_rate <= -1.01):
+                position_up = self.find_position_label_yes()
+                position_down = self.find_position_label_no()
+                
+                # 第二步,判断当前时间是否早于晚上 22 点,价格小于 20,且币安涨跌百分比必须大于 1%或者小于-1%,且仓位在 DOWN 方向
+                if current_time.hour <= 22 and (binance_rate >= 1.01 or binance_rate <= -1.01) and position_up and position_down:
                     # 第三步,卖出 DOWN 全部
                     self.trading = True  # 开始交易
                     self.only_sell_no()
@@ -3261,8 +3265,6 @@ class CryptoTrader:
                 else:
                     raise
 
-    """以下代码是自动找币功能,从第 2981 行到第 35320 行"""
-    # 自动找币第一步:判断是否持仓,是否到了找币时间
     def find_position_label_yes(self):
         """查找Yes持仓标签"""
         max_retries = 2
