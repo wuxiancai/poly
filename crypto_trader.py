@@ -440,7 +440,7 @@ class CryptoTrader:
         url_container = ttk.Frame(url_frame)
         url_container.pack(fill="x", pady=2)
         
-        ttk.Label(url_container, text="URL:", style='Black.TLabel').pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Label(url_container, text="", style='Black.TLabel').pack(side=tk.LEFT, padx=(0, 5))
         self.url_entry = ttk.Combobox(url_container, font=base_font, width=40)
         self.url_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
