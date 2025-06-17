@@ -3329,7 +3329,7 @@ class CryptoTrader:
                             # 找到可用的XPATH，加入缓存
                             self.xpath_cache[attr_name] = xpath
                             cached_count += 1
-                            self.logger.debug(f"✅ 缓存XPATH: {attr_name} -> {xpath[:50]}...")
+                            #self.logger.debug(f"✅ 缓存XPATH: {attr_name} -> {xpath[:50]}...")
                             break
                         except (TimeoutException, NoSuchElementException):
                             continue
@@ -3342,7 +3342,7 @@ class CryptoTrader:
             self.xpath_cache_timestamp = time.time()
             
             elapsed_time = time.time() - start_time
-            self.logger.info(f"✅ XPATH缓存初始化完成: {cached_count}/{total_count} 项缓存，耗时 {elapsed_time:.2f}秒")
+            #self.logger.info(f"✅ XPATH缓存初始化完成: {cached_count}/{total_count} 项缓存，耗时 {elapsed_time:.2f}秒")
             
             # 启动24小时定时更新
             self._schedule_xpath_cache_update()
@@ -3358,7 +3358,7 @@ class CryptoTrader:
         """更新XPATH缓存"""
         if attr_name not in self.xpath_cache or self.xpath_cache[attr_name] != xpath:
             self.xpath_cache[attr_name] = xpath
-            self.logger.debug(f"🔄 更新XPATH缓存: {attr_name} -> {xpath[:50]}...")
+            #self.logger.debug(f"🔄 更新XPATH缓存: {attr_name} -> {xpath[:50]}...")
     
     def _remove_cached_xpath(self, attr_name):
         """移除失效的XPATH缓存"""
@@ -3377,11 +3377,10 @@ class CryptoTrader:
             one_hour_ms, 
             self._update_xpath_cache
         )
-        self.logger.info("⏰ 已安排1小时后更新XPATH缓存")
+        #self.logger.info("⏰ 已安排1小时后更新XPATH缓存")
     
     def _update_xpath_cache(self):
         """定时更新XPATH缓存"""
-        self.logger.info("🔄 开始定时更新XPATH缓存...")
         
         # 清空旧缓存
         old_cache_size = len(self.xpath_cache)
@@ -3391,7 +3390,7 @@ class CryptoTrader:
         self._initialize_xpath_cache()
         
         new_cache_size = len(self.xpath_cache)
-        self.logger.info(f"✅ XPATH缓存更新完成: {old_cache_size} -> {new_cache_size} 项")
+        #self.logger.info(f"✅ XPATH缓存更新完成: {old_cache_size} -> {new_cache_size} 项")
         
         # 安排下一次1小时后的更新
         one_hour_ms = 60 * 60 * 1000
