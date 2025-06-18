@@ -988,7 +988,7 @@ class CryptoTrader:
                             import requests
                             response = requests.get('http://127.0.0.1:9222/json', timeout=2)
                             if response.status_code == 200:
-                                self.logger.info(f"✅ Chrome浏览器已重新启动，调试端口可用 (等待{wait_time+1}秒)")
+                                self.logger.info(f"✅ Chrome浏览器已重新启动,调试端口可用 (等待{wait_time+1}秒)")
                                 break
                         except:
                             continue
@@ -1143,69 +1143,6 @@ class CryptoTrader:
         except Exception as e:
             self.logger.error(f"恢复监控状态失败: {e}")
 
-    def _send_chrome_alert_email(self):
-        """发送Chrome异常警报邮件"""
-        try:
-            hostname = socket.gethostname()
-            sender = 'huacaihuijin@126.com'
-            receiver = 'huacaihuijin@126.com'
-            app_password = 'PUaRF5FKeKJDrYH7'
-            
-            # 获取交易币对信息
-            full_pair = self.trading_pair_label.cget("text")
-            trading_pair = full_pair.split('-')[0] if full_pair and '-' in full_pair else "未知交易币对"
-            
-            msg = MIMEMultipart()
-            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            subject = f'🚨{hostname}-Chrome异常-{trading_pair}-需要手动介入'
-            msg['Subject'] = Header(subject, 'utf-8')
-            msg['From'] = sender
-            msg['To'] = receiver
-            
-            # 获取当前状态信息
-            try:
-                cash_value = self.cash_label.cget("text")
-                portfolio_value = self.portfolio_label.cget("text")
-            except:
-                cash_value = "无法获取"
-                portfolio_value = "无法获取"
-            
-            content = f"""
-    🚨 Chrome浏览器异常警报 🚨
-
-    异常时间: {current_time}
-    主机名称: {hostname}
-    交易币对: {trading_pair}
-    当前买入次数: {self.trade_count}
-    当前卖出次数: {self.sell_count}
-    重启次数: {self.reset_trade_count}
-    当前 CASH 值: {cash_value}
-    当前 PORTFOLIO 值: {portfolio_value}
-
-    ⚠️  请立即手动检查并介入处理！
-            """
-            
-            msg.attach(MIMEText(content, 'plain', 'utf-8'))
-            
-            # 发送邮件
-            server = smtplib.SMTP_SSL('smtp.126.com', 465, timeout=5)
-            server.set_debuglevel(0)
-            
-            try:
-                server.login(sender, app_password)
-                server.sendmail(sender, receiver, msg.as_string())
-                self.logger.info(f"✅ Chrome异常警报邮件发送成功")
-            except Exception as e:
-                self.logger.error(f"❌ Chrome异常警报邮件发送失败: {str(e)}")
-            finally:
-                try:
-                    server.quit()
-                except Exception:
-                    pass
-                    
-        except Exception as e:
-            self.logger.error(f"发送Chrome异常警报邮件时出错: {str(e)}")
-
     def get_nearby_cents(self):
         """获取spread附近的价格数字"""
         try:
@@ -1237,13 +1174,21 @@ class CryptoTrader:
                 
                 return None, None, None, None
             
+            try:
+                spread_element = self.driver.find_element(By.XPATH, XPathConfig.SPREAD_ELEMENT[0]).text
+                spread_text = spread_element.replace('\n', '')
+                
+            except (NoSuchElementException, StaleElementReferenceException):
+                
+                return None, None, None, None
+            
             # 后续处理文本数据...
             # 解析价格
             up_price_match = re.search(r'(\d+(?:\.\d+)?)\¢', up_price_text)
             down_price_match = re.search(r'(\d+(?:\.\d+)?)\¢', down_price_text)
             
             if not up_price_match or not down_price_match:
-                self.logger.warning("价格格式解析失败")
+                self.logger.warning(f"价格格式解析失败 - UP价格文本: '{up_price_text}', DOWN价格文本: '{down_price_text}'")
                 return None, None, None, None
                 
             up_price_val = round(float(up_price_match.group(1)), 2)
@@ -1253,7 +1198,14 @@ class CryptoTrader:
             up_shares_val = float(up_shares_text.replace(',', '')) if up_shares_text else None
             down_shares_val = float(down_shares_text.replace(',', '')) if down_shares_text else None
             
-            return up_price_val, down_price_val, up_shares_val, down_shares_val
+            # 解析spread
+            spread_val = re.search(r'(?<=Spread:)\d+', spread_text)
+            if spread_val:
+                spread_val = float(spread_val.group())
+            else:
+                spread_val = None
+            
+            return up_price_val, down_price_val, up_shares_val, down_shares_val, spread_val
             
         except Exception as e:
             self.logger.error(f"获取价格数据失败: {str(e)}")
@@ -1272,7 +1224,7 @@ class CryptoTrader:
             # 验证浏览器连接是否正常
             self.driver.execute_script("return navigator.userAgent")
             # 获取一次价格和SHARES
-            up_price_val, down_price_val, asks_shares_val, bids_shares_val = self.get_nearby_cents()
+            up_price_val, down_price_val, asks_shares_val, bids_shares_val, spread_val = self.get_nearby_cents()
             #self.logger.info(f"up_price_val: {up_price_val}, down_price_val: {down_price_val}, asks_shares_val: {asks_shares_val}, bids_shares_val: {bids_shares_val}")
             if up_price_val is not None and down_price_val is not None and asks_shares_val is not None and bids_shares_val is not None:
                 # 将原始的 '¢' 单位价格转换为 0-100 的百分比价格用于显示和逻辑判断
@@ -1290,14 +1242,13 @@ class CryptoTrader:
                 
                 # 执行所有交易检查函数（仅在没有交易进行时）
                 if not self.trading:
-                    self.First_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
-                    self.Second_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
-                    self.Third_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
-                    self.Forth_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
-                    self.Sell_yes(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
-                    self.Sell_no(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
-                    self.Sell_up_20(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
-                    self.Sell_down_20(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.First_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val, spread_val)
+                    self.Second_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val, spread_val)
+                    self.Third_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val, spread_val)
+                    self.Forth_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val, spread_val)
+                    self.Sell_yes(up_price_val, down_price_val, asks_shares_val, bids_shares_val, spread_val)
+                    self.Sell_no(up_price_val, down_price_val, asks_shares_val, bids_shares_val, spread_val)
+                    
             else:
                 self.yes_price_label.config(text="Up: N/A")
                 self.no_price_label.config(text="Down: N/A")
@@ -1746,10 +1697,10 @@ class CryptoTrader:
             self.refresh_page_running = False
             self.logger.info("\033[31m❌ 刷新状态已停止\033[0m")
  
-    def First_trade(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
+    def First_trade(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares, spread_val):
         """第一次交易价格设置为 0.52 买入"""
         try:
-            if asks_price_raw is not None and asks_price_raw > 10 and bids_price_raw is not None and bids_price_raw < 97:
+            if asks_price_raw is not None and asks_price_raw > 10 and bids_price_raw is not None and bids_price_raw < 97 and spread_val is not None and spread_val < 4:
                 # 获取Yes1和No1的GUI界面上的价格
                 yes1_price = float(self.yes1_price_entry.get())
                 no1_price = float(self.no1_price_entry.get())
@@ -1885,10 +1836,10 @@ class CryptoTrader:
         finally:
             self.trading = False
             
-    def Second_trade(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
+    def Second_trade(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares, spread_val):
         """处理Yes2/No2的自动交易"""
         try:
-            if asks_price_raw is not None and asks_price_raw > 10 and bids_price_raw is not None and bids_price_raw < 97:
+            if asks_price_raw is not None and asks_price_raw > 10 and bids_price_raw is not None and bids_price_raw < 97 and spread_val is not None and spread_val < 4:
                 # 获Yes2和No2的价格输入框
                 yes2_price = float(self.yes2_price_entry.get())
                 no2_price = float(self.no2_price_entry.get())
@@ -2001,10 +1952,10 @@ class CryptoTrader:
         finally:
             self.trading = False
             
-    def Third_trade(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
+    def Third_trade(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares, spread_val):
         """处理Yes3/No3的自动交易"""
         try:
-            if asks_price_raw is not None and asks_price_raw > 10 and bids_price_raw is not None and bids_price_raw < 97:                
+            if asks_price_raw is not None and asks_price_raw > 10 and bids_price_raw is not None and bids_price_raw < 97 and spread_val is not None and spread_val < 4:                
                 # 获取Yes3和No3的价格输入框
                 yes3_price = float(self.yes3_price_entry.get())
                 no3_price = float(self.no3_price_entry.get())
@@ -2116,10 +2067,10 @@ class CryptoTrader:
         finally:
             self.trading = False
             
-    def Forth_trade(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
+    def Forth_trade(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares, spread_val):
         """处理Yes4/No4的自动交易"""
         try:
-            if asks_price_raw is not None and asks_price_raw > 10 and bids_price_raw is not None and bids_price_raw < 97:  
+            if asks_price_raw is not None and asks_price_raw > 10 and bids_price_raw is not None and bids_price_raw < 97 and spread_val is not None and spread_val < 4:  
                 # 获取Yes4和No4的价格输入框
                 yes4_price = float(self.yes4_price_entry.get())
                 no4_price = float(self.no4_price_entry.get())
@@ -2241,7 +2192,7 @@ class CryptoTrader:
         finally:
             self.trading = False
             
-    def Sell_yes(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
+    def Sell_yes(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares, spread_val):
         """当YES5价格等于实时Yes价格时自动卖出"""
         
         try:
@@ -2332,7 +2283,7 @@ class CryptoTrader:
         finally:
             self.trading = False
        
-    def Sell_no(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
+    def Sell_no(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares, spread_val):
         """当NO4价格等于实时No价格时自动卖出"""
         
         try:
@@ -2421,111 +2372,7 @@ class CryptoTrader:
         finally:
             self.trading = False
             
-    def Sell_up_20(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
-        """
-        
-        当 UP 价格在晚上 22 点前涨或者跌 1%的情况下,UP 的实时价格等于 20 时,卖出全部 UP
-        """
-        try:
-            if not self.driver and not self.is_restarting:
-                self.restart_browser(force_restart=True)
-
-            if asks_price_raw is not None and  bids_price_raw is not None and asks_price_raw <= 20:
-                # 第一步,先获取当前时间和币安几个涨跌百分比
-                current_time = datetime.datetime.now()
-                binance_rate = float(self.binance_rate_label.cget("text"))
-                
-                position_up = self.find_position_label_yes()
-                position_down = self.find_position_label_no()
-
-                # 第二步,判断当前时间是否早于晚上 22 点,价格小于 20,且币安涨跌百分比必须大于 1%或者小于-1%,且仓位在 UP 方向
-                if current_time.hour <= 20 and (binance_rate >= 1.01 or binance_rate <= -1.01) and position_up and position_down:
-                    self.logger.info(f"✅ 当前时间: {current_time},币安涨跌百分比: {binance_rate},执行自动卖出")
-                    # 第三步,卖出 UP 全部
-                    self.trading = True  # 开始交易
-                    self.only_sell_yes()
-
-                    # 第四步,查找 52 在哪个 ENTRY
-                    up3_price = self.yes3_price_entry.get()
-                    up4_price = self.yes4_price_entry.get()
-
-                    if up3_price == self.default_target_price:
-                        try:
-                            up1_amount = float(self.yes1_amount_entry.get().strip() or "0")
-                            up3_amount = float(self.yes3_amount_entry.get().strip() or "0")
-                            up3_total_amount = up1_amount + up3_amount
-
-                            # 先清除原来的金额
-                            self.yes3_amount_entry.delete(0, tk.END)
-                            self.yes3_amount_entry.config(text=f"{up3_total_amount:.2f}")
-                        except ValueError as e:
-                            self.logger.error(f"❌ 数量转换失败: {str(e)}")
-
-                    if up4_price == self.default_target_price:
-                        try:
-                            up2_amount = float(self.yes2_amount_entry.get().strip() or "0")
-                            up4_amount = float(self.yes4_amount_entry.get().strip() or "0") 
-                            up4_total_amount = up2_amount + up4_amount
-                            # 先清除原来的金额
-                            self.yes2_amount_entry.delete(0, tk.END)
-                            self.yes4_amount_entry.config(text=f"{up4_total_amount:.2f}")
-                        except ValueError as e:
-                            self.logger.error(f"❌ 数量转换失败: {str(e)}")
-        except Exception as e:
-            self.logger.error(f"❌ Sell_up_20执行失败: {str(e)}")
-            
-        finally:
-            self.trading = False
-
-    def Sell_down_20(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
-        """
-        如果 DOWN 价格先到 20,那么必定先买的 DOWN
-        当 DOWN 价格在晚上 22 点前涨或者跌 1%的情况下,DOWN 的实时价格等于 20 时,卖出全部 DOWN
-        """
-        try:
-            if not self.driver and not self.is_restarting:
-                self.restart_browser(force_restart=True)
-
-            if asks_price_raw is not None and bids_price_raw is not None and bids_price_raw <= 20: 
-                # 第一步,先获取当前时间和币安几个涨跌百分比
-                current_time = datetime.datetime.now()
-                binance_rate = float(self.binance_rate_label.cget("text"))
-                
-                position_up = self.find_position_label_yes()
-                position_down = self.find_position_label_no()
-                
-                # 第二步,判断当前时间是否早于晚上 22 点,价格小于 20,且币安涨跌百分比必须大于 1%或者小于-1%,且仓位在 DOWN 方向
-                if current_time.hour <= 20 and (binance_rate >= 1.01 or binance_rate <= -1.01) and position_up and position_down:
-                    self.logger.info(f"✅ 当前时间: {current_time},币安涨跌百分比: {binance_rate},执行自动卖出")
-
-                    # 第三步,卖出 DOWN 全部
-                    self.trading = True  # 开始交易
-                    self.only_sell_no()
-
-                    # 第四步,查找 52 在哪个 ENTRY
-                    down3_price = self.no3_price_entry.get()
-                    down4_price = self.no4_price_entry.get()
-                    
-                    if down3_price == self.default_target_price:
-                        down1_amount = float(self.no1_amount_entry.get().strip())
-                        down3_amount = float(self.no3_amount_entry.get().strip())
-                        down3_total_amount = down1_amount + down3_amount
-
-                        self.no3_amount_entry.delete(0, tk.END)
-                        self.no3_amount_entry.config(text=f"{down3_total_amount:.2f}")
-
-                    if down4_price == self.default_target_price:
-                        down2_amount = float(self.no2_amount_entry.get().strip())
-                        down4_amount = float(self.no4_amount_entry.get().strip())
-                        down4_total_amount = down2_amount + down4_amount
-
-                        self.no4_amount_entry.delete(0, tk.END)
-                        self.no4_amount_entry.config(text=f"{down4_total_amount:.2f}")
-        except Exception as e:
-            self.logger.error(f"❌ Sell_down_20执行失败: {str(e)}")
-            
-        finally:
-            self.trading = False
+    
 
     def reset_trade(self):
         """重置交易"""
@@ -3035,24 +2882,65 @@ class CryptoTrader:
     
     def close_windows(self):
         """关闭多余窗口"""
-        # 检查并关闭多余的窗口，只保留一个
-        all_handles = self.driver.window_handles
-        
-        if len(all_handles) > 1:
-            #self.logger.info(f"当前窗口数: {len(all_handles)}，准备关闭多余窗口")
-            # 保留最后一个窗口，关闭其他所有窗口
-            current_handle = all_handles[-1]  # 使用最后一个窗口
+        try:
+            # 检查浏览器是否可用
+            if not self.driver:
+                self.logger.warning("浏览器驱动不可用，跳过窗口关闭")
+                return
+                
+            # 检查并关闭多余的窗口，只保留一个
+            all_handles = self.driver.window_handles
             
-            # 关闭除了最后一个窗口外的所有窗口
-            for handle in all_handles[:-1]:
-                self.driver.switch_to.window(handle)
-                self.driver.close()
-            
-            # 切换到保留的窗口
-            self.driver.switch_to.window(current_handle)
-            
-        else:
-            self.logger.warning("❗ 当前窗口数不足2个,无需切换")
+            if len(all_handles) > 1:
+                # self.logger.info(f"当前窗口数: {len(all_handles)}，准备关闭多余窗口")
+                
+                # 获取目标URL
+                target_url = self.url_entry.get() if hasattr(self, 'url_entry') else None
+                target_handle = None
+                
+                # 查找包含目标URL的窗口
+                if target_url:
+                    for handle in all_handles:
+                        try:
+                            self.driver.switch_to.window(handle)
+                            current_url = self.driver.current_url
+                            # 检查当前窗口是否包含目标URL的关键部分
+                            if target_url in current_url or any(key in current_url for key in ['polymarket.com/event', 'up-or-down-on']):
+                                target_handle = handle
+                                break
+                        except Exception as e:
+                            self.logger.warning(f"检查窗口URL失败: {e}")
+                            continue
+                
+                # 如果没有找到目标窗口，使用最后一个窗口作为备选
+                if not target_handle:
+                    target_handle = all_handles[-1]
+                    self.logger.warning("未找到目标URL窗口,使用最后一个窗口")
+                
+                # 关闭除了目标窗口外的所有窗口
+                for handle in all_handles:
+                    if handle != target_handle:
+                        try:
+                            self.driver.switch_to.window(handle)
+                            self.driver.close()
+                        except Exception as e:
+                            self.logger.warning(f"关闭窗口失败: {e}")
+                            continue
+                
+                # 切换到保留的目标窗口
+                try:
+                    self.driver.switch_to.window(target_handle)
+                    self.logger.info(f"✅ 已保留目标窗口，关闭了 {len(all_handles)-1} 个多余窗口")
+                except Exception as e:
+                    self.logger.warning(f"切换到目标窗口失败: {e}")
+                
+            else:
+                self.logger.warning("❗ 当前窗口数不足2个,无需切换")
+                
+        except Exception as e:
+            self.logger.error(f"关闭窗口操作失败: {e}")
+            # 如果窗口操作失败，可能是浏览器会话已失效，不需要重启浏览器
+            # 因为调用此方法的上层代码通常会处理浏览器重启
 
     def set_default_price(self, price):
         """设置默认目标价格"""
@@ -3142,6 +3030,69 @@ class CryptoTrader:
         # 所有重试都失败
         error_msg = f"发送邮件失败,已重试{max_retries}次"
         self.logger.error(error_msg)
+
+    def _send_chrome_alert_email(self):
+        """发送Chrome异常警报邮件"""
+        try:
+            hostname = socket.gethostname()
+            sender = 'huacaihuijin@126.com'
+            receiver = 'huacaihuijin@126.com'
+            app_password = 'PUaRF5FKeKJDrYH7'
+            
+            # 获取交易币对信息
+            full_pair = self.trading_pair_label.cget("text")
+            trading_pair = full_pair.split('-')[0] if full_pair and '-' in full_pair else "未知交易币对"
+            
+            msg = MIMEMultipart()
+            current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            subject = f'🚨{hostname}-Chrome异常-{trading_pair}-需要手动介入'
+            msg['Subject'] = Header(subject, 'utf-8')
+            msg['From'] = sender
+            msg['To'] = receiver
+            
+            # 获取当前状态信息
+            try:
+                cash_value = self.cash_label.cget("text")
+                portfolio_value = self.portfolio_label.cget("text")
+            except:
+                cash_value = "无法获取"
+                portfolio_value = "无法获取"
+            
+            content = f"""
+    🚨 Chrome浏览器异常警报 🚨
+
+    异常时间: {current_time}
+    主机名称: {hostname}
+    交易币对: {trading_pair}
+    当前买入次数: {self.trade_count}
+    当前卖出次数: {self.sell_count}
+    重启次数: {self.reset_trade_count}
+    当前 CASH 值: {cash_value}
+    当前 PORTFOLIO 值: {portfolio_value}
+
+    ⚠️  请立即手动检查并介入处理！
+            """
+            
+            msg.attach(MIMEText(content, 'plain', 'utf-8'))
+            
+            # 发送邮件
+            server = smtplib.SMTP_SSL('smtp.126.com', 465, timeout=5)
+            server.set_debuglevel(0)
+            
+            try:
+                server.login(sender, app_password)
+                server.sendmail(sender, receiver, msg.as_string())
+                self.logger.info(f"✅ Chrome异常警报邮件发送成功")
+            except Exception as e:
+                self.logger.error(f"❌ Chrome异常警报邮件发送失败: {str(e)}")
+            finally:
+                try:
+                    server.quit()
+                except Exception:
+                    pass
+                    
+        except Exception as e:
+            self.logger.error(f"发送Chrome异常警报邮件时出错: {str(e)}")
 
     def stop_monitoring(self):
         """停止监控"""
