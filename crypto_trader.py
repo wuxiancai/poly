@@ -105,7 +105,7 @@ class CryptoTrader:
         # 添加交易次数计数器
         self.trade_count = 0
         self.sell_count = 0 
-        self.reset_trade_count = 1
+        self.reset_trade_count = 0
         
         # 添加定时器
         self.refresh_page_timer = None  # 用于存储定时器ID
@@ -2384,7 +2384,7 @@ class CryptoTrader:
         no5_price = getattr(self, 'no5_target_price', 0)
 
         if (yes5_price > 60) or (no5_price > 60):
-            self.reset_trade_count = 1
+            self.reset_trade_count = 0
         else:
             self.reset_trade_count += 1
         
