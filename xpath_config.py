@@ -145,3 +145,8 @@ class XPathConfig:
         '//p[contains(text(), "Up or Down on")]', 
         '//a//p[contains(text(), "Up or Down on")]' 
     ]
+
+    # 25.搜索框长期有效
+    SPREAD_ELEMENT = [
+        '(//*[contains(text(), "Spread")])[2]/ancestor::div[3]/div[contains(., "¢")]'
+    ] 
