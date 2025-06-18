@@ -2548,7 +2548,17 @@ class CryptoTrader:
         self.no5_price_entry.configure(foreground='black')
         
         # 重置Yes1和No1价格为默认值
-        self.set_yes1_no1_default_target_price()
+        # 如果重置次数大于等于5次,则重置Yes1和No1价格为0
+        if self.reset_trade_count >= 4:
+            self.yes1_price_entry.delete(0, tk.END)
+            self.yes1_price_entry.insert(0, "0")
+            self.yes1_price_entry.configure(foreground='black')
+            self.no1_price_entry.delete(0, tk.END)
+            self.no1_price_entry.insert(0, "0")
+            self.no1_price_entry.configure(foreground='black')
+        else:
+            self.set_yes1_no1_default_target_price()
+
         # 重置交易次数
         self.reset_count_label.config(text=str(self.reset_trade_count))
         self.logger.info(f"第\033[32m{self.reset_trade_count}\033[0m次重置交易")
