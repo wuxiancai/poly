@@ -2439,7 +2439,7 @@ class CryptoTrader:
                 position_down = self.find_position_label_no()
 
                 # 第二步,判断当前时间是否早于晚上 22 点,价格小于 20,且币安涨跌百分比必须大于 1%或者小于-1%,且仓位在 UP 方向
-                if current_time.hour <= 22 and (binance_rate >= 1.01 or binance_rate <= -1.01) and position_up and position_down:
+                if current_time.hour <= 20 and (binance_rate >= 1.01 or binance_rate <= -1.01) and position_up and position_down:
                     self.logger.info(f"✅ 当前时间: {current_time},币安涨跌百分比: {binance_rate},执行自动卖出")
                     # 第三步,卖出 UP 全部
                     self.trading = True  # 开始交易
@@ -2495,7 +2495,7 @@ class CryptoTrader:
                 position_down = self.find_position_label_no()
                 
                 # 第二步,判断当前时间是否早于晚上 22 点,价格小于 20,且币安涨跌百分比必须大于 1%或者小于-1%,且仓位在 DOWN 方向
-                if current_time.hour <= 22 and (binance_rate >= 1.01 or binance_rate <= -1.01) and position_up and position_down:
+                if current_time.hour <= 20 and (binance_rate >= 1.01 or binance_rate <= -1.01) and position_up and position_down:
                     self.logger.info(f"✅ 当前时间: {current_time},币安涨跌百分比: {binance_rate},执行自动卖出")
 
                     # 第三步,卖出 DOWN 全部
@@ -2552,8 +2552,8 @@ class CryptoTrader:
         self.no5_price_entry.insert(0, "0")
         self.no5_price_entry.configure(foreground='black')
         
-        # 重置Yes1和No1价格为默认值
-        # 如果重置次数大于等于5次,则重置Yes1和No1价格为0
+        
+        # 如果重置次数等于2次,则重置Yes2和No2价格为0
         if self.reset_trade_count == 2:
             self.yes2_price_entry.delete(0, tk.END)
             self.yes2_price_entry.insert(0, "0")
@@ -2562,6 +2562,7 @@ class CryptoTrader:
             self.no2_price_entry.insert(0, "0")
             self.no2_price_entry.configure(foreground='black')
         else:
+            # 重置Yes2和No2价格为默认值
             self.set_yes1_no1_default_target_price()
 
         # 重置GUI上的交易次数
