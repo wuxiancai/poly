@@ -135,7 +135,7 @@ class CryptoTrader:
         self.doubling_weeks = 35
 
         # 默认买价
-        self.default_target_price = 53 # 不修改
+        self.default_target_price = 52 # 不修改
         # 默认反水卖价
         self.default_sell_price_backwater = 47 # 不修改
         # 默认卖价
