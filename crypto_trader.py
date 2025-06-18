@@ -105,7 +105,7 @@ class CryptoTrader:
         # 添加交易次数计数器
         self.trade_count = 0
         self.sell_count = 0 
-        self.reset_trade_count = 0 
+        self.reset_trade_count = 1
         
         # 添加定时器
         self.refresh_page_timer = None  # 用于存储定时器ID
@@ -2537,7 +2537,7 @@ class CryptoTrader:
         no5_price = getattr(self, 'no5_target_price', 0)
 
         if (yes5_price > 60) or (no5_price > 60):
-            self.reset_trade_count = 0
+            self.reset_trade_count = 1
         else:
             self.reset_trade_count += 1
         
@@ -2554,13 +2554,13 @@ class CryptoTrader:
         
         # 重置Yes1和No1价格为默认值
         # 如果重置次数大于等于5次,则重置Yes1和No1价格为0
-        if self.reset_trade_count >= 4:
-            self.yes1_price_entry.delete(0, tk.END)
-            self.yes1_price_entry.insert(0, "0")
-            self.yes1_price_entry.configure(foreground='black')
-            self.no1_price_entry.delete(0, tk.END)
-            self.no1_price_entry.insert(0, "0")
-            self.no1_price_entry.configure(foreground='black')
+        if self.reset_trade_count == 2:
+            self.yes2_price_entry.delete(0, tk.END)
+            self.yes2_price_entry.insert(0, "0")
+            self.yes2_price_entry.configure(foreground='black')
+            self.no2_price_entry.delete(0, tk.END)
+            self.no2_price_entry.insert(0, "0")
+            self.no2_price_entry.configure(foreground='black')
         else:
             self.set_yes1_no1_default_target_price()
 
