@@ -1188,7 +1188,7 @@ class CryptoTrader:
             down_price_match = re.search(r'(\d+(?:\.\d+)?)\¢', down_price_text)
             
             if not up_price_match or not down_price_match:
-                self.logger.warning(f"价格格式解析失败 - UP价格文本: '{up_price_text}', DOWN价格文本: '{down_price_text}'")
+                #self.logger.warning(f"价格格式解析失败 - UP价格文本: '{up_price_text}', DOWN价格文本: '{down_price_text}'")
                 return None, None, None, None
                 
             up_price_val = round(float(up_price_match.group(1)), 2)
