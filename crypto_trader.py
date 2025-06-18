@@ -1290,9 +1290,18 @@ class CryptoTrader:
             # 取Portfolio值和Cash值
             self.cash_value = None
             self.portfolio_value = None
+
             # 获取Portfolio和Cash值
-            portfolio_element = self.driver.find_element(By.XPATH, XPathConfig.PORTFOLIO_VALUE[0])
-            cash_element = self.driver.find_element(By.XPATH, XPathConfig.CASH_VALUE[0])
+            try:
+                portfolio_element = self.driver.find_element(By.XPATH, XPathConfig.PORTFOLIO_VALUE[0])
+            except (NoSuchElementException, StaleElementReferenceException):
+                portfolio_element = self._find_element_with_retry(XPathConfig.PORTFOLIO_VALUE, timeout=2, silent=True)
+                
+            
+            try:
+                cash_element = self.driver.find_element(By.XPATH, XPathConfig.CASH_VALUE[0])
+            except (NoSuchElementException, StaleElementReferenceException):
+                cash_element = self._find_element_with_retry(XPathConfig.CASH_VALUE, timeout=2, silent=True)
             
             if portfolio_element and cash_element:
                 self.cash_value = cash_element.text
@@ -1524,7 +1533,11 @@ class CryptoTrader:
         # 检查是否已经登录
         try:
             # 查找登录按钮
-            login_button = self.driver.find_element(By.XPATH, XPathConfig.LOGIN_BUTTON[0])
+            try:
+                login_button = self.driver.find_element(By.XPATH, XPathConfig.LOGIN_BUTTON[0])
+            except (NoSuchElementException, StaleElementReferenceException):
+                login_button = self._find_element_with_retry(XPathConfig.LOGIN_BUTTON, timeout=2, silent=True)
+                
             if login_button:
                 self.logger.info("✅ 已发现登录按钮,尝试登录")
                 self.stop_url_monitoring()
@@ -1534,7 +1547,11 @@ class CryptoTrader:
                 time.sleep(1)
                 
                 # 查找Google登录按钮
-                google_login_button = self.driver.find_element(By.XPATH, XPathConfig.LOGIN_WITH_GOOGLE_BUTTON[0])
+                try:
+                    google_login_button = self.driver.find_element(By.XPATH, XPathConfig.LOGIN_WITH_GOOGLE_BUTTON[0])
+                except (NoSuchElementException, StaleElementReferenceException):
+                    google_login_button = self._find_element_with_retry(XPathConfig.LOGIN_WITH_GOOGLE_BUTTON, timeout=2, silent=True)
+                    
                 if google_login_button:
                     google_login_button.click()
                     self.logger.info("✅ 已点击Google登录按钮")
@@ -1547,10 +1564,14 @@ class CryptoTrader:
                     for attempt in range(max_attempts):
                         try:
                             # 获取CASH值
-                            cash_element = self.driver.find_element(By.XPATH, XPathConfig.CASH_VALUE[0])
+                            try:
+                                cash_element = self.driver.find_element(By.XPATH, XPathConfig.CASH_VALUE[0])
+                            except (NoSuchElementException, StaleElementReferenceException):
+                                cash_element = self._find_element_with_retry(XPathConfig.CASH_VALUE, timeout=2, silent=True)
+                                
                             if cash_element:
                                 cash_value = cash_element.text
-                                
+                                self.logger.info(f"✅ 已找到CASH值: {cash_value}")
                                 break
                         except NoSuchElementException:
                             self.logger.info(f"⏳ 第{attempt+1}次尝试: 等待登录完成...")
@@ -1572,7 +1593,11 @@ class CryptoTrader:
                             time.sleep(1)
                             
                             # 查找Accept按钮
-                            accept_button = self.driver.find_element(By.XPATH, XPathConfig.ACCEPT_BUTTON[0])
+                            try:
+                                accept_button = self.driver.find_element(By.XPATH, XPathConfig.ACCEPT_BUTTON[0])
+                            except (NoSuchElementException, StaleElementReferenceException):
+                                accept_button = self._find_element_with_retry(XPathConfig.ACCEPT_BUTTON, timeout=2, silent=True)
+                                
                             if accept_button:
                                 try:
                                     accept_button.click()
@@ -2485,7 +2510,11 @@ class CryptoTrader:
             time.sleep(0.5)
 
             # 找到SHARES输入框(与 AMOUNT_INPUT 相同)
-            shares_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
+            try:
+                shares_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
+            except (NoSuchElementException, StaleElementReferenceException):
+                shares_input = self._find_element_with_retry(XPathConfig.AMOUNT_INPUT, timeout=2, silent=True)
+                
             # 清除 SHARES 输入为 0,然后再插入需要卖的 SHARES
             shares_input.clear()
             time.sleep(0.5)
@@ -2529,7 +2558,10 @@ class CryptoTrader:
             time.sleep(0.5)
             
             # 找到输入框
-            shares_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
+            try:
+                shares_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
+            except (NoSuchElementException, StaleElementReferenceException):
+                shares_input = self._find_element_with_retry(XPathConfig.AMOUNT_INPUT, timeout=2, silent=True)
             
             # 设置 SHARES_input 为 0,然后再插入需要卖的 SHARES                       
             shares_input.clear()
@@ -2624,7 +2656,10 @@ class CryptoTrader:
                     
                     try:
                         # 等待历史记录元素出现                  
-                        history_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
+                        try:
+                            history_element = self.driver.find_element(By.XPATH, XPathConfig.HISTORY[0])
+                        except (NoSuchElementException, StaleElementReferenceException):
+                            history_element = self._find_element_with_retry(XPathConfig.HISTORY, timeout=2, silent=True)
                         
                         if history_element:
                             # 获取历史记录文本
@@ -2798,7 +2833,11 @@ class CryptoTrader:
             if not self.driver and not self.is_restarting:
                 self.restart_browser(force_restart=True)
             # 查找买按钮
-            button = self.driver.find_element(By.XPATH, XPathConfig.BUY_BUTTON[0])
+            try:
+                button = self.driver.find_element(By.XPATH, XPathConfig.BUY_BUTTON[0])
+            except (NoSuchElementException, StaleElementReferenceException):
+                button = self._find_element_with_retry(XPathConfig.BUY_BUTTON, timeout=2, silent=True)
+
             button.click()
             
         except Exception as e:
@@ -2811,7 +2850,11 @@ class CryptoTrader:
                 self.restart_browser(force_restart=True)
             
             # 查找买YES按钮
-            button = self.driver.find_element(By.XPATH, XPathConfig.BUY_YES_BUTTON[0])
+            try:
+                button = self.driver.find_element(By.XPATH, XPathConfig.BUY_YES_BUTTON[0])
+            except (NoSuchElementException, StaleElementReferenceException):
+                button = self._find_element_with_retry(XPathConfig.BUY_YES_BUTTON, timeout=2, silent=True)
+                
             button.click()
             
         except Exception as e:
@@ -2823,7 +2866,11 @@ class CryptoTrader:
             if not self.driver and not self.is_restarting:
                 self.restart_browser(force_restart=True)
             # 查找买NO按钮
-            button = self.driver.find_element(By.XPATH, XPathConfig.BUY_NO_BUTTON[0])
+            try:
+                button = self.driver.find_element(By.XPATH, XPathConfig.BUY_NO_BUTTON[0])
+            except (NoSuchElementException, StaleElementReferenceException):
+                button = self._find_element_with_retry(XPathConfig.BUY_NO_BUTTON, timeout=2, silent=True)
+                
             button.click()
             
         except Exception as e:
@@ -2840,7 +2887,10 @@ class CryptoTrader:
             button_text = button.cget("text")
 
             # 找到输入框
-            amount_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
+            try:
+                amount_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
+            except (NoSuchElementException, StaleElementReferenceException):
+                amount_input = self._find_element_with_retry(XPathConfig.AMOUNT_INPUT, timeout=2, silent=True)
 
             # 清空输入框
             amount_input.clear()
@@ -3167,7 +3217,11 @@ class CryptoTrader:
                 # 尝试获取Up标签
                 try:
                     position_label_up = None
-                    position_label_up = self.driver.find_element(By.XPATH, XPathConfig.POSITION_UP_LABEL[0])
+                    try:
+                        position_label_up = self.driver.find_element(By.XPATH, XPathConfig.POSITION_UP_LABEL[0])
+                    except (NoSuchElementException, StaleElementReferenceException):
+                        position_label_up = self._find_element_with_retry(XPathConfig.POSITION_UP_LABEL, timeout=3, silent=True)
+                        
                     if position_label_up is not None and position_label_up:
                         self.logger.info("✅ find-element,找到了Up持仓标签: {position_label_up.text}")
                         return True
@@ -3210,7 +3264,11 @@ class CryptoTrader:
                 # 尝试获取Down标签
                 try:
                     position_label_down = None
-                    position_label_down = self.driver.find_element(By.XPATH, XPathConfig.POSITION_DOWN_LABEL[0])
+                    try:
+                        position_label_down = self.driver.find_element(By.XPATH, XPathConfig.POSITION_DOWN_LABEL[0])
+                    except (NoSuchElementException, StaleElementReferenceException):
+                        position_label_down = self._find_element_with_retry(XPathConfig.POSITION_DOWN_LABEL, timeout=3, silent=True)
+                        
                     if position_label_down is not None and position_label_down:
                         self.logger.info(f"✅ find-element,找到了Down持仓标签: {position_label_down.text}")
                         return True
@@ -3474,8 +3532,11 @@ class CryptoTrader:
             
             try:
                 # 查找搜索框
-                search_box = self.driver.find_element(By.XPATH, XPathConfig.SEARCH_INPUT[0])
-                
+                try:
+                    search_box = self.driver.find_element(By.XPATH, XPathConfig.SEARCH_INPUT[0])
+                except (NoSuchElementException, StaleElementReferenceException):
+                    search_box = self._find_element_with_retry(XPathConfig.SEARCH_INPUT, timeout=2, silent=True)
+                    
                 # 创建ActionChains对象
                 actions = ActionChains(self.driver)
                 
@@ -3629,7 +3690,11 @@ class CryptoTrader:
         """获取币安BTC实时价格,并在中国时区00:00触发"""
         try:
             # 获取零点CASH值
-            cash_element = self.driver.find_element(By.XPATH, XPathConfig.CASH_VALUE[0])
+            try:
+                cash_element = self.driver.find_element(By.XPATH, XPathConfig.CASH_VALUE[0])
+            except (NoSuchElementException, StaleElementReferenceException):
+                cash_element = self._find_element_with_retry(XPathConfig.CASH_VALUE, timeout=2, silent=True)
+                
             if cash_element:
                 cash_value = cash_element.text
             else:
