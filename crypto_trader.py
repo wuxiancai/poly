@@ -2423,7 +2423,7 @@ class CryptoTrader:
             
     def Sell_up_20(self, asks_price_raw, bids_price_raw, asks_shares, bids_shares):
         """
-        如果UP 价格先到 20,那么必定先买的 UP
+        
         当 UP 价格在晚上 22 点前涨或者跌 1%的情况下,UP 的实时价格等于 20 时,卖出全部 UP
         """
         try:
@@ -2434,11 +2434,13 @@ class CryptoTrader:
                 # 第一步,先获取当前时间和币安几个涨跌百分比
                 current_time = datetime.datetime.now()
                 binance_rate = float(self.binance_rate_label.cget("text"))
+                
                 position_up = self.find_position_label_yes()
                 position_down = self.find_position_label_no()
 
                 # 第二步,判断当前时间是否早于晚上 22 点,价格小于 20,且币安涨跌百分比必须大于 1%或者小于-1%,且仓位在 UP 方向
-                if current_time.hour <= 22 and (binance_rate >= 1.01 or binance_rate <= -1.01) and position_up and position_up:
+                if current_time.hour <= 22 and (binance_rate >= 1.01 or binance_rate <= -1.01) and position_up and position_down:
+                    self.logger.info(f"✅ 当前时间: {current_time},币安涨跌百分比: {binance_rate},执行自动卖出")
                     # 第三步,卖出 UP 全部
                     self.trading = True  # 开始交易
                     self.only_sell_yes()
@@ -2447,7 +2449,7 @@ class CryptoTrader:
                     up3_price = self.yes3_price_entry.get()
                     up4_price = self.yes4_price_entry.get()
 
-                    if up3_price == "52":
+                    if up3_price == self.default_target_price:
                         try:
                             up1_amount = float(self.yes1_amount_entry.get().strip() or "0")
                             up3_amount = float(self.yes3_amount_entry.get().strip() or "0")
@@ -2459,7 +2461,7 @@ class CryptoTrader:
                         except ValueError as e:
                             self.logger.error(f"❌ 数量转换失败: {str(e)}")
 
-                    if up4_price == "52":
+                    if up4_price == self.default_target_price:
                         try:
                             up2_amount = float(self.yes2_amount_entry.get().strip() or "0")
                             up4_amount = float(self.yes4_amount_entry.get().strip() or "0") 
@@ -2488,11 +2490,14 @@ class CryptoTrader:
                 # 第一步,先获取当前时间和币安几个涨跌百分比
                 current_time = datetime.datetime.now()
                 binance_rate = float(self.binance_rate_label.cget("text"))
+                
                 position_up = self.find_position_label_yes()
                 position_down = self.find_position_label_no()
                 
                 # 第二步,判断当前时间是否早于晚上 22 点,价格小于 20,且币安涨跌百分比必须大于 1%或者小于-1%,且仓位在 DOWN 方向
                 if current_time.hour <= 22 and (binance_rate >= 1.01 or binance_rate <= -1.01) and position_up and position_down:
+                    self.logger.info(f"✅ 当前时间: {current_time},币安涨跌百分比: {binance_rate},执行自动卖出")
+
                     # 第三步,卖出 DOWN 全部
                     self.trading = True  # 开始交易
                     self.only_sell_no()
@@ -2501,7 +2506,7 @@ class CryptoTrader:
                     down3_price = self.no3_price_entry.get()
                     down4_price = self.no4_price_entry.get()
                     
-                    if down3_price == "52":
+                    if down3_price == self.default_target_price:
                         down1_amount = float(self.no1_amount_entry.get().strip())
                         down3_amount = float(self.no3_amount_entry.get().strip())
                         down3_total_amount = down1_amount + down3_amount
@@ -2509,7 +2514,7 @@ class CryptoTrader:
                         self.no3_amount_entry.delete(0, tk.END)
                         self.no3_amount_entry.config(text=f"{down3_total_amount:.2f}")
 
-                    if down4_price == "52":
+                    if down4_price == self.default_target_price:
                         down2_amount = float(self.no2_amount_entry.get().strip())
                         down4_amount = float(self.no4_amount_entry.get().strip())
                         down4_total_amount = down2_amount + down4_amount
@@ -2559,7 +2564,7 @@ class CryptoTrader:
         else:
             self.set_yes1_no1_default_target_price()
 
-        # 重置交易次数
+        # 重置GUI上的交易次数
         self.reset_count_label.config(text=str(self.reset_trade_count))
         self.logger.info(f"第\033[32m{self.reset_trade_count}\033[0m次重置交易")
 
