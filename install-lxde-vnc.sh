@@ -26,7 +26,7 @@ fi
 USERNAME="ubuntu"
 PASSWORD="noneboy"
 DISPLAY_NUM="1"
-RESOLUTION="1920x1280"
+RESOLUTION="2560x1440"
 NOVNC_PORT="6080"
 VNC_PORT=$((5900 + ${DISPLAY_NUM}))
 
@@ -107,7 +107,7 @@ Environment=USER=ubuntu
 Environment=DISPLAY=:%i
 
 ExecStartPre=-/usr/bin/vncserver -kill :%i > /dev/null 2>&1
-ExecStart=/usr/bin/vncserver -depth 24 -geometry 1920x1280 :%i -localhost no -fg
+ExecStart=/usr/bin/vncserver -depth 24 -geometry 2560x1440 :%i -localhost no -fg
 ExecStop=/usr/bin/vncserver -kill :%i
 Restart=on-failure
 RestartSec=5
@@ -144,6 +144,54 @@ systemctl start vncserver@${DISPLAY_NUM}.service
 systemctl enable novnc.service
 systemctl start novnc.service
 
+
+echo "🛠 关闭 LXDE 屏保、待机、电源管理,如果安装程序出错,删除一下代码即可"
+
+# 更新 ~/.config/lxsession/LXDE/autostart
+AUTOSTART_FILE="$HOME/.config/lxsession/LXDE/autostart"
+
+touch "$AUTOSTART_FILE"
+
+# 需要添加的配置项
+REQUIRED_LINES=(
+"@xset s off"
+"@xset -dpms"
+"@xset s noblank"
+"@lxsession-default-apps screensaver none"
+)
+
+for LINE in "${REQUIRED_LINES[@]}"; do
+    grep -qxF "$LINE" "$AUTOSTART_FILE" || echo "$LINE" >> "$AUTOSTART_FILE"
+done
+
+echo "✅ 已更新 autostart 文件: $AUTOSTART_FILE"
+
+# 禁用 systemd 的睡眠行为
+LOGIN_CONF="/etc/systemd/logind.conf"
+sudo sed -i '/^HandleSuspendKey/d' "$LOGIN_CONF"
+sudo sed -i '/^HandleLidSwitch/d' "$LOGIN_CONF"
+sudo sed -i '/^HandleLidSwitchDocked/d' "$LOGIN_CONF"
+sudo sed -i '/^IdleAction/d' "$LOGIN_CONF"
+
+echo "HandleSuspendKey=ignore" | sudo tee -a "$LOGIN_CONF"
+echo "HandleLidSwitch=ignore" | sudo tee -a "$LOGIN_CONF"
+echo "HandleLidSwitchDocked=ignore" | sudo tee -a "$LOGIN_CONF"
+echo "IdleAction=ignore" | sudo tee -a "$LOGIN_CONF"
+
+echo "✅ 已更新 systemd-logind 配置"
+
+# 重启 logind 服务
+sudo systemctl restart systemd-logind
+
+# 检查是否安装了 xscreensaver
+if dpkg -l | grep -q xscreensaver; then
+    echo "⛔️ 检测到 xscreensaver，正在卸载..."
+    sudo apt remove -y xscreensaver
+else
+    echo "✅ 未安装 xscreensaver"
+fi
+
+echo "🎉 屏保与待机禁用完成，请重新登录 LXDE 桌面验证效果。"
 echo "现在可以通过以下方式访问桌面："
 echo "1. X2GO 客户端连接: ${PUBLIC_IP:-<IP>}:22"
 echo "   用户名: ubuntu, 密码: noneboy"
