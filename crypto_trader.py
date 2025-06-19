@@ -2263,12 +2263,21 @@ class CryptoTrader:
                         self.sell_count = 0
                         self.trade_count = 0
 
-                        # 重置YES2 价格为默认值+1
-                        self.yes2_price_entry.delete(0, tk.END)
-                        self.yes2_price_entry.insert(0, str(self.default_target_price+1))
-                        self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
-                        self.refresh_page()
-                        break
+                        if self.reset_trade_count == 2:
+                            # 重置YES2 价格为默认值+1
+                            self.yes2_price_entry.delete(0, tk.END)
+                            self.yes2_price_entry.insert(0, "0")
+                            self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
+                            self.only_sell_yes()
+                            
+                            break
+                        else:
+                            # 重置YES2 价格为默认值+1
+                            self.yes2_price_entry.delete(0, tk.END)
+                            self.yes2_price_entry.insert(0, str(self.default_target_price+1))
+                            self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
+                            self.refresh_page()
+                            break
                     
                 elif yes5_price >= 50 and 0 <= price_diff <= 1.1 and (bids_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[32mUp 5: {asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
@@ -2353,13 +2362,21 @@ class CryptoTrader:
                         
                         self.sell_count = 0
                         self.trade_count = 0
-
-                        # 重置NO2 价格为默认值+1
-                        self.no2_price_entry.delete(0, tk.END)
-                        self.no2_price_entry.insert(0, str(self.default_target_price+1))
-                        self.no2_price_entry.configure(foreground='red')  # 添加红色设置
-                        self.refresh_page()
-                        break
+                        if self.reset_trade_count == 2:
+                            # 重置NO2 价格为默认值+1
+                            self.no2_price_entry.delete(0, tk.END)
+                            self.no2_price_entry.insert(0, "0")
+                            self.no2_price_entry.configure(foreground='red')  # 添加红色设置
+                            self.only_sell_no()
+                            
+                            break
+                        else:
+                            # 重置NO2 价格为默认值+1
+                            self.no2_price_entry.delete(0, tk.END)
+                            self.no2_price_entry.insert(0, str(self.default_target_price+1))
+                            self.no2_price_entry.configure(foreground='red')  # 添加红色设置
+                            self.refresh_page()
+                            break
                     
                 elif no5_price >= 50 and (0 <= price_diff <= 1.1) and (bids_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 5: {100 - asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
@@ -2424,23 +2441,8 @@ class CryptoTrader:
         self.no5_price_entry.insert(0, "0")
         self.no5_price_entry.configure(foreground='black')
         
-        
-        # 如果重置次数等于2次,则重置Yes2和No2价格为0
-        if self.reset_trade_count == 2:
-            self.yes2_price_entry.delete(0, tk.END)
-            self.yes2_price_entry.insert(0, "0")
-            self.yes2_price_entry.configure(foreground='black')
-            self.no2_price_entry.delete(0, tk.END)
-            self.no2_price_entry.insert(0, "0")
-            self.no2_price_entry.configure(foreground='black')
-            # 查找 UP 和 DOWN 标签
-            if self.find_position_label_yes():
-                self.only_sell_yes()
-            if self.find_position_label_no():
-                self.only_sell_no()
-        else:
-            # 重置Yes2和No2价格为默认值
-            self.set_yes1_no1_default_target_price()
+        # 重置Yes2和No2价格为默认值
+        self.set_yes1_no1_default_target_price()
 
         # 重置GUI上的交易次数
         self.reset_count_label.config(text=str(self.reset_trade_count))
