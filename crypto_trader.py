@@ -2242,6 +2242,22 @@ class CryptoTrader:
                     self.yes5_target_price = yes5_price
                             
                     while True:
+                        if self.reset_trade_count == 2:
+                            # 重置YES2 价格为默认值+1
+                            self.yes2_price_entry.delete(0, tk.END)
+                            self.yes2_price_entry.insert(0, "0")
+                            self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
+                            self.yes5_price_entry.delete(0, tk.END)
+                            self.yes5_price_entry.insert(0, "0")
+                            self.yes5_price_entry.configure(foreground='red')  # 添加红色设置
+                            self.no5_price_entry.delete(0, tk.END)
+                            self.no5_price_entry.insert(0, "0")
+                            self.no5_price_entry.configure(foreground='red')  # 添加红色设置
+
+                            self.only_sell_yes()
+                            self.only_sell_no()
+                            
+                            break
                         # 先卖 Down
                         self.only_sell_yes()
                         self.logger.info(f"卖完 Up 后，再卖 Down 3 SHARES")
@@ -2263,21 +2279,14 @@ class CryptoTrader:
                         self.sell_count = 0
                         self.trade_count = 0
 
-                        if self.reset_trade_count == 2:
-                            # 重置YES2 价格为默认值+1
-                            self.yes2_price_entry.delete(0, tk.END)
-                            self.yes2_price_entry.insert(0, "0")
-                            self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
-                            self.only_sell_yes()
-                            
-                            break
-                        else:
-                            # 重置YES2 价格为默认值+1
-                            self.yes2_price_entry.delete(0, tk.END)
-                            self.yes2_price_entry.insert(0, str(self.default_target_price+1))
-                            self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
-                            self.refresh_page()
-                            break
+                        
+                        
+                        # 重置YES2 价格为默认值+1
+                        self.yes2_price_entry.delete(0, tk.END)
+                        self.yes2_price_entry.insert(0, str(self.default_target_price+1))
+                        self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
+                        self.refresh_page()
+                        break
                     
                 elif yes5_price >= 50 and 0 <= price_diff <= 1.1 and (bids_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[32mUp 5: {asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
@@ -2341,6 +2350,22 @@ class CryptoTrader:
                     self.no5_target_price = no5_price
                             
                     while True:
+                        if self.reset_trade_count == 2:
+                            # 重置YES2 价格为默认值+1
+                            self.yes2_price_entry.delete(0, tk.END)
+                            self.yes2_price_entry.insert(0, "0")
+                            self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
+                            self.yes5_price_entry.delete(0, tk.END)
+                            self.yes5_price_entry.insert(0, "0")
+                            self.yes5_price_entry.configure(foreground='red')  # 添加红色设置
+                            self.no5_price_entry.delete(0, tk.END)
+                            self.no5_price_entry.insert(0, "0")
+                            self.no5_price_entry.configure(foreground='red')  # 添加红色设置
+
+                            self.only_sell_yes()
+                            self.only_sell_no()
+                            
+                            break
                         # 先卖全部 Down
                         self.only_sell_no()
                         self.logger.info(f"卖完 Down 后，再卖 Up3 SHARES")
