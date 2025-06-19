@@ -2433,6 +2433,11 @@ class CryptoTrader:
             self.no2_price_entry.delete(0, tk.END)
             self.no2_price_entry.insert(0, "0")
             self.no2_price_entry.configure(foreground='black')
+            # 查找 UP 和 DOWN 标签
+            if self.find_position_label_yes():
+                self.only_sell_yes()
+            if self.find_position_label_no():
+                self.only_sell_no()
         else:
             # 重置Yes2和No2价格为默认值
             self.set_yes1_no1_default_target_price()
