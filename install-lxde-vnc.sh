@@ -148,7 +148,7 @@ systemctl start novnc.service
 echo "🛠 关闭 LXDE 屏保、待机、电源管理,如果安装程序出错,删除一下代码即可"
 
 # 更新 ~/.config/lxsession/LXDE/autostart
-AUTOSTART_FILE="$HOME/.config/lxsession/LXDE/autostart"
+AUTOSTART_FILE="/home/ubuntu/.config/lxsession/LXDE/autostart"
 
 touch "$AUTOSTART_FILE"
 
