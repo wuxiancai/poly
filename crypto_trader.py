@@ -467,7 +467,7 @@ class CryptoTrader:
         self.start_button.pack(side=tk.LEFT, padx=1)
         
         # 设置金额按钮
-        self.set_amount_button = ttk.Button(main_controls, text="Set Amount", width=8,
+        self.set_amount_button = ttk.Button(main_controls, text="Set Amount", width=10,
                                            command=self.set_yes_no_cash, style='LeftAligned.TButton')
         self.set_amount_button.pack(side=tk.LEFT, padx=3)
         self.set_amount_button['state'] = 'disabled'
