@@ -426,7 +426,7 @@ class CryptoTrader:
         double_frame = ttk.Frame(amount_frame)
         double_frame.pack(side=tk.LEFT, padx=5)
         
-        ttk.Label(double_frame, text="DB", style='Top.TLabel').pack(side=tk.LEFT, padx=(0, 2))
+        ttk.Label(double_frame, text="Double", style='Top.TLabel').pack(side=tk.LEFT, padx=(0, 2))
         self.doubling_weeks_entry = ttk.Entry(double_frame, width=3)
         self.doubling_weeks_entry.pack(side=tk.LEFT)
         self.doubling_weeks_entry.insert(0, str(self.doubling_weeks))
@@ -467,7 +467,7 @@ class CryptoTrader:
         self.start_button.pack(side=tk.LEFT, padx=1)
         
         # 设置金额按钮
-        self.set_amount_button = ttk.Button(main_controls, text="AMT", width=3,
+        self.set_amount_button = ttk.Button(main_controls, text="Set Amount", width=8,
                                            command=self.set_yes_no_cash, style='LeftAligned.TButton')
         self.set_amount_button.pack(side=tk.LEFT, padx=3)
         self.set_amount_button['state'] = 'disabled'
