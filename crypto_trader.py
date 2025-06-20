@@ -1643,10 +1643,10 @@ class CryptoTrader:
             target_x = 0
             target_y = 0
 
-            if platform.system() == "Linux": # 分辨率 1920X1280
+            if platform.system() == "Linux": # 分辨率 2560X1600
                 # Linux 系统下的特定坐标
-                target_x = screen_width - 550
-                target_y = 792
+                target_x = screen_width - 630
+                target_y = 969
                 
             else:
                 # 其他操作系统的默认坐标分辨率 1920x1080
@@ -2288,7 +2288,7 @@ class CryptoTrader:
                         self.refresh_page()
                         break
                     
-                elif yes5_price >= 50 and 0 <= price_diff <= 1.1 and (bids_shares > self.bids_shares):
+                elif yes5_price >= 70 and 0 <= price_diff <= 1.1 and (bids_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[32mUp 5: {asks_price_raw}¢\033[0m 价格匹配,执行自动卖出")
                     self.stop_refresh_page()
                     self.yes5_target_price = yes5_price
@@ -2351,7 +2351,7 @@ class CryptoTrader:
                             
                     while True:
                         if self.reset_trade_count == 2:
-                            # 重置YES2 价格为默认值+1
+                            # 重置YES2 价格为0
                             self.yes2_price_entry.delete(0, tk.END)
                             self.yes2_price_entry.insert(0, "0")
                             
@@ -2386,7 +2386,7 @@ class CryptoTrader:
                         self.sell_count = 0
                         self.trade_count = 0
                         if self.reset_trade_count == 2:
-                            # 重置NO2 价格为默认值+1
+                            # 重置NO2 价格为0
                             self.no2_price_entry.delete(0, tk.END)
                             self.no2_price_entry.insert(0, "0")
                             self.no2_price_entry.configure(foreground='red')  # 添加红色设置
