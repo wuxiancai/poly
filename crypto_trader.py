@@ -739,7 +739,7 @@ class CryptoTrader:
         content_height = scrollable_frame.winfo_reqheight()
         
         # 计算并设置窗口的初始大小
-        final_width = 500
+        final_width = 550
         # 高度自适应，确保能显示所有内容
         final_height = max(300, content_height)
 
