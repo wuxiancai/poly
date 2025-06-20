@@ -2246,13 +2246,13 @@ class CryptoTrader:
                             # 重置YES2 价格为默认值+1
                             self.yes2_price_entry.delete(0, tk.END)
                             self.yes2_price_entry.insert(0, "0")
-                            self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
+                            
                             self.yes5_price_entry.delete(0, tk.END)
                             self.yes5_price_entry.insert(0, "0")
-                            self.yes5_price_entry.configure(foreground='red')  # 添加红色设置
+                            
                             self.no5_price_entry.delete(0, tk.END)
                             self.no5_price_entry.insert(0, "0")
-                            self.no5_price_entry.configure(foreground='red')  # 添加红色设置
+                            
 
                             self.only_sell_yes()
                             self.only_sell_no()
@@ -2354,17 +2354,15 @@ class CryptoTrader:
                             # 重置YES2 价格为默认值+1
                             self.yes2_price_entry.delete(0, tk.END)
                             self.yes2_price_entry.insert(0, "0")
-                            self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
+                            
                             self.yes5_price_entry.delete(0, tk.END)
                             self.yes5_price_entry.insert(0, "0")
-                            self.yes5_price_entry.configure(foreground='red')  # 添加红色设置
+                            
                             self.no5_price_entry.delete(0, tk.END)
                             self.no5_price_entry.insert(0, "0")
-                            self.no5_price_entry.configure(foreground='red')  # 添加红色设置
 
-                            self.only_sell_yes()
                             self.only_sell_no()
-                            
+                            self.only_sell_yes()
                             break
                         # 先卖全部 Down
                         self.only_sell_no()
