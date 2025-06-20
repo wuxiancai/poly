@@ -191,6 +191,12 @@ else
     echo "✅ 未安装 xscreensaver"
 fi
 
+# 安装 GLANCES
+sudo apt install -y python3-pip python3-dev
+sudo pip3 install glances
+sudo pip3 install 'glances[web]'
+sudo apt install -y nload
+
 echo "🎉 屏保与待机禁用完成，请重新登录 LXDE 桌面验证效果。"
 echo "现在可以通过以下方式访问桌面："
 echo "1. X2GO 客户端连接: ${PUBLIC_IP:-<IP>}:22"
