@@ -2,28 +2,30 @@
 
 CHROME_PROFILE="$HOME/ChromeDebug"
 
-echo "🧹 清理 Chrome 配置目录中的锁定文件: $CHROME_PROFILE"
+echo "🛠️ 正在尝试解除 Chrome 锁定：$CHROME_PROFILE"
 
-# 确保 Chrome 不在运行
-echo "🔍 正在终止 Chrome 相关进程..."
-pkill -f "$CHROME_PROFILE" 2>/dev/null
+# 1. 彻底终止使用该目录的 Chrome 进程
+echo "🔍 查找并终止使用该目录的 Chrome 进程..."
+PIDS=$(ps aux | grep "chrome.*--user-data-dir=$CHROME_PROFILE" | grep -v grep | awk '{print $2}')
+if [ -n "$PIDS" ]; then
+  echo "🔪 杀死以下进程: $PIDS"
+  kill -9 $PIDS
+else
+  echo "✅ 没有发现活跃进程"
+fi
 
-# 等待一下进程完全退出
-sleep 1
+# 2. 删除锁文件
+echo "🗑️ 删除锁文件..."
+rm -f "$CHROME_PROFILE/SingletonLock"
+rm -f "$CHROME_PROFILE/SingletonSocket"
+rm -f "$CHROME_PROFILE/SingletonCookie"
+rm -f "$CHROME_PROFILE/lockfile"
+rm -f "$CHROME_PROFILE/.pid"
 
-# 删除锁文件
-LOCK_FILES=(
-    "SingletonLock"
-    "SingletonSocket"
-    "SingletonCookie"
-)
+# 3. 确认删除
+echo "📂 剩余锁文件："
+ls -l "$CHROME_PROFILE" | grep -i 'Singleton\|lock\|\.pid'
 
-for file in "${LOCK_FILES[@]}"; do
-    TARGET="$CHROME_PROFILE/$file"
-    if [ -e "$TARGET" ]; then
-        echo "🗑️ 删除 $TARGET"
-        rm -f "$TARGET"
-    fi
-done
-
-echo "✅ 清理完成，可以重新启动 Chrome 了。"
+# 4. 提示重启
+echo "🚀 你现在可以尝试重新启动 Chrome："
+echo "google-chrome --user-data-dir=$CHROME_PROFILE &"
