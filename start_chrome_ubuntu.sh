@@ -125,6 +125,20 @@ fi
 echo -e "${YELLOW}使用 DISPLAY=1"
 echo -e "${YELLOW}使用 XAUTHORITY=$XAUTHORITY${NC}"
 
+# 清理崩溃文件
+rm -f "$HOME/ChromeDebug/SingletonLock"
+rm -f "$HOME/ChromeDebug/SingletonSocket"
+rm -f "$HOME/ChromeDebug/SingletonCookie"
+rm -f "$HOME/ChromeDebug/Default/Last Browser"
+rm -f "$HOME/ChromeDebug/Default/Last Session"
+rm -f "$HOME/ChromeDebug/Default/Last Tabs"
+
+# 修复 Preferences 里记录的崩溃状态
+PREF_FILE="$HOME/ChromeDebug/Default/Preferences"
+if [ -f "$PREF_FILE" ]; then
+    sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' "$PREF_FILE"
+fi
+
 # 启动 Chrome（调试端口）- 只用项目根目录下的 chrome
 echo -e "${GREEN}启动 Chrome 中...${NC}"
 if [ -x "$SCRIPT_DIR/google-chrome" ]; then
