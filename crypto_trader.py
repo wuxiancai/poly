@@ -3671,6 +3671,7 @@ class CryptoTrader:
             
         except Exception as e:
             self.logger.error(f"操作失败: {str(e)}")
+            self.find_54_coin(coin)
 
     def click_today_card(self):
         """使用Command/Ctrl+Click点击包含今天日期的卡片,打开新标签页"""
