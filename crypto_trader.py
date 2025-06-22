@@ -2242,19 +2242,23 @@ class CryptoTrader:
                     self.yes5_target_price = yes5_price
                             
                     while True:
-                        if self.reset_trade_count == 2:
-                            # 重置YES2 价格为默认值+1
-                            self.yes2_price_entry.delete(0, tk.END)
-                            self.yes2_price_entry.insert(0, "0")
-                            
-                            self.yes5_price_entry.delete(0, tk.END)
-                            self.yes5_price_entry.insert(0, "0")
-                            
-                            self.no5_price_entry.delete(0, tk.END)
-                            self.no5_price_entry.insert(0, "0")
-                            
+                        if self.reset_trade_count == 1:
+                            # 重置所有价格为0
+                            for i in range(1,6):  # 1-5
+                                yes_entry = getattr(self, f'yes{i}_price_entry', None)
+                                no_entry = getattr(self, f'no{i}_price_entry', None)
 
+                                if yes_entry:
+                                    yes_entry.delete(0, tk.END)
+                                    yes_entry.insert(0, "0")
+                                    yes_entry.configure(foreground='black')
+                                if no_entry:
+                                    no_entry.delete(0, tk.END)
+                                    no_entry.insert(0, "0")
+                                    no_entry.configure(foreground='black')
+                            
                             self.only_sell_yes()
+                            self.logger.info(f"卖完 Up 后，再卖 Down")
                             self.only_sell_no()
                             
                             break
@@ -2350,18 +2354,23 @@ class CryptoTrader:
                     self.no5_target_price = no5_price
                             
                     while True:
-                        if self.reset_trade_count == 2:
-                            # 重置YES2 价格为0
-                            self.yes2_price_entry.delete(0, tk.END)
-                            self.yes2_price_entry.insert(0, "0")
-                            
-                            self.yes5_price_entry.delete(0, tk.END)
-                            self.yes5_price_entry.insert(0, "0")
-                            
-                            self.no5_price_entry.delete(0, tk.END)
-                            self.no5_price_entry.insert(0, "0")
+                        if self.reset_trade_count == 1:
+                            # 重置所有价格为0
+                            for i in range(1,6):  # 1-5
+                                yes_entry = getattr(self, f'yes{i}_price_entry', None)
+                                no_entry = getattr(self, f'no{i}_price_entry', None)
+
+                                if yes_entry:
+                                    yes_entry.delete(0, tk.END)
+                                    yes_entry.insert(0, "0")
+                                    yes_entry.configure(foreground='black')
+                                if no_entry:
+                                    no_entry.delete(0, tk.END)
+                                    no_entry.insert(0, "0")
+                                    no_entry.configure(foreground='black')
 
                             self.only_sell_no()
+                            self.logger.info(f"卖完 Down 后，再卖 Up")
                             self.only_sell_yes()
                             break
                         # 先卖全部 Down
