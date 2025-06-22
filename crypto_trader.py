@@ -944,7 +944,33 @@ class CryptoTrader:
             force_restart: True=强制重启Chrome进程,False=尝试重连现有进程
         """
         # 先关闭浏览器
-        self.driver.quit()
+        if self.driver:
+            try:
+                self.driver.quit()
+            except Exception as e:
+                self.logger.warning(f"关闭浏览器失败: {str(e)}")
+                
+        # 彻底关闭所有Chrome进程
+        if force_restart:
+            try:
+                import platform
+                import subprocess
+                
+                system = platform.system()
+                if system == "Windows":
+                    subprocess.run("taskkill /f /im chrome.exe", shell=True)
+                    subprocess.run("taskkill /f /im chromedriver.exe", shell=True)
+                elif system == "Darwin":  # macOS
+                    subprocess.run("pkill -9 'Google Chrome'", shell=True)
+                    subprocess.run("pkill -9 'chromedriver'", shell=True)
+                else:  # Linux
+                    subprocess.run("pkill -9 chrome", shell=True)
+                    subprocess.run("pkill -9 chromedriver", shell=True)
+                    
+                self.logger.info("已强制关闭所有Chrome进程")
+            except Exception as e:
+                self.logger.error(f"强制关闭Chrome进程失败: {str(e)}")
+                
         self.driver = None
 
         # 检查是否已在重启中
