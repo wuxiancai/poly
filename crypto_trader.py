@@ -3401,6 +3401,7 @@ class CryptoTrader:
                                 trade_type="XPATH检查",
                                 price=0,
                                 amount=0,
+                                share=0,
                                 trade_count=0,
                                 cash_value=subject,
                                 portfolio_value=body
