@@ -943,6 +943,10 @@ class CryptoTrader:
         Args:
             force_restart: True=强制重启Chrome进程,False=尝试重连现有进程
         """
+        # 先关闭浏览器
+        self.driver.quit()
+        self.driver = None
+
         # 检查是否已在重启中
         with self.restart_lock:
             if self.is_restarting:
