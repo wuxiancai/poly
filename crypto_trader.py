@@ -3494,9 +3494,12 @@ class CryptoTrader:
             # 重新安排定时任务
             self.schedule_auto_find_coin()
 
-    def find_54_coin(self,coin_type):
+    def find_54_coin(self, coin_type, retry_count=0):
         """自动找币"""
         self.logger.info("✅ 开始自动找币")
+        if retry_count > 0:
+            self.logger.info(f"这是第 {retry_count}/5 次重试")
+            
         try:
             # 检查浏览器状态，如果为None则尝试重启
             if self.driver is None:
@@ -3553,10 +3556,15 @@ class CryptoTrader:
         except Exception as e:
             self.logger.error(f"自动找币异常: {str(e)}")
             # 避免无限递归，使用延迟重试而不是直接递归调用
-            self.logger.info("5秒后将重试自动找币...")
-            self.root.after(5000, lambda: self.find_54_coin(coin_type))
+            if retry_count < 10:  # 最多重试10次
+                retry_delay = min(5 * (retry_count + 1), 60)  # 逐渐增加重试间隔，最多60秒
+                self.logger.info(f"{retry_delay}秒后将重试自动找币...")
+                self.root.after(retry_delay * 1000, lambda: self.find_54_coin(coin_type, retry_count + 1))
+            else:
+                self.logger.critical(f"自动找币已达到最大重试次数(10次)，停止重试")
+                
 
-    def find_new_weekly_url(self, coin):
+    def find_new_weekly_url(self, coin, retry_count=0):
         """在Polymarket市场搜索指定币种的周合约地址,只返回URL"""
         try:
             if self.trading:
@@ -3636,11 +3644,11 @@ class CryptoTrader:
                     
                     # 获取当前URL
                     new_url = self.driver.current_url
-                    time.sleep(5)
+                    time.sleep(8)
 
                     # 这里如果价格是 52,那么会触发自动交易
                     if self.trading == True:
-                        time.sleep(50)
+                        time.sleep(80)
                         
                         # 保存当前 URL 到 config
                         self.config['website']['url'] = new_url
@@ -3701,7 +3709,14 @@ class CryptoTrader:
             
         except Exception as e:
             self.logger.error(f"操作失败: {str(e)}")
-            self.find_54_coin(coin)
+            # 限制最大重试次数为5次，避免无限递归
+            if retry_count < 10:
+                retry_delay = min(5 * (retry_count + 1), 60)  # 逐渐增加重试时间，最多60秒
+                self.logger.info(f"{retry_delay}秒后重试自动找币...")
+                self.root.after(retry_delay * 1000, lambda: self.find_54_coin(coin, retry_count + 1))
+            else:
+                self.logger.critical(f"自动找币已达到最大重试次数(10次)，停止重试")
+                
 
     def click_today_card(self):
         """使用Command/Ctrl+Click点击包含今天日期的卡片,打开新标签页"""
