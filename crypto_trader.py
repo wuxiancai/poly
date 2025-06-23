@@ -136,7 +136,7 @@ class CryptoTrader:
         self.doubling_weeks = 35
 
         # 默认买价
-        self.default_target_price = 52 # 不修改
+        self.default_target_price = 53 # 不修改
         # 默认反水卖价
         self.default_sell_price_backwater = 49 # 不修改
         # 默认卖价
@@ -1375,13 +1375,13 @@ class CryptoTrader:
             self.logger.error(f"检查金额设置状态失败: {str(e)}")
 
     def set_yes1_no1_default_target_price(self):
-        """设置默认目标价格"""
+        """设置默认目标价格52"""
         self.yes1_price_entry.delete(0, tk.END)
-        self.yes1_price_entry.insert(0, self.default_target_price)
+        self.yes1_price_entry.insert(0, "52")
         self.yes1_price_entry.configure(foreground='red')
 
         self.no1_price_entry.delete(0, tk.END)
-        self.no1_price_entry.insert(0, self.default_target_price)
+        self.no1_price_entry.insert(0, "52")
         self.no1_price_entry.configure(foreground='red')
         self.logger.info(f"\033[34m✅ 设置买入价格{self.default_target_price}成功\033[0m")
         self.close_windows()
@@ -2308,7 +2308,7 @@ class CryptoTrader:
                         
                         # 重置YES2 价格为默认值+1
                         self.yes2_price_entry.delete(0, tk.END)
-                        self.yes2_price_entry.insert(0, str(self.default_target_price+1))
+                        self.yes2_price_entry.insert(0, str(self.default_target_price))
                         self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
                         self.refresh_page()
                         break
@@ -2426,7 +2426,7 @@ class CryptoTrader:
                         else:
                             # 重置NO2 价格为默认值+1
                             self.no2_price_entry.delete(0, tk.END)
-                            self.no2_price_entry.insert(0, str(self.default_target_price+1))
+                            self.no2_price_entry.insert(0, str(self.default_target_price))
                             self.no2_price_entry.configure(foreground='red')  # 添加红色设置
                             self.refresh_page()
                             break
