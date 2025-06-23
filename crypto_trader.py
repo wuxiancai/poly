@@ -1383,7 +1383,7 @@ class CryptoTrader:
         self.no1_price_entry.delete(0, tk.END)
         self.no1_price_entry.insert(0, "52")
         self.no1_price_entry.configure(foreground='red')
-        self.logger.info(f"\033[34m✅ 设置买入价格{self.default_target_price}成功\033[0m")
+        self.logger.info(f"\033[34m✅ 设置买入价格52成功\033[0m")
         self.close_windows()
 
     def set_yes_no_cash(self):
