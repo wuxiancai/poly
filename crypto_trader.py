@@ -93,6 +93,7 @@ class CryptoTrader:
         self.running = False
         self.trading = False
         self.login_running = False
+
         # 添加交易状态
         self.start_login_monitoring_running = False
         self.url_monitoring_running = False
@@ -153,22 +154,20 @@ class CryptoTrader:
         
         # 按钮区域按键 WIDTH
         self.button_width = 8 # 不修改
+
         # 停止事件
         self.stop_event = threading.Event()
+
         # 初始化金额为 0
         for i in range(1, 4):  # 1到4
             setattr(self, f'yes{i}_amount', 0)
             setattr(self, f'no{i}_amount', 0)
+
         # 初始化 UI 界面
         try:
             self.config = self.load_config()
             self.setup_gui()
-            # 注释掉固定窗口大小的设置，让后面的自适应代码处理
-            # self.root.update_idletasks()  # 确保窗口尺寸已计算
-            # window_width = self.root.winfo_width()
-            # screen_height = self.root.winfo_screenheight()
-            # 设置窗口位置在屏幕最左边
-            # self.root.geometry(f"{window_width}x{screen_height}+0+0")
+            
         except Exception as e:
             self.logger.error(f"初始化失败: {str(e)}")
             messagebox.showerror("错误", "程序初始化失败，请检查日志文件")
@@ -290,6 +289,7 @@ class CryptoTrader:
     """从这里开始设置 GUI 直到 771 行"""
     def setup_gui(self):
         """优化后的GUI界面设置"""
+
         self.root = tk.Tk()
         self.root.title("Polymarket Automatic Trading System Power by @wuxiancai")
         
@@ -374,18 +374,14 @@ class CryptoTrader:
             'Red.TButton': {'foreground': '#dc3545', 'font': bold_font},
             'Black.TButton': {'foreground': '#212529', 'font': base_font},
             'Blue.TButton': {'foreground': '#0d6efd', 'font': base_font},
-            'Red.TEntry': {'foreground': '#dc3545', 'font': base_font},
-            'Blue.TLabel': {'foreground': '#0d6efd', 'font': large_font},
             'Red.TLabel': {'foreground': '#dc3545', 'font': large_font},
             'Black.TLabel': {'foreground': '#212529', 'font': base_font},
             'Top.TLabel': {'foreground': '#212529', 'font': base_font},
             'Warning.TLabelframe': {'font': title_font, 'foreground': '#FF0000', 'anchor': 'center'},
             'LeftAligned.TButton': {'anchor': 'w', 'foreground': '#212529', 'padding': (1, 1)},
-            'Red.TLabelframe.Label': {'foreground': '#dc3545'},
-            'LeftBlack.TButton': {'foreground': '#212529', 'font': base_font},
             'Black.TLabelframe': {'font': small_font, 'foreground': '#212529', 'anchor': 'center'},
-            'Centered.TLabelframe': {'font': base_font, 'foreground': '#212529'},
-            'Centered.TLabelframe.Label': {'font': base_font, 'foreground': '#212529', 'anchor': 'center'}
+            'Centered.TLabelframe': {'font': base_font, 'foreground': '#212529'}
+            
         }
         
         for style_name, config in styles_config.items():
@@ -748,9 +744,7 @@ class CryptoTrader:
         
         # 最后一次更新确保布局正确
         self.root.update_idletasks()
-    """以上代码从240行到 730 行是设置 GUI 界面的,以上部分代码不允许修改"""
-
-    """以下代码从 732 行到行是程序交易逻辑"""
+    
     def start_monitoring(self):
         """开始监控"""
         # 直接使用当前显示的网址
@@ -778,7 +772,7 @@ class CryptoTrader:
         self.login_check_timer = self.root.after(4000, self.start_login_monitoring)
 
         # 启动URL监控
-        self.url_check_timer = self.root.after(10000, self.start_url_monitoring)
+        self.url_check_timer = self.root.after(8000, self.start_url_monitoring)
 
         # 启动零点 CASH 监控
         self.get_zero_time_cash_timer = self.root.after(12000, self.get_zero_time_cash)
@@ -797,7 +791,7 @@ class CryptoTrader:
 
         # 启动页面刷新
         self.refresh_page_timer = self.root.after(40000, self.refresh_page)
-        self.logger.info("\033[34m✅ 启动页面刷新成功!\033[0m")
+        self.logger.info("\033[34m✅ 40秒后启动页面刷新!\033[0m")
         
         # 启动 XPath 监控
         self.monitor_xpath_timer = self.monitor_xpath_timer = self.root.after(600000, self.monitor_xpath_elements)
@@ -1607,9 +1601,19 @@ class CryptoTrader:
                         self.driver.get(self.url_entry.get().strip())
                         time.sleep(2)
                         try:
-                            amount_button = getattr(self, 'amount_yes1_button')
-                            amount_button.event_generate('<Button-1>')
-                            time.sleep(0.5)
+                            # 先查找 AMOUNT 输入框
+                            try:
+                                amount_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
+                            except (NoSuchElementException, StaleElementReferenceException):
+                                amount_input = self._find_element_with_retry(XPathConfig.AMOUNT_INPUT, timeout=1, silent=True)
+
+                            if amount_input:
+                                # 先清除 AMOUNT 输入框
+                                amount_input.clear()
+                                time.sleep(0.5)
+                                # 然后输入 1
+                                amount_input.send_keys("1")
+                                time.sleep(0.5)
 
                             # 点击buy_confirm_button
                             self.buy_confirm_button.invoke()
