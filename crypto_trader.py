@@ -1170,7 +1170,6 @@ class CryptoTrader:
     def get_nearby_cents(self):
         """获取spread附近的价格数字"""
         try:
-            
             try:
                 up_shares_element = self.driver.find_element(By.XPATH, XPathConfig.ASKS_SHARES[0])
                 up_shares_text = up_shares_element.text
@@ -1334,10 +1333,7 @@ class CryptoTrader:
         except Exception as e:
             self.portfolio_label.config(text="Portfolio: Fail")
             self.cash_label.config(text="Cash: Fail")
-             
-    """以上代码执行了监控价格和获取 CASH 的值。从这里开始程序返回到第 732 行"""  
-
-    """以下代码是设置 YES/NO 金额的函数,直到第 1509 行"""
+    
     def schedule_update_amount(self, retry_count=0):
         """设置金额,带重试机制"""
         try:
@@ -1381,11 +1377,11 @@ class CryptoTrader:
     def set_yes1_no1_default_target_price(self):
         """设置默认目标价格"""
         self.yes1_price_entry.delete(0, tk.END)
-        self.yes1_price_entry.insert(0, "52")
+        self.yes1_price_entry.insert(0, self.default_target_price)
         self.yes1_price_entry.configure(foreground='red')
 
         self.no1_price_entry.delete(0, tk.END)
-        self.no1_price_entry.insert(0, "52")
+        self.no1_price_entry.insert(0, self.default_target_price)
         self.no1_price_entry.configure(foreground='red')
         self.logger.info(f"\033[34m✅ 设置买入价格{self.default_target_price}成功\033[0m")
         self.close_windows()
@@ -1467,8 +1463,6 @@ class CryptoTrader:
             self.root.after_cancel(self.retry_timer)
         self.retry_timer = self.root.after(3000, self.set_yes_no_cash)  # 3秒后重试
     
-
-    """以下代码是启动 URL 监控和登录状态监控的函数,直到第 1426 行"""
     def start_url_monitoring(self):
         """启动URL监控"""
         with self.url_monitoring_lock:
@@ -1731,7 +1725,7 @@ class CryptoTrader:
                     except Exception as e:
                         self.logger.error(f"取消旧定时器失败")
             finally:
-                self.refresh_page_timer = self.root.after(self.refresh_interval, self.refresh_page)
+                self.refresh_page_timer = self.root.after(refresh_time, self.refresh_page)
                 #self.logger.info(f"\033[34m{round(refresh_time, 2)} 分钟后再次刷新\033[0m")
 
     def stop_refresh_page(self):
@@ -2253,20 +2247,20 @@ class CryptoTrader:
               
             if up_price is not None and down_price is not None:
                 
-                # 获取Yes5价格
-                yes5_price = float(self.yes5_price_entry.get())
+                # 获取Up5价格
+                up5_price = float(self.yes5_price_entry.get())
                 self.trading = True  # 开始交易
-                price_diff = round(up_price - yes5_price, 2) # 47-47=0;;46-47=-1;
+                price_diff = round(up_price - up5_price, 2) # 47-47=0;;46-47=-1;
 
                 # 检查Yes5价格匹配
-                if (10 <= yes5_price <= 49) and (-2 <= price_diff <= 1) and (up_shares > self.asks_shares):
+                if (10 <= up5_price <= 49) and (-2 <= price_diff <= 1) and (up_shares > self.asks_shares):
                     self.logger.info(f"✅ \033[32mUp 5: {up_price}¢\033[0m 价格匹配,执行自动卖出")
                     self.stop_refresh_page()
                     # 卖前刷新一次页面,预防刚买的还没有显示在页面上
                     time.sleep(2)
                     self.driver.refresh()
                     time.sleep(2)
-                    self.yes5_target_price = yes5_price
+                    self.yes5_target_price = up5_price
                             
                     while True:
                         if self.reset_trade_count == 1:
@@ -2319,10 +2313,10 @@ class CryptoTrader:
                         self.refresh_page()
                         break
                     
-                elif yes5_price >= 70 and 0 <= price_diff <= 1 and (up_shares > self.asks_shares):
+                elif up5_price >= 70 and 0 <= price_diff <= 1 and (up_shares > self.asks_shares):
                     self.logger.info(f"✅ \033[32mUp 5: {up_price}¢\033[0m 价格匹配,执行自动卖出")
                     self.stop_refresh_page()
-                    self.yes5_target_price = yes5_price
+                    self.yes5_target_price = up5_price
                             
                     while True:
                         # 执行卖出YES操作
@@ -2366,19 +2360,19 @@ class CryptoTrader:
             
             if up_price is not None and down_price is not None:
                 # 获取No5价格
-                no5_price = float(self.no5_price_entry.get())
+                down5_price = float(self.no5_price_entry.get())
                 self.trading = True  # 开始交易
-                price_diff = round(down_price - no5_price, 2)
+                price_diff = round(down_price - down5_price, 2)
             
                 # 检查No5价格匹配,反水卖出同方向
-                if (10 <= no5_price <= 49) and (-2 <= price_diff <= 1) and (down_shares > self.bids_shares):
+                if (10 <= down5_price <= 49) and (-2 <= price_diff <= 1) and (down_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 5: {down_price}¢\033[0m 价格匹配,执行自动卖出")
                     self.stop_refresh_page()
                     # 卖前刷新一次页面,预防刚买的还没有显示在页面上
                     time.sleep(2)
                     self.driver.refresh()
                     time.sleep(2)
-                    self.no5_target_price = no5_price
+                    self.no5_target_price = down5_price
                             
                     while True:
                         if self.reset_trade_count == 1:
@@ -2437,10 +2431,10 @@ class CryptoTrader:
                             self.refresh_page()
                             break
                     
-                elif no5_price >= 70 and (0 <= price_diff <= 1) and (down_shares > self.bids_shares):
+                elif down5_price >= 70 and (0 <= price_diff <= 1) and (down_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 5: {down_price}¢\033[0m 价格匹配,执行自动卖出")
                     self.stop_refresh_page()
-                    self.no5_target_price = no5_price
+                    self.no5_target_price = down5_price
                     
                     while True:
                         # 卖完 Down 后，自动再卖 Up                      
@@ -2481,10 +2475,10 @@ class CryptoTrader:
         time.sleep(1)
         
         # 检查属性是否存在，如果不存在则使用默认值
-        yes5_price = getattr(self, 'yes5_target_price', 0)
-        no5_price = getattr(self, 'no5_target_price', 0)
+        up5_price = getattr(self, 'yes5_target_price', 0)
+        down5_price = getattr(self, 'no5_target_price', 0)
 
-        if (yes5_price > 60) or (no5_price > 60):
+        if (up5_price > 60) or (down5_price > 60):
             self.reset_trade_count = 0
         else:
             self.reset_trade_count += 1
@@ -2569,7 +2563,7 @@ class CryptoTrader:
         try:
             self.logger.info("\033[32m执行only_sell_yes3\033[0m")
             # 获取 YES3 的金额
-            yes3_shares = self.buy_yes3_amount / (self.default_target_price / 100)
+            up3_shares = self.buy_yes3_amount / (self.default_target_price / 100)
             
             # 再卖 UP ,但是只卖 YES3 的金额对应的 SHARES
             self.position_sell_yes_button.invoke()
@@ -2584,7 +2578,7 @@ class CryptoTrader:
             # 清除 SHARES 输入为 0,然后再插入需要卖的 SHARES
             shares_input.clear()
             time.sleep(0.5)
-            shares_input.send_keys(str(yes3_shares))
+            shares_input.send_keys(str(up3_shares))
             time.sleep(0.5)
             self.sell_confirm_button.invoke()
             time.sleep(0.5)
@@ -2605,7 +2599,7 @@ class CryptoTrader:
                 cash_value=self.cash_value,
                 portfolio_value=self.portfolio_value
             )
-            self.logger.info(f"✅ 卖出 \033[32mUp 3 SHARES: {yes3_shares} 成功\033[0m")
+            self.logger.info(f"✅ 卖出 \033[32mUp 3 SHARES: {up3_shares} 成功\033[0m")
             self.driver.refresh()
         except Exception as e:
             self.logger.info(f"❌ only_sell_yes3执行失败,重试")
@@ -2617,7 +2611,7 @@ class CryptoTrader:
         try:
             self.logger.info("\033[32m执行only_sell_no3\033[0m")
             # 获取 NO3 的SHARES
-            no3_shares = self.buy_no3_amount / (self.default_target_price / 100)
+            down3_shares = self.buy_no3_amount / (self.default_target_price / 100)
             
             # 再卖 down ,但是只卖 no3 的金额对应的 SHARES
             self.position_sell_no_button.invoke()
@@ -2633,7 +2627,7 @@ class CryptoTrader:
             shares_input.clear()
 
             time.sleep(0.5)
-            shares_input.send_keys(str(no3_shares))
+            shares_input.send_keys(str(down3_shares))
             time.sleep(0.5)
             self.sell_confirm_button.invoke()
             time.sleep(0.5)
@@ -2655,7 +2649,7 @@ class CryptoTrader:
                 portfolio_value=self.portfolio_value
             )
             
-            self.logger.info(f"✅ 卖出 \033[32mDown 3 SHARES: {no3_shares} 成功\033[0m")
+            self.logger.info(f"✅ 卖出 \033[32mDown 3 SHARES: {down3_shares} 成功\033[0m")
             self.driver.refresh()
         except Exception as e:
             self.logger.info(f"❌ only_sell_no3执行失败,重试")
