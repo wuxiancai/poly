@@ -1705,7 +1705,7 @@ class CryptoTrader:
                     try:
                         # 验证浏览器连接是否正常
                         self.driver.execute_script("return navigator.userAgent")
-                        refresh_time = self.refresh_interval / 60000
+                        refresh_time = self.refresh_interval / 60000 # 转换为分钟,用于输入日志
                         self.driver.refresh()
                     except Exception as e:
                         self.logger.warning(f"浏览器连接异常，无法刷新页面")
@@ -1725,7 +1725,7 @@ class CryptoTrader:
                     except Exception as e:
                         self.logger.error(f"取消旧定时器失败")
             finally:
-                self.refresh_page_timer = self.root.after(refresh_time, self.refresh_page)
+                self.refresh_page_timer = self.root.after(self.refresh_interval, self.refresh_page)
                 #self.logger.info(f"\033[34m{round(refresh_time, 2)} 分钟后再次刷新\033[0m")
 
     def stop_refresh_page(self):
