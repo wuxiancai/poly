@@ -1631,9 +1631,9 @@ class CryptoTrader:
                                     self.logger.info("✅ 已通过敲击 ENTRY 按键,敲击了ACCEPT按钮")
                                     self.root.after(1000, self.driver.refresh())
                                 except Exception as e:
-                                    self.logger.info(f"accept_button.click() 失败,重新点击")
+                                    self.logger.info(f"❌ 敲击 ENTRY 按键失败,重新点击ACCEPT按钮")
                                     self.click_accept()
-                                    self.root.after(1000, self.driver.refresh())
+                                    self.root.after(2000, self.driver.refresh())
                                     self.logger.info("✅ 已使用 坐标法 鼠标点击ACCEPT按钮成功")
                         except NoSuchElementException:
                             pass
