@@ -1746,7 +1746,7 @@ class CryptoTrader:
     def First_trade(self, up_price, down_price, up_shares, down_shares, spread_val):
         """第一次交易价格设置为 0.52 买入"""
         try:
-            if up_price is not None and up_price > 10 and down_price is not None and down_price < 97 and spread_val is not None and spread_val < 4:
+            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10 and spread_val is not None and spread_val < 4:
                 # 获取Yes1和No1的GUI界面上的价格
                 yes1_price = float(self.yes1_price_entry.get())
                 no1_price = float(self.no1_price_entry.get())
@@ -1885,7 +1885,7 @@ class CryptoTrader:
     def Second_trade(self, up_price, down_price, up_shares, down_shares, spread_val):
         """处理Yes2/No2的自动交易"""
         try:
-            if up_price is not None and up_price > 10 and down_price is not None and down_price < 97 and spread_val is not None and spread_val < 4:
+            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10 and spread_val is not None and spread_val < 4:
                 # 获Yes2和No2的价格输入框
                 yes2_price = float(self.yes2_price_entry.get())
                 no2_price = float(self.no2_price_entry.get())
@@ -2001,7 +2001,7 @@ class CryptoTrader:
     def Third_trade(self, up_price, down_price, up_shares, down_shares, spread_val):
         """处理Yes3/No3的自动交易"""
         try:
-            if up_price is not None and up_price > 10 and down_price is not None and down_price < 97 and spread_val is not None and spread_val < 4:                
+            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10 and spread_val is not None and spread_val < 4:                
                 # 获取Yes3和No3的价格输入框
                 yes3_price = float(self.yes3_price_entry.get())
                 no3_price = float(self.no3_price_entry.get())
@@ -2116,7 +2116,7 @@ class CryptoTrader:
     def Forth_trade(self, up_price, down_price, up_shares, down_shares, spread_val):
         """处理Yes4/No4的自动交易"""
         try:
-            if up_price is not None and up_price > 10 and down_price is not None and down_price < 97 and spread_val is not None and spread_val < 4:  
+            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10 and spread_val is not None and spread_val < 4:  
                 # 获取Yes4和No4的价格输入框
                 yes4_price = float(self.yes4_price_entry.get())
                 no4_price = float(self.no4_price_entry.get())
