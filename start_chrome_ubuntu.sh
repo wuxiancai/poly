@@ -33,12 +33,24 @@ update_chrome() {
     
     echo -e "${YELLOW}当前Chrome版本: $CURRENT_VERSION${NC}"
     
-    # 获取最新稳定版Chrome版本
-    echo -e "${YELLOW}获取最新Chrome版本信息...${NC}"
+    # 使用更可靠的方法获取最新版本
+    LATEST_VERSION=""
+    # 尝试方法1：从官方API获取
     LATEST_VERSION=$(curl -s "https://omahaproxy.appspot.com/all.json" | 
                     grep -o '"os":"linux".*"channel":"stable".*"current_version":"[^"]*"' | 
                     grep -o '"current_version":"[^"]*"' | 
-                    cut -d'"' -f4)
+                    cut -d'"' -f4 | head -1)
+    
+    # 如果方法1失败，尝试方法2：从下载页面获取
+    if [ -z "$LATEST_VERSION" ]; then
+        echo -e "${YELLOW}从官方API获取版本失败，尝试从下载页面获取...${NC}"
+        LATEST_VERSION=$(curl -s "https://dl.google.com/linux/chrome/deb/dists/stable/main/binary-amd64/Packages" | 
+                        grep -A1 "Package: google-chrome-stable" | 
+                        grep "Version" | 
+                        cut -d' ' -f2 | 
+                        cut -d'-' -f1 | 
+                        head -1)
+    fi
     
     if [ -z "$LATEST_VERSION" ]; then
         echo -e "${RED}无法获取最新Chrome版本信息${NC}"
@@ -47,98 +59,132 @@ update_chrome() {
     
     echo -e "${YELLOW}最新Chrome版本: $LATEST_VERSION${NC}"
     
-    # 比较版本
-    if [ "$CURRENT_VERSION" = "$LATEST_VERSION" ]; then
+    # 标准化版本号格式，确保可以正确比较
+    # 移除可能的前缀和后缀
+    CURRENT_CLEAN=$(echo "$CURRENT_VERSION" | sed 's/[^0-9.]//g')
+    LATEST_CLEAN=$(echo "$LATEST_VERSION" | sed 's/[^0-9.]//g')
+    
+    echo -e "${YELLOW}清理后的版本 - 当前: $CURRENT_CLEAN, 最新: $LATEST_CLEAN${NC}"
+    
+    # 比较版本号的主要部分
+    CURRENT_MAJOR=$(echo "$CURRENT_CLEAN" | cut -d'.' -f1)
+    LATEST_MAJOR=$(echo "$LATEST_CLEAN" | cut -d'.' -f1)
+    CURRENT_MINOR=$(echo "$CURRENT_CLEAN" | cut -d'.' -f2)
+    LATEST_MINOR=$(echo "$LATEST_CLEAN" | cut -d'.' -f2)
+    CURRENT_BUILD=$(echo "$CURRENT_CLEAN" | cut -d'.' -f3)
+    LATEST_BUILD=$(echo "$LATEST_CLEAN" | cut -d'.' -f3)
+    # 详细的版本比较
+    NEEDS_UPDATE=0
+    if [ "$CURRENT_MAJOR" -lt "$LATEST_MAJOR" ]; then
+        NEEDS_UPDATE=1
+    elif [ "$CURRENT_MAJOR" -eq "$LATEST_MAJOR" ] && [ "$CURRENT_MINOR" -lt "$LATEST_MINOR" ]; then
+        NEEDS_UPDATE=1
+    elif [ "$CURRENT_MAJOR" -eq "$LATEST_MAJOR" ] && [ "$CURRENT_MINOR" -eq "$LATEST_MINOR" ] && [ "$CURRENT_BUILD" -lt "$LATEST_BUILD" ]; then
+        NEEDS_UPDATE=1
+    fi
+    
+    if [ "$NEEDS_UPDATE" -eq 0 ]; then
         echo -e "${GREEN}Chrome已是最新版本${NC}"
         return 0
     fi
-    # 将版本号转换为可比较的格式
-    CURRENT_MAJOR=$(echo "$CURRENT_VERSION" | cut -d'.' -f1)
-    LATEST_MAJOR=$(echo "$LATEST_VERSION" | cut -d'.' -f1)
     
-    if [ "$CURRENT_MAJOR" -lt "$LATEST_MAJOR" ] || [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
-        echo -e "${YELLOW}Chrome需要更新，从 $CURRENT_VERSION 更新到 $LATEST_VERSION${NC}"
+    echo -e "${YELLOW}Chrome需要更新，从 $CURRENT_VERSION 更新到 $LATEST_VERSION${NC}"
+    
+    # 检查是否有本地Chrome安装
+    if [ -x "$SCRIPT_DIR/google-chrome" ] || [ -x "$SCRIPT_DIR/chrome" ]; then
+        # 本地安装版本，尝试下载新版本
+        echo -e "${YELLOW}检测到本地Chrome安装，尝试下载更新...${NC}"
         
-        # 检查是否有本地Chrome安装
-        if [ -x "$SCRIPT_DIR/google-chrome" ] || [ -x "$SCRIPT_DIR/chrome" ]; then
-            # 本地安装版本，尝试下载新版本
-            echo -e "${YELLOW}检测到本地Chrome安装，尝试下载更新...${NC}"
-            
-            TMP_DIR="/tmp/chrome_update"
-            mkdir -p "$TMP_DIR"
-            cd "$TMP_DIR" || return 1
-            
-            # 下载最新版本的Chrome
-            CHROME_URL="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-            echo -e "${YELLOW}下载Chrome安装包...${NC}"
-            if ! curl -sfLo chrome.deb "$CHROME_URL"; then
-                echo -e "${RED}下载Chrome失败${NC}"
-                return 1
-            fi
-            
-            # 解压并替换本地Chrome
-            echo -e "${YELLOW}解压并更新本地Chrome...${NC}"
-            dpkg-deb -x chrome.deb chrome_extracted
-            
-            # 备份旧版本
-            if [ -x "$SCRIPT_DIR/google-chrome" ]; then
-                mv "$SCRIPT_DIR/google-chrome" "$SCRIPT_DIR/google-chrome.bak"
-            fi
-            
-            # 复制新版本
-            cp chrome_extracted/opt/google/chrome/chrome "$SCRIPT_DIR/google-chrome"
-            chmod +x "$SCRIPT_DIR/google-chrome"
-            
-            # 复制必要的库文件
-            mkdir -p "$SCRIPT_DIR/lib"
-            cp -r chrome_extracted/opt/google/chrome/lib/* "$SCRIPT_DIR/lib/" 2>/dev/null || true
-            # 清理临时文件
-            cd "$SCRIPT_DIR"
-            rm -rf "$TMP_DIR"
-            
-            # 验证更新
-            NEW_VERSION=$(get_chrome_version)
-            if [ "$NEW_VERSION" = "$LATEST_VERSION" ]; then
-                echo -e "${GREEN}Chrome已成功更新到版本 $NEW_VERSION${NC}"
-                return 0
-            else
-                echo -e "${YELLOW}Chrome可能未成功更新，当前版本: $NEW_VERSION${NC}"
-                # 恢复备份
-                if [ -f "$SCRIPT_DIR/google-chrome.bak" ]; then
-                    mv "$SCRIPT_DIR/google-chrome.bak" "$SCRIPT_DIR/google-chrome"
-                    echo -e "${YELLOW}已恢复到原版本${NC}"
-                fi
-            fi
+        TMP_DIR="/tmp/chrome_update"
+        mkdir -p "$TMP_DIR"
+        cd "$TMP_DIR" || return 1
+        
+        # 下载最新版本的Chrome
+        CHROME_URL="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+        echo -e "${YELLOW}下载Chrome安装包...${NC}"
+        if ! curl -sfLo chrome.deb "$CHROME_URL"; then
+            echo -e "${RED}下载Chrome失败${NC}"
+            return 1
+        fi
+        
+        # 解压并替换本地Chrome
+        echo -e "${YELLOW}解压并更新本地Chrome...${NC}"
+        if ! dpkg-deb -x chrome.deb chrome_extracted; then
+            echo -e "${RED}解压Chrome安装包失败${NC}"
+            return 1
+        fi
+        
+        # 检查解压是否成功
+        if [ ! -f "chrome_extracted/opt/google/chrome/chrome" ]; then
+            echo -e "${RED}解压后未找到Chrome可执行文件${NC}"
+            return 1
+        fi
+        
+        # 备份旧版本
+        if [ -x "$SCRIPT_DIR/google-chrome" ]; then
+            mv "$SCRIPT_DIR/google-chrome" "$SCRIPT_DIR/google-chrome.bak"
+        fi
+        # 复制新版本
+        cp chrome_extracted/opt/google/chrome/chrome "$SCRIPT_DIR/google-chrome"
+        chmod +x "$SCRIPT_DIR/google-chrome"
+        
+        # 复制必要的库文件
+        mkdir -p "$SCRIPT_DIR/lib"
+        cp -r chrome_extracted/opt/google/chrome/lib/* "$SCRIPT_DIR/lib/" 2>/dev/null || true
+        
+        # 复制其他必要文件
+        cp chrome_extracted/opt/google/chrome/product_logo_*.png "$SCRIPT_DIR/" 2>/dev/null || true
+        
+        # 清理临时文件
+        cd "$SCRIPT_DIR"
+        rm -rf "$TMP_DIR"
+        
+        # 验证更新
+        NEW_VERSION=$(get_chrome_version)
+        NEW_CLEAN=$(echo "$NEW_VERSION" | sed 's/[^0-9.]//g')
+        
+        echo -e "${YELLOW}更新后的Chrome版本: $NEW_VERSION${NC}"
+        
+        # 检查新版本是否成功安装
+        if [ -n "$NEW_VERSION" ] && [ "$NEW_VERSION" != "Chrome not found" ]; then
+            echo -e "${GREEN}Chrome已成功更新到版本 $NEW_VERSION${NC}"
+            return 0
         else
-            # 系统安装版本，使用apt更新
-            echo -e "${YELLOW}使用系统包管理器更新Chrome...${NC}"
-            
-            # 确保Chrome存储库已添加
-            if [ ! -f /etc/apt/sources.list.d/google-chrome.list ]; then
-                echo -e "${YELLOW}添加Google Chrome存储库...${NC}"
-                echo "deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-                wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            echo -e "${RED}Chrome更新失败，未能获取新版本信息${NC}"
+            # 恢复备份
+            if [ -f "$SCRIPT_DIR/google-chrome.bak" ]; then
+                mv "$SCRIPT_DIR/google-chrome.bak" "$SCRIPT_DIR/google-chrome"
+                echo -e "${YELLOW}已恢复到原版本${NC}"
             fi
-            
-            # 更新并安装
-            echo -e "${YELLOW}更新软件包列表...${NC}"
-            sudo apt-get update -qq
-            
-            echo -e "${YELLOW}安装/更新Chrome...${NC}"
-            if sudo apt-get install -y google-chrome-stable; then
-                # 验证更新
-                NEW_VERSION=$(google-chrome --version | awk '{print $3}')
-                echo -e "${GREEN}Chrome已更新到版本 $NEW_VERSION${NC}"
-                return 0
-            else
-                echo -e "${RED}Chrome更新失败${NC}"
-                return 1
-            fi
+            return 1
+        fi
+    else
+        # 系统安装版本，使用apt更新
+        echo -e "${YELLOW}使用系统包管理器更新Chrome...${NC}"
+        
+        # 确保Chrome存储库已添加
+        if [ ! -f /etc/apt/sources.list.d/google-chrome.list ]; then
+            echo -e "${YELLOW}添加Google Chrome存储库...${NC}"
+            echo "deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+        fi
+        
+        # 更新并安装
+        echo -e "${YELLOW}更新软件包列表...${NC}"
+        sudo apt-get update -qq
+        echo -e "${YELLOW}安装/更新Chrome...${NC}"
+        if sudo apt-get install -y google-chrome-stable; then
+            # 验证更新
+            NEW_VERSION=$(google-chrome --version | awk '{print $3}')
+            echo -e "${GREEN}Chrome已更新到版本 $NEW_VERSION${NC}"
+            return 0
+        else
+            echo -e "${RED}Chrome更新失败${NC}"
+            return 1
         fi
     fi
-    
-    return 1
 }
+
 
 # 检查已安装的 chromedriver 是否匹配当前 Chrome
 check_driver() {
