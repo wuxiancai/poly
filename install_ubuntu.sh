@@ -73,17 +73,26 @@ PROJECT_ROOT="$(cd "$(dirname "$0")" && pwd)"
 # 检查并安装 Chrome
 echo "检查并安装 Chrome..."
 
-# 检查 Chrome 是否已安装（只检查项目根目录）
-if [ -x "$PROJECT_ROOT/google-chrome" ] || [ -x "$PROJECT_ROOT/chrome" ]; then
-    echo "${GREEN}Chrome 已安装${NC}"
-    CHROME_INSTALLED=true
-else
-    echo "Chrome 未安装"
-    CHROME_INSTALLED=false
+# 添加Chrome存储库
+if [ ! -f /etc/apt/sources.list.d/google-chrome.list ]; then
+    echo "添加Google Chrome存储库..."
+    wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+    echo "deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+    sudo apt update
 fi
 
-# 检查 ChromeDriver 是否已安装（只检查项目根目录）
-if [ -x "$PROJECT_ROOT/chromedriver" ]; then
+# 安装Chrome到系统
+if ! command -v google-chrome-stable &> /dev/null; then
+    echo "安装Google Chrome..."
+    sudo apt install -y google-chrome-stable
+    CHROME_INSTALLED=true
+else
+    echo "${GREEN}Chrome 已安装${NC}"
+    CHROME_INSTALLED=true
+fi
+
+# 检查 ChromeDriver 是否已安装
+if command -v chromedriver &> /dev/null; then
     echo "${GREEN}ChromeDriver 已安装${NC}"
     CHROMEDRIVER_INSTALLED=true
 else
@@ -91,31 +100,23 @@ else
     CHROMEDRIVER_INSTALLED=false
 fi
 
-# 安装 Chrome 到项目根目录
-if [ "$CHROME_INSTALLED" = false ]; then
-    echo "安装 Chrome..."
-    cd "$PROJECT_ROOT"
-    wget -O chrome.deb "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-    dpkg-deb -x chrome.deb .
-    ln -sf ./opt/google/chrome/google-chrome ./google-chrome
-    rm chrome.deb
-    cd -
-fi
-
-# 安装 ChromeDriver 到项目根目录
+# 安装 ChromeDriver 到系统路径
 if [ "$CHROMEDRIVER_INSTALLED" = false ]; then
     echo "安装 ChromeDriver..."
-    cd "$PROJECT_ROOT"
-    CHROME_VERSION=$("$PROJECT_ROOT/google-chrome" --version | awk '{print $3}' | cut -d'.' -f1-3)
+    TMP_DIR=$(mktemp -d)
+    cd "$TMP_DIR"
+    CHROME_VERSION=$(google-chrome-stable --version | awk '{print $3}' | cut -d'.' -f1-3)
     DRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION}")
     if [ -z "$DRIVER_VERSION" ]; then
         DRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
     fi
     wget -O chromedriver.zip "https://chromedriver.storage.googleapis.com/${DRIVER_VERSION}/chromedriver_linux64.zip"
-    unzip -o chromedriver.zip -d .
-    chmod +x ./chromedriver
+    unzip -o chromedriver.zip
+    sudo mv chromedriver /usr/local/bin/
+    sudo chmod +x /usr/local/bin/chromedriver
     rm chromedriver.zip
-    cd -
+    cd - > /dev/null
+    echo "${GREEN}ChromeDriver 已安装到 /usr/local/bin/chromedriver${NC}"
 fi
 
 # 设置Chrome启动脚本权限
@@ -157,7 +158,7 @@ echo "=== 验证安装 ==="
 echo "Python 路径: $(which python3)"
 echo "Python 版本: $(python3 --version)"
 echo "Pip 版本: $(pip3 --version)"
-echo "Chrome 版本: $(google-chrome --version 2>/dev/null || google-chrome-stable --version 2>/dev/null || echo '未安装')"
+echo "Chrome 版本: $(google-chrome-stable --version 2>/dev/null || echo '未安装')"
 echo "ChromeDriver 版本: $(chromedriver --version 2>/dev/null || echo '未安装')"
 echo "已安装的Python包:"
 pip3 list
@@ -195,13 +196,13 @@ if ! command -v pip3 &> /dev/null; then
 fi
 
 # 检查 Chrome
-if [ ! -x "$PROJECT_ROOT/google-chrome" ] && [ ! -x "$PROJECT_ROOT/google-chrome-stable" ]; then
+if ! command -v google-chrome-stable &> /dev/null; then
     ERROR_COUNT=$((ERROR_COUNT+1))
     ERROR_LIST="${ERROR_LIST}\n${RED}[未安装] Google Chrome${NC} - 请运行: wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add - && echo \"deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main\" | sudo tee /etc/apt/sources.list.d/google-chrome.list && sudo apt update && sudo apt install -y google-chrome-stable"
 fi
 
 # 检查 ChromeDriver
-if [ ! -x "$PROJECT_ROOT/chromedriver" ]; then
+if ! command -v chromedriver &> /dev/null; then
     ERROR_COUNT=$((ERROR_COUNT+1))
     ERROR_LIST="${ERROR_LIST}\n${RED}[未安装] ChromeDriver${NC} - 请先安装Chrome，然后运行脚本中的ChromeDriver安装部分"
 fi
