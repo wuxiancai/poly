@@ -5,6 +5,7 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -82,7 +83,7 @@ check_driver() {
         return 1
     fi
 
-    echo -e "${GREEN}版本匹配，驱动正常${NC}"
+    echo -e "${BLUE}版本匹配，驱动正常${NC}"
     return 0
 }
 
