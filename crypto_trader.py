@@ -114,7 +114,7 @@ class CryptoTrader:
 
         # 添加登录状态监控定时器
         self.login_check_timer = None
-        self.monitor_xpath_timer = None
+        
         self.get_zero_time_cash_timer = None
         self.get_binance_zero_time_price_timer = None
         self.get_binance_price_websocket_timer = None
@@ -793,9 +793,6 @@ class CryptoTrader:
         self.refresh_page_timer = self.root.after(40000, self.refresh_page)
         self.logger.info("\033[34m✅ 40秒后启动页面刷新!\033[0m")
         
-        # 启动 XPath 监控
-        self.monitor_xpath_timer = self.monitor_xpath_timer = self.root.after(600000, self.monitor_xpath_elements)
-
     def _start_browser_monitoring(self, new_url):
         """在新线程中执行浏览器操作"""
         try:
@@ -1100,11 +1097,7 @@ class CryptoTrader:
                 self.root.after_cancel(self.refresh_page_timer)     
             self.refresh_page()
 
-            # 4. 重新启动XPath元素监控（如果当前没有运行）
-            if hasattr(self, 'monitor_xpath_timer') and self.monitor_xpath_timer:
-                self.root.after_cancel(self.monitor_xpath_timer)
-            self.monitor_xpath_elements()
-
+            
             # 6.重新开始价格比较
             if hasattr(self,'comparison_binance_price_timer') and self.comparison_binance_price_timer:
                 self.root.after_cancel(self.comparison_binance_price_timer)
@@ -3356,85 +3349,6 @@ class CryptoTrader:
             if not silent:
                 raise
         return None
-    
-    def monitor_xpath_elements(self):
-        """使用当前浏览器实例监控 XPath 元素"""
-        if not self.driver and not self.is_restarting:
-            self.logger.warning("浏览器未启动，无法监控 XPath")
-            return
-            
-        try:
-            # 验证浏览器连接是否正常
-            self.driver.execute_script("return navigator.userAgent")
-            # 获取 XPathConfig 中的所有属性
-            xpath_config = XPathConfig()
-            # 定义要排除的 XPath 属性
-            excluded_attrs = ['ACCEPT_BUTTON', 'LOGIN_BUTTON', 'LOGIN_WITH_GOOGLE_BUTTON','HISTORY',
-                              'POSITION_SELL_BUTTON', 'POSITION_SELL_YES_BUTTON', 'POSITION_SELL_NO_BUTTON',
-                              'POSITION_UP_LABEL', 'POSITION_DOWN_LABEL', 'SEARCH_CONFIRM_BUTTON',
-                              'SEARCH_INPUT','SPREAD','CASH_VALUE','PORTFOLIO_VALUE','PORTFOLIO_VALUE'
-                              ]
-            # 获取所有 XPath 属性，排除指定的属性
-            xpath_attrs = [attr for attr in dir(xpath_config) 
-                        if not attr.startswith('__') 
-                        and isinstance(getattr(xpath_config, attr), list)
-                        and attr not in excluded_attrs]
-            failed_xpaths = []
-            
-            # 只检查每个 XPath 列表的第一个元素
-            for attr in xpath_attrs:
-                xpath_list = getattr(xpath_config, attr)
-                if xpath_list:  # 确保列表不为空
-                    first_xpath = xpath_list[0]  # 只获取第一个 XPath
-                    try:
-                        # 尝试定位元素，设置超时时间为 5 秒
-                        WebDriverWait(self.driver, 5).until(
-                            EC.presence_of_element_located((By.XPATH, first_xpath))
-                        )
-                    except (TimeoutException, NoSuchElementException):
-                        self.logger.warning(f"❌ {attr} 定位失败: {first_xpath}")
-                        failed_xpaths.append((attr, first_xpath))
-                    except Exception as e:
-                        self.logger.error(f"监控失败: {str(e)}")
-                        if "'NoneType' object has no attribute" in str(e):
-                            if not self.is_restarting:
-                                self.restart_browser()
-                            return
-            
-            # 如果有失败的 XPath，发送邮件
-            if failed_xpaths:
-                subject = f"⚠️ XPath 监控警告: {len(failed_xpaths)} 个 XPath 定位失败"
-                body = "以下 XPath 无法正常定位到元素:\n\n"
-                
-                for name, xpath in failed_xpaths:
-                    body += f"{name}: {xpath}\n"
-                
-                body += "\n请尽快检查并更新 xpath_config.py 文件。"
-                
-
-                # 使用 send_trade_email 方法发送邮件
-                self.send_trade_email(
-                                trade_type="XPATH检查",
-                                price=0,
-                                amount=0,
-                                share=0,
-                                trade_count=0,
-                                cash_value=subject,
-                                portfolio_value=body
-                            )
-                
-                self.logger.warning(f"❌ 发现 {len(failed_xpaths)} 个 XPath 定位失败，已发送邮件通知")
-            
-        except Exception as e:
-            self.logger.error(f"❌  监控 XPath 元素时发生错误: {str(e)}")
-            if "'NoneType' object has no attribute" in str(e):
-                if not self.is_restarting:
-                    self.restart_browser()
-        finally:
-            # 每隔 1 小时检查一次,先关闭之前的定时器
-            if self.monitor_xpath_timer:
-                self.root.after_cancel(self.monitor_xpath_timer)
-            self.monitor_xpath_timer = self.root.after(3600000, self.monitor_xpath_elements)
 
     def schedule_auto_find_coin(self):
         """安排每天指定时间执行自动找币"""
