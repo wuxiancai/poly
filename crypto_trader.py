@@ -1876,6 +1876,11 @@ class CryptoTrader:
                             self.yes3_amount_entry.insert(0, "0")
                             self.yes3_amount_entry.configure(foreground='black')
                             
+                            # 设置 No3_amount 为0
+                            self.no3_amount_entry.delete(0, tk.END)
+                            self.no3_amount_entry.insert(0, "0")
+                            self.no3_amount_entry.configure(foreground='black')
+                            
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
@@ -1932,6 +1937,11 @@ class CryptoTrader:
                             self.no3_amount_entry.delete(0, tk.END)
                             self.no3_amount_entry.insert(0, "0")
                             self.no3_amount_entry.configure(foreground='black')
+                            
+                            # 设置 Yes3_amount 为0
+                            self.yes3_amount_entry.delete(0, tk.END)
+                            self.yes3_amount_entry.insert(0, "0")
+                            self.yes3_amount_entry.configure(foreground='black')
                             
                             # 增加交易次数
                             self.trade_count += 1
@@ -2088,7 +2098,6 @@ class CryptoTrader:
             
     def Sell_yes(self, up_price, down_price, up_shares, down_shares):
         """当YES5价格等于实时Yes价格时自动卖出"""
-        
         try:
             if not self.driver and not self.is_restarting:
                 self.restart_browser(force_restart=True)
@@ -2174,6 +2183,11 @@ class CryptoTrader:
                         self.yes4_amount_entry.delete(0, tk.END)
                         self.yes4_amount_entry.insert(0, str(self.yes3_amount_entry.get()))
                         self.yes4_amount_entry.configure(foreground='red')  # 添加红色设置
+
+                        # 设置 No4_amount 等于 No3_amount
+                        self.no4_amount_entry.delete(0, tk.END)
+                        self.no4_amount_entry.insert(0, str(self.no3_amount_entry.get()))
+                        self.no4_amount_entry.configure(foreground='red')  # 添加红色设置
 
                         break
 
@@ -2300,7 +2314,10 @@ class CryptoTrader:
                         # 设置 No4_amount 等于 No3_amount
                         self.no4_amount_entry.delete(0, tk.END)
                         self.no4_amount_entry.insert(0, str(self.no3_amount_entry.get()))
-                        self.no4_amount_entry.configure(foreground='red')  # 添加红色设置
+
+                        # 设置 Yes4_amount 等于 Yes3_amount
+                        self.yes4_amount_entry.delete(0, tk.END)
+                        self.yes4_amount_entry.insert(0, str(self.yes3_amount_entry.get()))
 
                         break
                 
