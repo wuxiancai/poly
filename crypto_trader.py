@@ -129,16 +129,16 @@ class CryptoTrader:
         self.is_restarting = False  # 重启状态标志
 
         # 初始化本金
-        self.initial_amount = 2.2
-        self.first_rebound = 220
-        self.n_rebound = 120
-        self.profit_rate = 2
-        self.doubling_weeks = 35
+        self.initial_amount = 1.1
+        self.first_rebound = 250
+        self.n_rebound = 135
+        self.profit_rate = 1
+        self.doubling_weeks = 70
 
         # 默认买价
-        self.default_target_price = 53 # 不修改
+        self.default_target_price = 57 # 不修改
         # 默认反水卖价
-        self.default_sell_price_backwater = 49 # 不修改
+        self.default_sell_price_backwater = 45 # 不修改
         # 默认卖价
         self.default_sell_price = 1 # 不修改
 
@@ -196,7 +196,7 @@ class CryptoTrader:
                     'Down5': {'target_price': 0, 'amount': 0}
                 },
                 'url_history': [],
-                'auto_find_time': '2:00'  # 默认2点自动找币
+                'auto_find_time': '3:00'  # 默认2点自动找币
             }
             
             try:
@@ -2116,8 +2116,8 @@ class CryptoTrader:
                             self.no4_price_entry.insert(0, "0")
                             self.no4_price_entry.configure(foreground='black')
 
-                            """当买了 4次后预防第 5 次反水，所以价格到了 51 时就平仓，然后再自动开"""
-                            # 设置 Yes5和No5价格为49和 1
+                            """当买了 4次后预防第 5 次反水，所以到了设定价格时就平仓，然后再自动开"""
+                            # 设置 Yes5和No5价格为45和 1
                             self.yes5_price_entry = self.yes_frame.grid_slaves(row=8, column=1)[0]
                             self.yes5_price_entry.delete(0, tk.END)
                             self.yes5_price_entry.insert(0, str(self.default_sell_price_backwater))
@@ -2172,8 +2172,8 @@ class CryptoTrader:
                             self.no4_price_entry.insert(0, "0")
                             self.no4_price_entry.configure(foreground='black')
 
-                            """当买了 4次后预防第 5 次反水，所以价格到了 47 时就平仓，然后再自动开"""
-                            # 设置 Yes5和No5价格为49和 1
+                            """当买了 4次后预防第 5 次反水，所以到了设定价格时就平仓，然后再自动开"""
+                            # 设置 Yes5和No5价格为45和 1
                             self.yes5_price_entry = self.yes_frame.grid_slaves(row=8, column=1)[0]
                             self.yes5_price_entry.delete(0, tk.END)
                             self.yes5_price_entry.insert(0, str(self.default_sell_price))
@@ -3369,7 +3369,7 @@ class CryptoTrader:
         
         # 设置定时器
         selected_coin = self.coin_combobox.get()
-        self.root.after(int(wait_time), lambda: self.find_54_coin(selected_coin))
+        self.schedule_auto_find_coin_timer = self.root.after(int(wait_time), lambda: self.find_54_coin(selected_coin))
         self.logger.info(f"✅ \033[34m{round(wait_time_hours,2)}\033[0m小时后({selected_time}),开始自动找币")
 
     def on_auto_find_time_changed(self, event=None):
