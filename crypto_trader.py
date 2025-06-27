@@ -130,15 +130,15 @@ class CryptoTrader:
 
         # 初始化本金
         self.initial_amount = 1.1
-        self.first_rebound = 250
-        self.n_rebound = 135
+        self.first_rebound = 255
+        self.n_rebound = 145
         self.profit_rate = 1
         self.doubling_weeks = 70
 
         # 默认买价
-        self.default_target_price = 57 # 不修改
+        self.default_target_price = 58 # 不修改
         # 默认反水卖价
-        self.default_sell_price_backwater = 45 # 不修改
+        self.default_sell_price_backwater = 44 # 不修改
         # 默认卖价
         self.default_sell_price = 1 # 不修改
 
