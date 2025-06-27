@@ -3,7 +3,6 @@
 import platform
 import tkinter as tk
 from tkinter import E, ttk, messagebox
-from turtle import down
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -17,10 +16,8 @@ import json
 import threading
 import time
 import os
-import subprocess
-from screeninfo import get_monitors
 import logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 import re
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
@@ -33,9 +30,7 @@ import socket
 import sys
 import logging
 from xpath_config import XPathConfig
-from threading import Thread
 import random
-import requests
 import websocket
 
 
@@ -2149,10 +2144,8 @@ class CryptoTrader:
                             
                             break
                 
-                elif up3_price == 46:
+                elif (10 <= up3_price <= 46) and (-2 <= up_price - up3_price <= 1) and (up_shares > self.asks_shares):
                     self.logger.info(f"✅ \033[32mUp 3: {up_price}¢\033[0m 价格匹配,执行自动卖出")
-
-
                     while True:
                         self.only_sell_yes()
                         time.sleep(1)
@@ -2207,8 +2200,7 @@ class CryptoTrader:
             self.trading = False
        
     def Sell_no(self, up_price, down_price, up_shares, down_shares):
-        """当NO4价格等于实时No价格时自动卖出"""
-        
+        """当NO4价格等于实时No价格时自动卖出"""    
         try:
             if not self.driver and not self.is_restarting:
                 self.restart_browser(force_restart=True)
@@ -2273,7 +2265,7 @@ class CryptoTrader:
                             break
                             
                 # 增加一个当 NO3==46 时,自动卖出 NO3 的金额 
-                elif down3_price == 46:
+                elif (10 <= down3_price <= 46) and (-2 <= down_price - down3_price <= 1) and (down_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 3: {down_price}¢\033[0m 价格匹配,执行自动卖出")
 
                     while True:
@@ -2327,8 +2319,6 @@ class CryptoTrader:
         finally:
             self.trading = False
             
-    
-
     def reset_trade(self):
         """重置交易"""
         # 在所有操作完成后,重置交易
@@ -2417,104 +2407,6 @@ class CryptoTrader:
             self.logger.warning("❌ 卖出only_sell_no验证失败,重试")
             time.sleep(1)
             self.only_sell_no()
-
-    def only_sell_yes3(self):
-        """只卖出YES 3 SHARES"""
-        try:
-            self.logger.info("\033[32m执行only_sell_yes3\033[0m")
-            # 获取 YES3 的金额
-            up3_shares = self.buy_yes3_amount / (self.default_target_price / 100)
-            
-            # 再卖 UP ,但是只卖 YES3 的金额对应的 SHARES
-            self.position_sell_yes_button.invoke()
-            time.sleep(0.5)
-
-            # 找到SHARES输入框(与 AMOUNT_INPUT 相同)
-            try:
-                shares_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
-            except (NoSuchElementException, StaleElementReferenceException):
-                shares_input = self._find_element_with_retry(XPathConfig.AMOUNT_INPUT, timeout=2, silent=True)
-                
-            # 清除 SHARES 输入为 0,然后再插入需要卖的 SHARES
-            shares_input.clear()
-            time.sleep(0.5)
-            shares_input.send_keys(str(up3_shares))
-            time.sleep(0.5)
-            self.sell_confirm_button.invoke()
-            time.sleep(0.5)
-
-            # 验证是否卖出成功
-            if self._verify_trade('Sold', 'Up')[0]:
-                self.logger.info(f"卖 Up 3 SHARES 成功")
-
-            # 增加卖出计数
-            self.sell_count += 1
-            # 发送交易邮件 - 卖出YES
-            self.send_trade_email(
-                trade_type="Sell Up",
-                price=self.price,
-                amount=self.amount,
-                shares=self.shares,
-                trade_count=self.sell_count,
-                cash_value=self.cash_value,
-                portfolio_value=self.portfolio_value
-            )
-            self.logger.info(f"✅ 卖出 \033[32mUp 3 SHARES: {up3_shares} 成功\033[0m")
-            self.driver.refresh()
-        except Exception as e:
-            self.logger.info(f"❌ only_sell_yes3执行失败,重试")
-            time.sleep(1)
-            self.only_sell_yes3()
-            
-    def only_sell_no3(self):
-        """只卖出Down 3 SHARES"""
-        try:
-            self.logger.info("\033[32m执行only_sell_no3\033[0m")
-            # 获取 NO3 的SHARES
-            down3_shares = self.buy_no3_amount / (self.default_target_price / 100)
-            
-            # 再卖 down ,但是只卖 no3 的金额对应的 SHARES
-            self.position_sell_no_button.invoke()
-            time.sleep(0.5)
-            
-            # 找到输入框
-            try:
-                shares_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
-            except (NoSuchElementException, StaleElementReferenceException):
-                shares_input = self._find_element_with_retry(XPathConfig.AMOUNT_INPUT, timeout=2, silent=True)
-            
-            # 设置 SHARES_input 为 0,然后再插入需要卖的 SHARES                       
-            shares_input.clear()
-
-            time.sleep(0.5)
-            shares_input.send_keys(str(down3_shares))
-            time.sleep(0.5)
-            self.sell_confirm_button.invoke()
-            time.sleep(0.5)
-            
-            if self._verify_trade('Sold', 'Down')[0]:
-                self.logger.info(f"卖 Down 3 SHARES 成功")
-
-            # 增加卖出计数
-            self.sell_count += 1
-            
-            # 发送交易邮件 - 卖出NO
-            self.send_trade_email(
-                trade_type="Sell Down",
-                price=self.price,
-                amount=self.amount,
-                shares=self.shares,
-                trade_count=self.sell_count,
-                cash_value=self.cash_value,
-                portfolio_value=self.portfolio_value
-            )
-            
-            self.logger.info(f"✅ 卖出 \033[32mDown 3 SHARES: {down3_shares} 成功\033[0m")
-            self.driver.refresh()
-        except Exception as e:
-            self.logger.info(f"❌ only_sell_no3执行失败,重试")
-            time.sleep(1)
-            self.only_sell_no3()
 
     def Verify_buy_yes(self):
         """
@@ -2688,7 +2580,6 @@ class CryptoTrader:
             error_msg = f"点击 Positions-Sell-No 按钮失败: {str(e)}"
             self.logger.error(error_msg)
             
-
     def click_position_sell_yes(self):
         """点击 Positions-Sell-Yes 按钮"""
         try:
@@ -2731,7 +2622,6 @@ class CryptoTrader:
             error_msg = f"点击 Positions-Sell-Yes 按钮失败: {str(e)}"
             self.logger.error(error_msg)
             
-
     def click_sell_confirm_button(self):
         """点击sell-卖出按钮"""
         try:
@@ -2852,7 +2742,6 @@ class CryptoTrader:
               
         except Exception as e:
             self.logger.error(f"Amount操作失败: {str(e)}")
-    
     
     def close_windows(self):
         """关闭多余窗口"""
@@ -3341,7 +3230,6 @@ class CryptoTrader:
             else:
                 self.logger.critical(f"自动找币已达到最大重试次数(10次)，停止重试")
                 
-
     def find_new_weekly_url(self, coin, retry_count=0):
         """在Polymarket市场搜索指定币种的周合约地址,只返回URL"""
         try:
@@ -3576,7 +3464,6 @@ class CryptoTrader:
             else:
                 self.logger.critical(f"自动找币已达到最大重试次数(10次)，停止重试")
                 
-
     def click_today_card(self):
         """使用Command/Ctrl+Click点击包含今天日期的卡片,打开新标签页"""
         try:
