@@ -136,9 +136,9 @@ class CryptoTrader:
         self.doubling_weeks = 70
 
         # 默认买价
-        self.default_target_price = 58 # 不修改
+        self.default_target_price = 57 # 不修改
         # 默认反水卖价
-        self.default_sell_price_backwater = 44 # 不修改
+        self.default_sell_price_backwater = 46 # 不修改
         # 默认卖价
         self.default_sell_price = 1 # 不修改
 
@@ -1141,46 +1141,31 @@ class CryptoTrader:
             self.logger.error(f"恢复监控状态失败: {e}")
 
     def get_nearby_cents(self):
-        """获取spread附近的价格数字"""
+        """获取份额"""
         try:
             try:
                 up_shares_element = self.driver.find_element(By.XPATH, XPathConfig.ASKS_SHARES[0])
                 up_shares_text = up_shares_element.text
             except (NoSuchElementException, StaleElementReferenceException):
                 
-                return None, None, None
+                return None, None
             
             try:
                 down_shares_element = self.driver.find_element(By.XPATH, XPathConfig.BIDS_SHARES[0])
                 down_shares_text = down_shares_element.text
             except (NoSuchElementException, StaleElementReferenceException):
                 
-                return None, None, None
-            
-            try:
-                spread_element = self.driver.find_element(By.XPATH, XPathConfig.SPREAD_ELEMENT[0]).text
-                spread_text = spread_element.replace('\n', '')
-                
-            except (NoSuchElementException, StaleElementReferenceException):
-                
-                return None, None, None
+                return None, None
             
             # 解析份额
             up_shares_val = float(up_shares_text.replace(',', '')) if up_shares_text else None
             down_shares_val = float(down_shares_text.replace(',', '')) if down_shares_text else None
             
-            # 解析spread
-            spread_val = re.search(r'(?<=Spread:)\d+', spread_text)
-            if spread_val:
-                spread_val = float(spread_val.group())
-            else:
-                spread_val = None
-            
-            return up_shares_val, down_shares_val, spread_val
+            return up_shares_val, down_shares_val
             
         except Exception as e:
             self.logger.error(f"获取价格数据失败: {str(e)}")
-            return None, None, None
+            return None, None
 
     def check_prices(self):
         """检查价格变化"""
@@ -1216,9 +1201,9 @@ class CryptoTrader:
                 }
                 return getPrices();
             """)
-            asks_shares_val, bids_shares_val, spread_val = self.get_nearby_cents()
+            asks_shares_val, bids_shares_val = self.get_nearby_cents()
 
-            if prices['up'] is not None and prices['down'] is not None and spread_val is not None and asks_shares_val is not None and bids_shares_val is not None:
+            if prices['up'] is not None and prices['down'] is not None and asks_shares_val is not None and bids_shares_val is not None:
                 # 获取价格
                 up_price_val = float(prices['up'])
                 down_price_val = float(prices['down'])
@@ -1231,12 +1216,12 @@ class CryptoTrader:
                 
                 # 执行所有交易检查函数（仅在没有交易进行时）
                 if not self.trading:
-                    self.First_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val, spread_val)
-                    self.Second_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val, spread_val)
-                    self.Third_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val, spread_val)
-                    self.Forth_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val, spread_val)
-                    self.Sell_yes(up_price_val, down_price_val, asks_shares_val, bids_shares_val, spread_val)
-                    self.Sell_no(up_price_val, down_price_val, asks_shares_val, bids_shares_val, spread_val)
+                    self.First_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.Second_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.Third_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.Forth_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.Sell_yes(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.Sell_no(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
                     
             else:
                 self.yes_price_label.config(text="Up: N/A")
@@ -1350,11 +1335,11 @@ class CryptoTrader:
     def set_yes1_no1_default_target_price(self):
         """设置默认目标价格52"""
         self.yes1_price_entry.delete(0, tk.END)
-        self.yes1_price_entry.insert(0, "52")
+        self.yes1_price_entry.insert(0, "54")
         self.yes1_price_entry.configure(foreground='red')
 
         self.no1_price_entry.delete(0, tk.END)
-        self.no1_price_entry.insert(0, "52")
+        self.no1_price_entry.insert(0, "54")
         self.no1_price_entry.configure(foreground='red')
         self.logger.info(f"\033[34m✅ 设置买入价格52成功\033[0m")
         self.close_windows()
@@ -1716,10 +1701,10 @@ class CryptoTrader:
             self.refresh_page_running = False
             self.logger.info("\033[31m❌ 刷新状态已停止\033[0m")
  
-    def First_trade(self, up_price, down_price, up_shares, down_shares, spread_val):
+    def First_trade(self, up_price, down_price, up_shares, down_shares):
         """第一次交易价格设置为 0.52 买入"""
         try:
-            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10 and spread_val is not None and spread_val < 4:
+            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10:
                 # 获取Yes1和No1的GUI界面上的价格
                 yes1_price = float(self.yes1_price_entry.get())
                 no1_price = float(self.no1_price_entry.get())
@@ -1855,10 +1840,10 @@ class CryptoTrader:
         finally:
             self.trading = False
             
-    def Second_trade(self, up_price, down_price, up_shares, down_shares, spread_val):
+    def Second_trade(self, up_price, down_price, up_shares, down_shares):
         """处理Yes2/No2的自动交易"""
         try:
-            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10 and spread_val is not None and spread_val < 4:
+            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10:
                 # 获Yes2和No2的价格输入框
                 yes2_price = float(self.yes2_price_entry.get())
                 no2_price = float(self.no2_price_entry.get())
@@ -1886,11 +1871,11 @@ class CryptoTrader:
                             self.no2_price_entry.insert(0, "0")
                             self.no2_price_entry.configure(foreground='black')
                             
-                            # 设置No3价格为默认值
-                            self.no3_price_entry = self.no_frame.grid_slaves(row=4, column=1)[0]
-                            self.no3_price_entry.delete(0, tk.END)
-                            self.no3_price_entry.insert(0, str(self.default_target_price))
-                            self.no3_price_entry.configure(foreground='red')  # 添加红色设置
+                            # 设置Yes3价格为默认值
+                            self.yes3_price_entry = self.yes_frame.grid_slaves(row=4, column=1)[0]
+                            self.yes3_price_entry.delete(0, tk.END)
+                            self.yes3_price_entry.insert(0, str(self.default_sell_price_backwater))
+                            self.yes3_price_entry.configure(foreground='red')  # 添加红色设置
                             
                             # 增加交易次数
                             self.trade_count += 1
@@ -1911,6 +1896,7 @@ class CryptoTrader:
                         else:
                             self.logger.warning("❌  Buy Up2 交易失败,等待1秒后重试")
                             time.sleep(1)  # 添加延时避免过于频繁的重试
+
                 # 检查No2价格匹配
                 elif 0 <= round((down_price - no2_price), 2) <= self.price_premium and (down_shares > self.bids_shares):
                     while True:
@@ -1926,8 +1912,8 @@ class CryptoTrader:
                         # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
                         self.buy_yes_button.invoke() 
                         time.sleep(2)
+
                         if self.Verify_buy_no():
-                            
                             self.buy_no2_amount = float(self.no2_amount_entry.get())
                             # 重置Yes2和No2价格为0
                             self.yes2_price_entry.delete(0, tk.END)
@@ -1937,11 +1923,11 @@ class CryptoTrader:
                             self.no2_price_entry.insert(0, "0")
                             self.no2_price_entry.configure(foreground='black')
                             
-                            # 设置Yes3价格为默认值
-                            self.yes3_price_entry = self.yes_frame.grid_slaves(row=4, column=1)[0]
-                            self.yes3_price_entry.delete(0, tk.END)
-                            self.yes3_price_entry.insert(0, str(self.default_target_price))
-                            self.yes3_price_entry.configure(foreground='red')  # 添加红色设置
+                            # 设置No3价格为反水卖出价格
+                            self.no3_price_entry = self.no_frame.grid_slaves(row=4, column=1)[0]
+                            self.no3_price_entry.delete(0, tk.END)
+                            self.no3_price_entry.insert(0, str(self.default_sell_price_backwater))
+                            self.no3_price_entry.configure(foreground='red')  # 添加红色设置
                             
                             # 增加交易次数
                             self.trade_count += 1
@@ -1970,126 +1956,11 @@ class CryptoTrader:
             
         finally:
             self.trading = False
-            
-    def Third_trade(self, up_price, down_price, up_shares, down_shares, spread_val):
-        """处理Yes3/No3的自动交易"""
-        try:
-            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10 and spread_val is not None and spread_val < 4:                
-                # 获取Yes3和No3的价格输入框
-                yes3_price = float(self.yes3_price_entry.get())
-                no3_price = float(self.no3_price_entry.get())
-                self.trading = True  # 开始交易
-            
-                # 检查Yes3价格匹配
-                if 0 <= round((up_price - yes3_price), 2) <= self.price_premium and (up_shares > self.asks_shares):
-                    while True:
-                        self.logger.info(f"✅ \033[32mUp 3: {up_price}¢\033[0m 价格匹配,执行自动交易")
-                        # 执行交易操作
-                        self.amount_yes3_button.event_generate('<Button-1>')
-                        time.sleep(0.5)
-                        self.buy_confirm_button.invoke()
-                        time.sleep(0.5)
-
-                        time.sleep(2)
-                        if self.Verify_buy_yes():
-                            # 获取 YES3 的金额
-                            self.buy_yes3_amount = float(self.yes3_amount_entry.get())
-                            
-                            # 重置Yes3和No3价格为0
-                            self.yes3_price_entry.delete(0, tk.END)
-                            self.yes3_price_entry.insert(0, "0")
-                            self.yes3_price_entry.configure(foreground='black')
-                            self.no3_price_entry.delete(0, tk.END)
-                            self.no3_price_entry.insert(0, "0")
-                            self.no3_price_entry.configure(foreground='black')
-                            
-                            # 设置No4价格为默认值
-                            self.no4_price_entry = self.no_frame.grid_slaves(row=6, column=1)[0]
-                            self.no4_price_entry.delete(0, tk.END)
-                            self.no4_price_entry.insert(0, str(self.default_target_price))
-                            self.no4_price_entry.configure(foreground='red')  # 添加红色设置
-
-                            # 增加交易次数
-                            self.trade_count += 1
-                            # 发送交易邮件
-                            self.send_trade_email(
-                                trade_type="Buy Up3",
-                                price=self.price,
-                                amount=self.amount,
-                                shares=self.shares,
-                                trade_count=self.trade_count,
-                                cash_value=self.cash_value,
-                                portfolio_value=self.portfolio_value
-                            )   
-                            self.logger.info("\033[34m✅ Third_trade执行BUY UP3成功\033[0m")
-                            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-                            self.root.after(30000, lambda: self.driver.refresh())
-                            break
-                        else:
-                            self.logger.warning("❌  Buy Up3 交易失败,等待1秒后重试")
-                            time.sleep(1)  # 添加延时避免过于频繁的重试
-                # 检查No3价格匹配
-                elif 0 <= round((down_price - no3_price), 2) <= self.price_premium and (down_shares > self.bids_shares):
-                    while True:
-                        self.logger.info(f"✅ \033[31mDown 3: {down_price}¢\033[0m 价格匹配,执行自动交易")
-                        # 执行交易操作
-                        self.buy_no_button.invoke()
-                        time.sleep(0.5)
-                        self.amount_no3_button.event_generate('<Button-1>')
-                        time.sleep(0.5)
-                        self.buy_confirm_button.invoke()
-                        time.sleep(0.5)
-                        # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
-                        self.buy_yes_button.invoke()
-                        time.sleep(2)
-                        if self.Verify_buy_no():
-                            
-                            self.buy_no3_amount = float(self.no3_amount_entry.get())
-                            
-                            # 重置Yes3和No3价格为0
-                            self.yes3_price_entry.delete(0, tk.END)
-                            self.yes3_price_entry.insert(0, "0")
-                            self.yes3_price_entry.configure(foreground='black')
-                            self.no3_price_entry.delete(0, tk.END)
-                            self.no3_price_entry.insert(0, "0")
-                            self.no3_price_entry.configure(foreground='black')
-                            
-                            # 设置Yes4价格为默认值
-                            self.yes4_price_entry = self.yes_frame.grid_slaves(row=6, column=1)[0]
-                            self.yes4_price_entry.delete(0, tk.END)
-                            self.yes4_price_entry.insert(0, str(self.default_target_price))
-                            self.yes4_price_entry.configure(foreground='red')  # 添加红色设置
-                            # 增加交易次数
-                            self.trade_count += 1
-                            # 发送交易邮件
-                            self.send_trade_email(
-                                trade_type="Buy Down3",
-                                price=self.price,
-                                amount=self.amount,
-                                shares=self.shares,
-                                trade_count=self.trade_count,
-                                cash_value=self.cash_value,
-                                portfolio_value=self.portfolio_value
-                            )
-                            self.logger.info("\033[34m✅ Third_trade执行BUY DOWN3成功\033[0m")
-                            # 增加刷新,因为不刷新,POSITIONS 上不显示刚刚购买的
-                            self.root.after(30000, lambda: self.driver.refresh())
-                            break
-                        else:
-                            self.logger.warning("❌  Buy Down3 交易失败,等待1秒后重试")
-                            time.sleep(1)  # 添加延时避免过于频繁的重试   
-            
-        except ValueError as e:
-            self.logger.error(f"价格转换错误: {str(e)}")
-        except Exception as e:
-            self.logger.error(f"Third_trade执行失败: {str(e)}")    
-        finally:
-            self.trading = False
-            
-    def Forth_trade(self, up_price, down_price, up_shares, down_shares, spread_val):
+      
+    def Forth_trade(self, up_price, down_price, up_shares, down_shares):
         """处理Yes4/No4的自动交易"""
         try:
-            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10 and spread_val is not None and spread_val < 4:  
+            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10:  
                 # 获取Yes4和No4的价格输入框
                 yes4_price = float(self.yes4_price_entry.get())
                 no4_price = float(self.no4_price_entry.get())
@@ -2173,7 +2044,7 @@ class CryptoTrader:
                             self.no4_price_entry.configure(foreground='black')
 
                             """当买了 4次后预防第 5 次反水，所以到了设定价格时就平仓，然后再自动开"""
-                            # 设置 Yes5和No5价格为45和 1
+                            # 设置 Yes5和No5价格为46和 1
                             self.yes5_price_entry = self.yes_frame.grid_slaves(row=8, column=1)[0]
                             self.yes5_price_entry.delete(0, tk.END)
                             self.yes5_price_entry.insert(0, str(self.default_sell_price))
@@ -2211,7 +2082,7 @@ class CryptoTrader:
         finally:
             self.trading = False
             
-    def Sell_yes(self, up_price, down_price, up_shares, down_shares, spread_val):
+    def Sell_yes(self, up_price, down_price, up_shares, down_shares):
         """当YES5价格等于实时Yes价格时自动卖出"""
         
         try:
@@ -2222,19 +2093,15 @@ class CryptoTrader:
                 
                 # 获取Up5价格
                 up5_price = float(self.yes5_price_entry.get())
+                up3_price = float(self.yes3_price_entry.get())
                 self.trading = True  # 开始交易
+
                 price_diff = round(up_price - up5_price, 2) # 47-47=0;;46-47=-1;
 
                 # 检查Yes5价格匹配
-                if (10 <= up5_price <= 49) and (-2 <= price_diff <= 1) and (up_shares > self.asks_shares):
+                if (10 <= up5_price <= 46) and (-2 <= price_diff <= 1) and (up_shares > self.asks_shares):
                     self.logger.info(f"✅ \033[32mUp 5: {up_price}¢\033[0m 价格匹配,执行自动卖出")
-                    self.stop_refresh_page()
-                    # 卖前刷新一次页面,预防刚买的还没有显示在页面上
-                    time.sleep(2)
-                    self.driver.refresh()
-                    time.sleep(2)
-                    self.yes5_target_price = up5_price
-                            
+                   
                     while True:
                         if self.reset_trade_count == 1:
                             # 重置所有价格为0
@@ -2254,43 +2121,58 @@ class CryptoTrader:
                             self.only_sell_yes()
                             self.logger.info(f"卖完 Up 后，再卖 Down")
                             self.only_sell_no()
+                            break
+
+                        else: 
+                            # 先卖 Up
+                            self.only_sell_yes()
+                            
+                            # 设置 YES5/NO5 价格为 99
+                            self.yes5_price_entry.delete(0, tk.END)
+                            self.yes5_price_entry.insert(0, str(self.default_normal_sell_price))
+                            self.yes5_price_entry.configure(foreground='red')  # 添加红色设置
+                            self.no5_price_entry.delete(0, tk.END)
+                            self.no5_price_entry.insert(0, str(self.default_normal_sell_price))
+                            self.no5_price_entry.configure(foreground='red')  # 添加红色设置
+
+                            # 重置交易次数
+                            self.reset_trade_count += 1
+                            self.reset_count_label.config(text=str(self.reset_trade_count))
+                            #self.logger.info(f"重置交易次数: {self.reset_trade_count}")
+                            self.sell_count = 0
+                            self.trade_count = 0
+
+                            # 重置YES2 价格为默认值
+                            self.yes2_price_entry.delete(0, tk.END)
+                            self.yes2_price_entry.insert(0, str(self.default_target_price))
+                            self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
                             
                             break
-                        # 先卖 Down
+                
+                elif up3_price == 46:
+                    self.logger.info(f"✅ \033[32mUp 3: {up_price}¢\033[0m 价格匹配,执行自动卖出")
+
+
+                    while True:
                         self.only_sell_yes()
-                        self.logger.info(f"卖完 Up 后，再卖 Down 3 SHARES")
+                        time.sleep(1)
+                        self.driver.refresh()
 
-                        self.only_sell_no3()
+                        # 设置 YES3 价格为0
+                        self.yes3_price_entry.delete(0, tk.END)
+                        self.yes3_price_entry.insert(0, "0")
+                        self.yes3_price_entry.configure(foreground='red')  # 添加红色设置
 
-                        # 设置 YES5/NO5 价格为 99
-                        self.yes5_price_entry.delete(0, tk.END)
-                        self.yes5_price_entry.insert(0, str(self.default_normal_sell_price))
-                        self.yes5_price_entry.configure(foreground='red')  # 添加红色设置
-                        self.no5_price_entry.delete(0, tk.END)
-                        self.no5_price_entry.insert(0, str(self.default_normal_sell_price))
-                        self.no5_price_entry.configure(foreground='red')  # 添加红色设置
+                        # 设置 YES4 价格为默认值
+                        self.yes4_price_entry.delete(0, tk.END)
+                        self.yes4_price_entry.insert(0, str(self.default_target_price))
+                        self.yes4_price_entry.configure(foreground='red')  # 添加红色设置
 
-                        # 重置交易次数
-                        self.reset_trade_count += 1
-                        self.reset_count_label.config(text=str(self.reset_trade_count))
-                        #self.logger.info(f"重置交易次数: {self.reset_trade_count}")
-                        self.sell_count = 0
-                        self.trade_count = 0
-
-                        
-                        
-                        # 重置YES2 价格为默认值+1
-                        self.yes2_price_entry.delete(0, tk.END)
-                        self.yes2_price_entry.insert(0, str(self.default_target_price))
-                        self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
-                        self.refresh_page()
                         break
-                    
+
                 elif up5_price >= 70 and 0 <= price_diff <= 1 and (up_shares > self.asks_shares):
                     self.logger.info(f"✅ \033[32mUp 5: {up_price}¢\033[0m 价格匹配,执行自动卖出")
-                    self.stop_refresh_page()
-                    self.yes5_target_price = up5_price
-                            
+   
                     while True:
                         # 执行卖出YES操作
                         self.only_sell_yes()
@@ -2315,7 +2197,7 @@ class CryptoTrader:
                                 no_entry.configure(foreground='black')
                         # 在所有操作完成后,重置交易
                         self.root.after(0, self.reset_trade)
-                        self.refresh_page()
+
                         break
                     
         except Exception as e:
@@ -2324,7 +2206,7 @@ class CryptoTrader:
         finally:
             self.trading = False
        
-    def Sell_no(self, up_price, down_price, up_shares, down_shares, spread_val):
+    def Sell_no(self, up_price, down_price, up_shares, down_shares):
         """当NO4价格等于实时No价格时自动卖出"""
         
         try:
@@ -2334,19 +2216,14 @@ class CryptoTrader:
             if up_price is not None and down_price is not None:
                 # 获取No5价格
                 down5_price = float(self.no5_price_entry.get())
+                down3_price = float(self.no3_price_entry.get())
                 self.trading = True  # 开始交易
                 price_diff = round(down_price - down5_price, 2)
             
                 # 检查No5价格匹配,反水卖出同方向
-                if (10 <= down5_price <= 49) and (-2 <= price_diff <= 1) and (down_shares > self.bids_shares):
+                if (10 <= down5_price <= 46) and (-2 <= price_diff <= 1) and (down_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 5: {down_price}¢\033[0m 价格匹配,执行自动卖出")
-                    self.stop_refresh_page()
-                    # 卖前刷新一次页面,预防刚买的还没有显示在页面上
-                    time.sleep(2)
-                    self.driver.refresh()
-                    time.sleep(2)
-                    self.no5_target_price = down5_price
-                            
+                    
                     while True:
                         if self.reset_trade_count == 1:
                             # 重置所有价格为0
@@ -2367,47 +2244,57 @@ class CryptoTrader:
                             self.logger.info(f"卖完 Down 后，再卖 Up")
                             self.only_sell_yes()
                             break
-                        # 先卖全部 Down
-                        self.only_sell_no()
-                        self.logger.info(f"卖完 Down 后，再卖 Up3 SHARES")
-                        
-                        self.only_sell_yes3()
 
-                        # 设置 YES5/NO5 价格为 99
-                        self.yes5_price_entry.delete(0, tk.END)
-                        self.yes5_price_entry.insert(0, str(self.default_normal_sell_price))
-                        self.yes5_price_entry.configure(foreground='red')  # 添加红色设置
-                        self.no5_price_entry.delete(0, tk.END)
-                        self.no5_price_entry.insert(0, str(self.default_normal_sell_price))
-                        self.no5_price_entry.configure(foreground='red')  # 添加红色设置
-
-                        # 重置交易
-                        self.reset_trade_count += 1
-                        self.reset_count_label.config(text=str(self.reset_trade_count))
-                        self.logger.info(f"重置交易次数: {self.reset_trade_count}")
-                        
-                        self.sell_count = 0
-                        self.trade_count = 0
-                        if self.reset_trade_count == 2:
-                            # 重置NO2 价格为0
-                            self.no2_price_entry.delete(0, tk.END)
-                            self.no2_price_entry.insert(0, "0")
-                            self.no2_price_entry.configure(foreground='red')  # 添加红色设置
-                            self.only_sell_no()
-                            
-                            break
                         else:
-                            # 重置NO2 价格为默认值+1
+                            # 先卖全部 Down
+                            self.only_sell_no()
+
+                            # 设置 YES5/NO5 价格为 99
+                            self.yes5_price_entry.delete(0, tk.END)
+                            self.yes5_price_entry.insert(0, str(self.default_normal_sell_price))
+                            self.yes5_price_entry.configure(foreground='red')  # 添加红色设置
+                            self.no5_price_entry.delete(0, tk.END)
+                            self.no5_price_entry.insert(0, str(self.default_normal_sell_price))
+                            self.no5_price_entry.configure(foreground='red')  # 添加红色设置
+
+                            # 重置交易
+                            self.reset_trade_count += 1
+                            self.reset_count_label.config(text=str(self.reset_trade_count))
+                            self.logger.info(f"重置交易次数: {self.reset_trade_count}")
+                            
+                            self.sell_count = 0
+                            self.trade_count = 0
+
+                            # 重置NO2 价格为默认值
                             self.no2_price_entry.delete(0, tk.END)
                             self.no2_price_entry.insert(0, str(self.default_target_price))
                             self.no2_price_entry.configure(foreground='red')  # 添加红色设置
-                            self.refresh_page()
+
                             break
-                    
+                            
+                # 增加一个当 NO3==46 时,自动卖出 NO3 的金额 
+                elif down3_price == 46:
+                    self.logger.info(f"✅ \033[31mDown 3: {down_price}¢\033[0m 价格匹配,执行自动卖出")
+
+                    while True:
+                        self.only_sell_no()
+                        time.sleep(1)
+                        self.driver.refresh()
+                        
+                        # 设置 NO3 价格为0
+                        self.no3_price_entry.delete(0, tk.END)
+                        self.no3_price_entry.insert(0, "0")
+                        self.no3_price_entry.configure(foreground='red')  # 添加红色设置
+                        
+                        # 设置 NO4 价格为self.default_target_price
+                        self.no4_price_entry.delete(0, tk.END)
+                        self.no4_price_entry.insert(0, str(self.default_target_price))
+                        self.no4_price_entry.configure(foreground='red')  # 添加红色设置
+
+                        break
+                
                 elif down5_price >= 70 and (0 <= price_diff <= 1) and (down_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 5: {down_price}¢\033[0m 价格匹配,执行自动卖出")
-                    self.stop_refresh_page()
-                    self.no5_target_price = down5_price
                     
                     while True:
                         # 卖完 Down 后，自动再卖 Up                      
@@ -2431,7 +2318,7 @@ class CryptoTrader:
                                 no_entry.configure(foreground='black')
                         # 在所有操作完成后,重置交易
                         self.root.after(0, self.reset_trade)
-                        self.refresh_page()
+
                         break
                 
         except Exception as e:
