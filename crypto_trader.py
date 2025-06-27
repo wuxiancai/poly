@@ -1866,11 +1866,16 @@ class CryptoTrader:
                             self.no2_price_entry.insert(0, "0")
                             self.no2_price_entry.configure(foreground='black')
                             
-                            # 设置Yes3价格为默认值
+                            # 设置Yes3价格为反水卖出价格
                             self.yes3_price_entry = self.yes_frame.grid_slaves(row=4, column=1)[0]
                             self.yes3_price_entry.delete(0, tk.END)
                             self.yes3_price_entry.insert(0, str(self.default_sell_price_backwater))
                             self.yes3_price_entry.configure(foreground='red')  # 添加红色设置
+
+                            # 设置 Yes3_amount 为0
+                            self.yes3_amount_entry.delete(0, tk.END)
+                            self.yes3_amount_entry.insert(0, "0")
+                            self.yes3_amount_entry.configure(foreground='black')
                             
                             # 增加交易次数
                             self.trade_count += 1
@@ -1923,6 +1928,11 @@ class CryptoTrader:
                             self.no3_price_entry.delete(0, tk.END)
                             self.no3_price_entry.insert(0, str(self.default_sell_price_backwater))
                             self.no3_price_entry.configure(foreground='red')  # 添加红色设置
+                            
+                            # 设置 No3_amount 为0
+                            self.no3_amount_entry.delete(0, tk.END)
+                            self.no3_amount_entry.insert(0, "0")
+                            self.no3_amount_entry.configure(foreground='black')
                             
                             # 增加交易次数
                             self.trade_count += 1
@@ -2160,6 +2170,11 @@ class CryptoTrader:
                         self.yes4_price_entry.delete(0, tk.END)
                         self.yes4_price_entry.insert(0, str(self.default_target_price))
                         self.yes4_price_entry.configure(foreground='red')  # 添加红色设置
+                        
+                        # 设置 Yes4_amount 等于 Yes3_amount
+                        self.yes4_amount_entry.delete(0, tk.END)
+                        self.yes4_amount_entry.insert(0, str(self.yes3_amount_entry.get()))
+                        self.yes4_amount_entry.configure(foreground='red')  # 添加红色设置
 
                         break
 
@@ -2282,6 +2297,11 @@ class CryptoTrader:
                         self.no4_price_entry.delete(0, tk.END)
                         self.no4_price_entry.insert(0, str(self.default_target_price))
                         self.no4_price_entry.configure(foreground='red')  # 添加红色设置
+
+                        # 设置 No4_amount 等于 No3_amount
+                        self.no4_amount_entry.delete(0, tk.END)
+                        self.no4_amount_entry.insert(0, str(self.no3_amount_entry.get()))
+                        self.no4_amount_entry.configure(foreground='red')  # 添加红色设置
 
                         break
                 
