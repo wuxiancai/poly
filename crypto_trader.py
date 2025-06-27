@@ -281,7 +281,6 @@ class CryptoTrader:
             self.logger.error(f"保存配置失败: {str(e)}")
             raise
 
-    """从这里开始设置 GUI 直到 771 行"""
     def setup_gui(self):
         """优化后的GUI界面设置"""
 
@@ -2518,7 +2517,7 @@ class CryptoTrader:
                                 # shares可能是浮点数，先转为float再转为int
                                 self.shares = int(float(shares_match.group(1))) if shares_match else 0
 
-                                self.logger.info(f"✅ \033[32m交易验证成功: {action_type} {direction} 价格: {self.price} 金额: {self.amount} Shares: {self.shares}\033[0m")
+                                self.logger.info(f"✅ \033[31m交易验证成功: {action_type} {direction} 价格: {self.price} 金额: {self.amount} Shares: {self.shares}\033[0m")
                                 return True, self.price, self.amount, self.shares
                     
                     except StaleElementReferenceException:
