@@ -1870,16 +1870,6 @@ class CryptoTrader:
                             self.yes3_price_entry.delete(0, tk.END)
                             self.yes3_price_entry.insert(0, str(self.default_sell_price_backwater))
                             self.yes3_price_entry.configure(foreground='red')  # 添加红色设置
-
-                            # 设置 Yes3_amount 为0
-                            self.yes3_amount_entry.delete(0, tk.END)
-                            self.yes3_amount_entry.insert(0, "0")
-                            self.yes3_amount_entry.configure(foreground='black')
-                            
-                            # 设置 No3_amount 为0
-                            self.no3_amount_entry.delete(0, tk.END)
-                            self.no3_amount_entry.insert(0, "0")
-                            self.no3_amount_entry.configure(foreground='black')
                             
                             # 增加交易次数
                             self.trade_count += 1
@@ -1932,16 +1922,6 @@ class CryptoTrader:
                             self.no3_price_entry.delete(0, tk.END)
                             self.no3_price_entry.insert(0, str(self.default_sell_price_backwater))
                             self.no3_price_entry.configure(foreground='red')  # 添加红色设置
-                            
-                            # 设置 No3_amount 为0
-                            self.no3_amount_entry.delete(0, tk.END)
-                            self.no3_amount_entry.insert(0, "0")
-                            self.no3_amount_entry.configure(foreground='black')
-                            
-                            # 设置 Yes3_amount 为0
-                            self.yes3_amount_entry.delete(0, tk.END)
-                            self.yes3_amount_entry.insert(0, "0")
-                            self.yes3_amount_entry.configure(foreground='black')
                             
                             # 增加交易次数
                             self.trade_count += 1
