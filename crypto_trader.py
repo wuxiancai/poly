@@ -2590,7 +2590,7 @@ class CryptoTrader:
             if not self.driver and not self.is_restarting:
                 self.restart_browser(force_restart=True)
             
-            if up_price is not None and down_price is not None:
+            if up_price is not None and down_price is not None and up_shares is not None and down_shares is not None:
                 # 获取价格
                 down5_price = float(self.no5_price_entry.get())
                 down3_price = float(self.no3_price_entry.get())
@@ -3823,7 +3823,7 @@ class CryptoTrader:
                 self.logger.critical(f"自动找币已达到最大重试次数(10次)，停止重试")
                 
     def find_new_weekly_url(self, coin, retry_count=0):
-        """在Polymarket市场搜索指定币种的周合约地址,只返回URL"""
+        """在Polymarket市场搜索指定币种的合约地址,只返回URL"""
         try:
             if self.trading:
                 return
@@ -3940,7 +3940,7 @@ class CryptoTrader:
 
                         # 这里如果价格是 52,那么会触发自动交易
                         if self.trading == True:
-                            time.sleep(20)
+                            time.sleep(5)
                             
                             # 保存当前 URL 到 config
                             self.config['website']['url'] = new_url
@@ -4048,7 +4048,7 @@ class CryptoTrader:
             self.logger.error(f"操作失败: {str(e)}")
             # 尝试重启浏览器
             self.restart_browser(force_restart=True)
-            # 限制最大重试次数为5次，避免无限递归
+            # 限制最大重试次数为10次，避免无限递归
             if retry_count < 10:
                 retry_delay = min(5 * (retry_count + 1), 60)  # 逐渐增加重试时间，最多60秒
                 self.logger.info(f"{retry_delay}秒后重试自动找币...")
