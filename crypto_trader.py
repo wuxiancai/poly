@@ -1329,11 +1329,11 @@ class CryptoTrader:
     def set_yes1_no1_default_target_price(self):
         """设置默认目标价格52"""
         self.yes1_price_entry.delete(0, tk.END)
-        self.yes1_price_entry.insert(0, "54")
+        self.yes1_price_entry.insert(0, "52")
         self.yes1_price_entry.configure(foreground='red')
 
         self.no1_price_entry.delete(0, tk.END)
-        self.no1_price_entry.insert(0, "54")
+        self.no1_price_entry.insert(0, "52")
         self.no1_price_entry.configure(foreground='red')
         self.logger.info(f"\033[34m✅ 设置买入价格52成功\033[0m")
         self.close_windows()
@@ -2548,8 +2548,9 @@ class CryptoTrader:
                                     no_entry.delete(0, tk.END)
                                     no_entry.insert(0, "0")
                                     no_entry.configure(foreground='black')
-                            # 在所有操作完成后,重置交易
-                            self.root.after(0, self.reset_trade)
+
+                            # 设置 YES1 和 NO1 价格为默认值
+                            self.set_yes1_no1_default_target_price()
 
                             break
                         except Exception as e:
@@ -2900,9 +2901,9 @@ class CryptoTrader:
                                     no_entry.insert(0, "0")
                                     no_entry.configure(foreground='black')
 
-                            # 在所有操作完成后,重置交易
-                            self.root.after(0, self.reset_trade)
-
+                            # 设置 YES1 和 NO1 价格为默认值
+                            self.set_yes1_no1_default_target_price()
+                            
                             break
                         except Exception as e:
                             self.logger.warning(f"❌ Sell No5 第{retry+1}次失败: {str(e)}")
@@ -2925,38 +2926,6 @@ class CryptoTrader:
             
         finally:
             self.trading = False
-            
-    def reset_trade(self):
-        """重置交易"""
-        # 在所有操作完成后,重置交易
-        time.sleep(1)
-        
-        # 检查属性是否存在，如果不存在则使用默认值
-        up5_price = getattr(self, 'yes5_target_price', 0)
-        down5_price = getattr(self, 'no5_target_price', 0)
-
-        if (up5_price > 60) or (down5_price > 60):
-            self.reset_trade_count = 0
-        else:
-            self.reset_trade_count += 1
-        
-        self.sell_count = 0
-        self.trade_count = 0
-
-        # 设置 YES5/NO5 价格为 0
-        self.yes5_price_entry.delete(0, tk.END)
-        self.yes5_price_entry.insert(0, "0")
-        self.yes5_price_entry.configure(foreground='black')
-        self.no5_price_entry.delete(0, tk.END)
-        self.no5_price_entry.insert(0, "0")
-        self.no5_price_entry.configure(foreground='black')
-        
-        # 重置Yes2和No2价格为默认值
-        self.set_yes1_no1_default_target_price()
-
-        # 重置GUI上的交易次数
-        self.reset_count_label.config(text=str(self.reset_trade_count))
-        self.logger.info(f"第\033[32m{self.reset_trade_count}\033[0m次重置交易")
 
     def only_sell_yes(self):
         """只卖出YES,且验证交易是否成功"""
