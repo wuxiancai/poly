@@ -2265,6 +2265,8 @@ class CryptoTrader:
                             if self.Verify_sell_yes():
                                 # 增加交易次数
                                 self.sell_count += 1
+                                # 更新 GUI 上的交易次数
+                                self.reset_count_label.config(text=str(self.sell_count))
                                 
                                 # 设置 YES1 价格为0
                                 self.yes1_price_entry.delete(0, tk.END)
@@ -2342,6 +2344,8 @@ class CryptoTrader:
                             if self.Verify_sell_yes():
                                 # 增加交易次数
                                 self.sell_count += 1
+                                # 更新 GUI 上的交易次数
+                                self.reset_count_label.config(text=str(self.sell_count))
                                 # 设置 NO1 价格为反水卖出价格
                                 self.no1_price_entry.delete(0, tk.END)
                                 self.no1_price_entry.insert(0, str(self.default_sell_price_backwater))
@@ -2413,6 +2417,8 @@ class CryptoTrader:
                             if self.Verify_sell_yes():
                                 # 增加交易次数
                                 self.sell_count += 1
+                                # 更新 GUI 上的交易次数
+                                self.reset_count_label.config(text=str(self.sell_count))
                                 # 设置 NO2 价格为反水卖出价格
                                 self.no2_price_entry.delete(0, tk.END)
                                 self.no2_price_entry.insert(0, str(self.default_sell_price_backwater))
@@ -2484,6 +2490,9 @@ class CryptoTrader:
                             if self.Verify_sell_yes():
                                 # 增加交易次数
                                 self.sell_count += 1
+                                # 更新 GUI 上的交易次数
+                                self.reset_count_label.config(text=str(self.sell_count))
+                                
                                 # 设置 NO3 价格为反水卖出价格
                                 self.no3_price_entry.delete(0, tk.END)
                                 self.no3_price_entry.insert(0, str(self.default_sell_price_backwater))
@@ -2624,7 +2633,8 @@ class CryptoTrader:
                             if self.Verify_sell_no():
                                 # 增加交易次数
                                 self.sell_count += 1
-                                
+                                # 更新 GUI 上的交易次数
+                                self.reset_count_label.config(text=str(self.sell_count))
                                 # 设置 NO1 价格为0
                                 self.no1_price_entry.delete(0, tk.END)
                                 self.no1_price_entry.insert(0, "0")
@@ -2700,6 +2710,8 @@ class CryptoTrader:
                             if self.Verify_sell_no():
                                 # 增加交易次数
                                 self.sell_count += 1
+                                # 更新 GUI 上的交易次数
+                                self.reset_count_label.config(text=str(self.sell_count))
                                 # 设置 YES1 价格为反水卖出价格
                                 self.yes1_price_entry.delete(0, tk.END)
                                 self.yes1_price_entry.insert(0, str(self.default_sell_price_backwater))
@@ -2769,6 +2781,8 @@ class CryptoTrader:
                             if self.Verify_sell_no():
                                 # 增加交易次数
                                 self.sell_count += 1
+                                # 更新 GUI 上的交易次数
+                                self.reset_count_label.config(text=str(self.sell_count))
                                 # 设置 YES2 价格为反水卖出价格
                                 self.yes2_price_entry.delete(0, tk.END)
                                 self.yes2_price_entry.insert(0, str(self.default_sell_price_backwater))
@@ -2839,6 +2853,8 @@ class CryptoTrader:
                             if self.Verify_sell_no():
                                 # 增加交易次数
                                 self.sell_count += 1
+                                # 更新 GUI 上的交易次数
+                                self.reset_count_label.config(text=str(self.sell_count))
                                 # 设置 YES3 价格为反水卖出价格
                                 self.yes3_price_entry.delete(0, tk.END)
                                 self.yes3_price_entry.insert(0, str(self.default_sell_price_backwater))
