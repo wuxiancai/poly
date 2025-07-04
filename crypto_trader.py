@@ -1863,7 +1863,7 @@ class CryptoTrader:
                             self.no2_price_entry.configure(foreground='black')
                             
                             # 设置No3价格为默认值
-                            self.no3_price_entry = self.yes_frame.grid_slaves(row=4, column=1)[0]
+                            self.no3_price_entry = self.no_frame.grid_slaves(row=4, column=1)[0]
                             self.no3_price_entry.delete(0, tk.END)
                             self.no3_price_entry.insert(0, str(self.default_target_price))
                             self.no3_price_entry.configure(foreground='red')  # 添加红色设置
@@ -1923,7 +1923,7 @@ class CryptoTrader:
                             self.no2_price_entry.configure(foreground='black')
                             
                             # 设置YES3价格为默认值
-                            self.yes3_price_entry = self.no_frame.grid_slaves(row=4, column=1)[0]
+                            self.yes3_price_entry = self.yes_frame.grid_slaves(row=4, column=1)[0]
                             self.yes3_price_entry.delete(0, tk.END)
                             self.yes3_price_entry.insert(0, str(self.default_target_price))
                             self.yes3_price_entry.configure(foreground='red')  # 添加红色设置
