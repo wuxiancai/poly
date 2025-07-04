@@ -1862,11 +1862,11 @@ class CryptoTrader:
                             self.no2_price_entry.insert(0, "0")
                             self.no2_price_entry.configure(foreground='black')
                             
-                            # 设置Yes3价格为默认值
-                            self.yes3_price_entry = self.yes_frame.grid_slaves(row=4, column=1)[0]
-                            self.yes3_price_entry.delete(0, tk.END)
-                            self.yes3_price_entry.insert(0, str(self.default_target_price))
-                            self.yes3_price_entry.configure(foreground='red')  # 添加红色设置
+                            # 设置No3价格为默认值
+                            self.no3_price_entry = self.yes_frame.grid_slaves(row=4, column=1)[0]
+                            self.no3_price_entry.delete(0, tk.END)
+                            self.no3_price_entry.insert(0, str(self.default_target_price))
+                            self.no3_price_entry.configure(foreground='red')  # 添加红色设置
                             
                             # 增加交易次数
                             self.trade_count += 1
@@ -1922,11 +1922,11 @@ class CryptoTrader:
                             self.no2_price_entry.insert(0, "0")
                             self.no2_price_entry.configure(foreground='black')
                             
-                            # 设置No3价格为默认值
-                            self.no3_price_entry = self.no_frame.grid_slaves(row=4, column=1)[0]
-                            self.no3_price_entry.delete(0, tk.END)
-                            self.no3_price_entry.insert(0, str(self.default_target_price))
-                            self.no3_price_entry.configure(foreground='red')  # 添加红色设置
+                            # 设置YES3价格为默认值
+                            self.yes3_price_entry = self.no_frame.grid_slaves(row=4, column=1)[0]
+                            self.yes3_price_entry.delete(0, tk.END)
+                            self.yes3_price_entry.insert(0, str(self.default_target_price))
+                            self.yes3_price_entry.configure(foreground='red')  # 添加红色设置
                             
                             # 增加交易次数
                             self.trade_count += 1
@@ -2111,13 +2111,10 @@ class CryptoTrader:
                         if self.Verify_buy_yes():
                             self.yes4_amount = float(self.yes4_amount_entry.get())
                             self.yes4_shares = self.shares # 获取 YES4 的 shares
-                            # 重置Yes4的价格为反水价格也就是 46 和 No4的价格为0
+                            # 重置Yes4的价格为反水价格也就是 46 
                             self.yes4_price_entry.delete(0, tk.END)
                             self.yes4_price_entry.insert(0, str(self.default_sell_price_backwater)) # 设置为反水卖出价格也就是 46
                             self.yes4_price_entry.configure(foreground='red')
-                            self.no4_price_entry.delete(0, tk.END)
-                            self.no4_price_entry.insert(0, "0")
-                            self.no4_price_entry.configure(foreground='black')  # 添加黑色设置
 
                             # 增加交易次数
                             self.trade_count += 1
@@ -2167,10 +2164,7 @@ class CryptoTrader:
                         if self.Verify_buy_no():
                             self.no4_shares = self.shares # 获取 NO4 的 shares
                             self.no4_amount = float(self.no4_amount_entry.get())
-                            # 重置Yes4的价格为 0 和 No4的价格为反水卖出价格也就是 46
-                            self.yes4_price_entry.delete(0, tk.END)
-                            self.yes4_price_entry.insert(0, "0")
-                            self.yes4_price_entry.configure(foreground='black')
+                            # 重置No4的价格为反水卖出价格也就是 46
                             self.no4_price_entry.delete(0, tk.END)
                             self.no4_price_entry.insert(0, str(self.default_sell_price_backwater)) # 设置为反水卖出价格也就是 46
                             self.no4_price_entry.configure(foreground='red')
