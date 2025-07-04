@@ -1698,7 +1698,7 @@ class CryptoTrader:
     def First_trade(self, up_price, down_price, up_shares, down_shares):
         """第一次交易价格设置为 0.52 买入,最多重试3次,失败发邮件"""
         try:
-            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10:
+            if (up_price is not None and up_price > 50) or (down_price is not None and down_price > 50):
                 yes1_price = float(self.yes1_price_entry.get())
                 no1_price = float(self.no1_price_entry.get())
                 self.trading = True
@@ -1837,7 +1837,7 @@ class CryptoTrader:
     def Second_trade(self, up_price, down_price, up_shares, down_shares):
         """处理Yes2/No2的自动交易"""
         try:
-            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10:
+            if (up_price is not None and up_price > 50) or (down_price is not None and down_price > 50):
                 # 获Yes2和No2的价格输入框
                 yes2_price = float(self.yes2_price_entry.get())
                 no2_price = float(self.no2_price_entry.get())
@@ -1966,7 +1966,7 @@ class CryptoTrader:
     def Third_trade(self, up_price, down_price, up_shares, down_shares):
         """处理Yes3/No3的自动交易"""
         try:
-            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10:                
+            if (up_price is not None and up_price > 50) or (down_price is not None and down_price > 50):              
                 # 获取Yes3和No3的价格输入框
                 yes3_price = float(self.yes3_price_entry.get())
                 no3_price = float(self.no3_price_entry.get())
