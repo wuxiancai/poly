@@ -141,7 +141,7 @@ class CryptoTrader:
         self.default_normal_sell_price = 99 # 不修改
 
         # 买入价格冗余
-        self.price_premium = 2 # 不修改
+        self.price_premium = 3 # 不修改
 
         # 买入触发条件之一:最少成交数量SHARES
         self.asks_shares = 99 # 不修改
@@ -3052,7 +3052,7 @@ class CryptoTrader:
             for attempt in range(2):
                 self.logger.info(f"开始第{attempt + 1}次验证尝试（基于次数重试）")
                 # 重试6次,每次等待1秒检查交易记录
-                max_retries = 6  # 最大重试次数
+                max_retries = 4  # 最大重试次数
                 wait_interval = 1  # 检查间隔
                 
                 for retry in range(max_retries):
@@ -3102,7 +3102,7 @@ class CryptoTrader:
                     
                     # 如果不是最后一次重试，等待1秒后继续
                     if retry < max_retries - 1:
-                        self.logger.info(f"交易记录未出现或不匹配,等待{wait_interval}秒后重试...")
+                        
                         time.sleep(wait_interval)
                     
                 # 6次重试结束，刷新页面
@@ -3423,7 +3423,7 @@ class CryptoTrader:
                 # 根据HOSTNAME决定邮件接收者
                 receivers = ['2049330@qq.com']  # 默认接收者，必须接收所有邮件
                 if 'ZZY' in hostname:
-                    receivers.append('huacaihuijin@126.com')  # 如果HOSTNAME包含ZZY，添加QQ邮箱 # 272763832@qq.com
+                    receivers.append('272763832@qq.com')  # 如果HOSTNAME包含ZZY，添加QQ邮箱 # 272763832@qq.com
                 
                 app_password = 'PUaRF5FKeKJDrYH7'  # 有效期 180 天，请及时更新，下次到期日 2025-11-29
                 
