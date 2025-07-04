@@ -1974,7 +1974,7 @@ class CryptoTrader:
             
                 # 检查Yes3价格匹配
                 if 0 <= round((up_price - yes3_price), 2) <= self.price_premium and (up_shares > self.asks_shares):
-                    while True:
+                    for retry in range(3):
                         self.logger.info(f"✅ \033[32mUp 3: {up_price}¢\033[0m 价格匹配,执行自动交易")
                         # 执行交易操作
                         self.amount_yes3_button.event_generate('<Button-1>')
@@ -2019,6 +2019,17 @@ class CryptoTrader:
                         else:
                             self.logger.warning("❌  Buy Up3 交易失败,等待1秒后重试")
                             time.sleep(1)  # 添加延时避免过于频繁的重试
+                    else:
+                        # 3次失败后发邮件
+                        self.send_trade_email(
+                            trade_type="Buy UP3失败",
+                            price=up_price,
+                            amount=0,
+                            shares=0,
+                            trade_count=self.trade_count,
+                            cash_value=self.cash_value,
+                            portfolio_value=self.portfolio_value
+                        )   
                 # 检查No3价格匹配
                 elif 0 <= round((down_price - no3_price), 2) <= self.price_premium and (down_shares > self.bids_shares):
                     for retry in range(3):
@@ -2092,7 +2103,7 @@ class CryptoTrader:
     def Forth_trade(self, up_price, down_price, up_shares, down_shares):
         """处理Yes4/No4的自动交易"""
         try:
-            if up_price is not None and up_price > 10 and down_price is not None and down_price > 10:  
+            if (up_price is not None and up_price > 50) or (down_price is not None and down_price > 50):  
                 # 获取Yes4和No4的价格输入框
                 yes4_price = float(self.yes4_price_entry.get())
                 no4_price = float(self.no4_price_entry.get())
