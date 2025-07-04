@@ -1698,12 +1698,12 @@ class CryptoTrader:
     def First_trade(self, up_price, down_price, up_shares, down_shares):
         """第一次交易价格设置为 0.52 买入,最多重试3次,失败发邮件"""
         try:
-            if (up_price is not None and up_price > 50) or (down_price is not None and down_price > 50):
+            if (up_price is not None and up_price > 10) and (down_price is not None and down_price > 10):
                 yes1_price = float(self.yes1_price_entry.get())
                 no1_price = float(self.no1_price_entry.get())
                 self.trading = True
                 # 检查Yes1价格匹配
-                if 0 <= round((up_price - yes1_price), 2) <= self.price_premium and (up_shares > self.asks_shares):
+                if 0 <= round((up_price - yes1_price), 2) <= self.price_premium and (up_shares > self.asks_shares) and up_price > 50:
                     for retry in range(3):
                         self.logger.info(f"✅ \033[32mUp 1: {up_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
                         self.amount_yes1_button.event_generate('<Button-1>')
@@ -1764,7 +1764,7 @@ class CryptoTrader:
                             cash_value=self.cash_value,
                             portfolio_value=self.portfolio_value
                         )
-                elif 0 <= round((down_price - no1_price), 2) <= self.price_premium and (down_shares > self.bids_shares):
+                elif 0 <= round((down_price - no1_price), 2) <= self.price_premium and (down_shares > self.bids_shares) and down_price > 50:
                     for retry in range(3):
                         self.logger.info(f"✅ \033[31mDown 1: {down_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
                         self.buy_no_button.invoke()
@@ -1837,13 +1837,13 @@ class CryptoTrader:
     def Second_trade(self, up_price, down_price, up_shares, down_shares):
         """处理Yes2/No2的自动交易"""
         try:
-            if (up_price is not None and up_price > 50) or (down_price is not None and down_price > 50):
+            if (up_price is not None and up_price > 10) and (down_price is not None and down_price > 10):
                 # 获Yes2和No2的价格输入框
                 yes2_price = float(self.yes2_price_entry.get())
                 no2_price = float(self.no2_price_entry.get())
                 self.trading = True
                 # 检查Yes2价格匹配
-                if 0 <= round((up_price - yes2_price), 2) <= self.price_premium and (up_shares > self.asks_shares):
+                if 0 <= round((up_price - yes2_price), 2) <= self.price_premium and (up_shares > self.asks_shares) and up_price > 50:
                     for retry in range(3):
                         self.logger.info(f"✅  \033[32mUp 2: {up_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
                         self.amount_yes2_button.event_generate('<Button-1>')
@@ -1898,7 +1898,7 @@ class CryptoTrader:
                             portfolio_value=self.portfolio_value
                         )
                 # 检查No2价格匹配
-                elif 0 <= round((down_price - no2_price), 2) <= self.price_premium and (down_shares > self.bids_shares):
+                elif 0 <= round((down_price - no2_price), 2) <= self.price_premium and (down_shares > self.bids_shares) and down_price > 50:
                     for retry in range(3):
                         self.logger.info(f"✅ \033[31mDown 2: {down_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
                         self.buy_no_button.invoke()
@@ -1966,14 +1966,14 @@ class CryptoTrader:
     def Third_trade(self, up_price, down_price, up_shares, down_shares):
         """处理Yes3/No3的自动交易"""
         try:
-            if (up_price is not None and up_price > 50) or (down_price is not None and down_price > 50):              
+            if (up_price is not None and up_price > 10) and (down_price is not None and down_price > 10):              
                 # 获取Yes3和No3的价格输入框
                 yes3_price = float(self.yes3_price_entry.get())
                 no3_price = float(self.no3_price_entry.get())
                 self.trading = True  # 开始交易
             
                 # 检查Yes3价格匹配
-                if 0 <= round((up_price - yes3_price), 2) <= self.price_premium and (up_shares > self.asks_shares):
+                if 0 <= round((up_price - yes3_price), 2) <= self.price_premium and (up_shares > self.asks_shares) and up_price > 50:
                     for retry in range(3):
                         self.logger.info(f"✅ \033[32mUp 3: {up_price}¢\033[0m 价格匹配,执行自动交易")
                         # 执行交易操作
@@ -2031,7 +2031,7 @@ class CryptoTrader:
                             portfolio_value=self.portfolio_value
                         )   
                 # 检查No3价格匹配
-                elif 0 <= round((down_price - no3_price), 2) <= self.price_premium and (down_shares > self.bids_shares):
+                elif 0 <= round((down_price - no3_price), 2) <= self.price_premium and (down_shares > self.bids_shares) and down_price > 50:
                     for retry in range(3):
                         self.logger.info(f"✅ \033[31mDown 3: {down_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
                         # 执行交易操作
@@ -2103,14 +2103,14 @@ class CryptoTrader:
     def Forth_trade(self, up_price, down_price, up_shares, down_shares):
         """处理Yes4/No4的自动交易"""
         try:
-            if (up_price is not None and up_price > 50) or (down_price is not None and down_price > 50):  
+            if (up_price is not None and up_price > 10) and (down_price is not None and down_price > 10):  
                 # 获取Yes4和No4的价格输入框
                 yes4_price = float(self.yes4_price_entry.get())
                 no4_price = float(self.no4_price_entry.get())
                 self.trading = True  # 开始交易
             
                 # 检查Yes4价格匹配
-                if 0 <= round((up_price - yes4_price), 2) <= self.price_premium and (up_shares > self.asks_shares):
+                if 0 <= round((up_price - yes4_price), 2) <= self.price_premium and (up_shares > self.asks_shares) and up_price > 50:
                     for retry in range(3):
                         self.logger.info(f"✅ \033[32mUp 4: {up_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
                         # 执行交易操作
@@ -2158,7 +2158,7 @@ class CryptoTrader:
                             portfolio_value=self.portfolio_value
                         )
                 # 检查No4价格匹配
-                elif 0 <= round((down_price - no4_price), 2) <= self.price_premium and (down_shares > self.bids_shares):
+                elif 0 <= round((down_price - no4_price), 2) <= self.price_premium and (down_shares > self.bids_shares) and down_price > 50:
                     for retry in range(3):
                         self.logger.info(f"✅ \033[31mDown 4: {down_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
                         # 执行交易操作
