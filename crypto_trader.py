@@ -33,7 +33,6 @@ from xpath_config import XPathConfig
 import random
 import websocket
 
-
 class Logger:
     def __init__(self, name):
         self.logger = logging.getLogger(name)
@@ -2972,66 +2971,70 @@ class CryptoTrader:
 
     def only_sell_yes(self):
         """只卖出YES,且验证交易是否成功"""
-        self.logger.info("\033[32m执行only_sell_yes\033[0m")
-        self.position_sell_yes_button.invoke()
-        time.sleep(0.5)
-        self.sell_confirm_button.invoke()
-        time.sleep(0.5)
-        if self.find_accept_button():
-            self.entry_accept()
+        # 重试 3 次
+        for retry in range(4):
+            self.logger.info("\033[32m执行only_sell_yes\033[0m")
+            self.position_sell_yes_button.invoke()
+            time.sleep(0.5)
             self.sell_confirm_button.invoke()
+            time.sleep(0.5)
+            if self.find_accept_button():
+                self.entry_accept()
+                self.sell_confirm_button.invoke()
 
-        if self._verify_trade('Sold', 'Up')[0]:
-             # 增加卖出计数
-            self.sell_count += 1
-            # 发送交易邮件 - 卖出YES
-            self.send_trade_email(
-                trade_type="Sell Up",
-                price=self.price,
-                amount=self.amount,
-                shares=self.shares,
-                trade_count=self.sell_count,
-                cash_value=self.cash_value,
-                portfolio_value=self.portfolio_value
-            )
-            self.logger.info(f"卖出 Up 成功")
-            self.driver.refresh()
-        else:
-            self.logger.warning("❌ 卖出only_sell_yes验证失败,重试")
-            time.sleep(1)
-            self.only_sell_yes()        
-       
+            if self._verify_trade('Sold', 'Up')[0]:
+                # 增加卖出计数
+                self.sell_count += 1
+                # 发送交易邮件 - 卖出YES
+                self.send_trade_email(
+                    trade_type="Sell Up",
+                    price=self.price,
+                    amount=self.amount,
+                    shares=self.shares,
+                    trade_count=self.sell_count,
+                    cash_value=self.cash_value,
+                    portfolio_value=self.portfolio_value
+                )
+                self.logger.info(f"卖出 Up 成功")
+                self.driver.refresh()
+                break
+            else:
+                self.logger.warning(f"❌ 卖出only_sell_yes第{retry+1}次验证失败,重试")
+                time.sleep(1)
+      
     def only_sell_no(self):
         """只卖出Down,且验证交易是否成功"""
-        self.logger.info("\033[32m执行only_sell_no\033[0m")
-        self.position_sell_no_button.invoke()
-        time.sleep(0.5)
-        self.sell_confirm_button.invoke()
-        time.sleep(0.5)
-        if self.find_accept_button():
-            self.entry_accept()
+        # 重试 3 次
+        for retry in range(3): 
+            self.logger.info("\033[32m执行only_sell_no\033[0m")
+            self.position_sell_no_button.invoke()
+            time.sleep(0.5)
             self.sell_confirm_button.invoke()
+            time.sleep(0.5)
+            if self.find_accept_button():
+                self.entry_accept()
+                self.sell_confirm_button.invoke()
 
-        if self._verify_trade('Sold', 'Down')[0]:
-            # 增加卖出计数
-            self.sell_count += 1
-            
-            # 发送交易邮件 - 卖出NO
-            self.send_trade_email(
-                trade_type="Sell Down",
-                price=self.price,
-                amount=self.amount,
-                shares=self.shares,
-                trade_count=self.sell_count,
-                cash_value=self.cash_value,
-                portfolio_value=self.portfolio_value
-            )
-            self.logger.info(f"卖出 Down 成功")
-            self.driver.refresh()
-        else:
-            self.logger.warning("❌ 卖出only_sell_no验证失败,重试")
-            time.sleep(1)
-            self.only_sell_no()
+            if self._verify_trade('Sold', 'Down')[0]:
+                # 增加卖出计数
+                self.sell_count += 1
+                
+                # 发送交易邮件 - 卖出NO
+                self.send_trade_email(
+                    trade_type="Sell Down",
+                    price=self.price,
+                    amount=self.amount,
+                    shares=self.shares,
+                    trade_count=self.sell_count,
+                    cash_value=self.cash_value,
+                    portfolio_value=self.portfolio_value
+                )
+                self.logger.info(f"卖出 Down 成功")
+                self.driver.refresh()
+                break
+            else:
+                self.logger.warning(f"❌ 卖出only_sell_no第{retry+1}次验证失败,重试")
+                time.sleep(1)
 
     def Verify_buy_yes(self):
         """
