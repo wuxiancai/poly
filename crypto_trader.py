@@ -1520,7 +1520,7 @@ class CryptoTrader:
                     self.logger.info("✅ 已点击Google登录按钮")
                     
                     # 不再固定等待15秒，而是循环检测CASH值
-                    max_attempts = 10  # 最多检测15次
+                    max_attempts = 10  # 最多检测10次
                     check_interval = 2  # 每2秒检测一次
                     cash_value = None
                     
@@ -1534,82 +1534,53 @@ class CryptoTrader:
                                 
                             if cash_element:
                                 cash_value = cash_element.text
-                                self.logger.info(f"✅ 已找到CASH值: {cash_value}")
+                                self.logger.info(f"✅ 已找到CASH值: {cash_value}, 登录成功.")
+                                self.driver.get(self.url_entry.get().strip())
+                                time.sleep(2)
                                 break
                         except NoSuchElementException:
-                            self.logger.info(f"⏳ 第{attempt+1}次尝试: 等待登录完成...")
-                        
+                            self.logger.info(f"⏳ 第{attempt+1}次尝试: 等待登录完成...")                       
                         # 等待指定时间后再次检测
                         time.sleep(check_interval)
-                    
-                    # 检查是否有ACCEPT按钮（Cookie提示等）
-                    if cash_value:
-                        self.driver.get(self.url_entry.get().strip())
-                        time.sleep(2)
-                        try:
-                            # 先查找 AMOUNT 输入框
-                            try:
-                                amount_input = self.driver.find_element(By.XPATH, XPathConfig.AMOUNT_INPUT[0])
-                            except (NoSuchElementException, StaleElementReferenceException):
-                                amount_input = self._find_element_with_retry(XPathConfig.AMOUNT_INPUT, timeout=1, silent=True)
-
-                            if amount_input:
-                                # 先清除 AMOUNT 输入框
-                                amount_input.clear()
-                                time.sleep(0.5)
-                                # 然后输入 1
-                                amount_input.send_keys("1")
-                                time.sleep(0.5)
-
-                            # 点击buy_confirm_button
-                            self.buy_confirm_button.invoke()
-                            time.sleep(1)
-                            
-                            # 查找Accept按钮
-                            try:
-                                accept_button = self.driver.find_element(By.XPATH, XPathConfig.ACCEPT_BUTTON[0])
-                            except (NoSuchElementException, StaleElementReferenceException):
-                                accept_button = self._find_element_with_retry(XPathConfig.ACCEPT_BUTTON, timeout=2, silent=True)
-                                
-                            if accept_button:
-                                try:
-                                    accept_button.click()
-                                    self.logger.info("✅ 已通过敲击 ENTRY 按键,敲击了ACCEPT按钮")
-                                    self.root.after(1000, self.driver.refresh())
-                                except Exception as e:
-                                    self.logger.info(f"❌ 敲击 ENTRY 按键失败,重新点击ACCEPT按钮")
-                                    self.click_accept()
-                                    self.root.after(2000, self.driver.refresh())
-                                    self.logger.info("✅ 已使用 坐标法 鼠标点击ACCEPT按钮成功")
-                        except NoSuchElementException:
-                            pass
-                    else:
-                        self.logger.info("❌ 未找到CASH值,登录失败,重新登录")
-                        self.start_login_monitoring()
-
                     self.url_check_timer = self.root.after(10000, self.start_url_monitoring)
                     self.refresh_page_timer = self.root.after(240000, self.refresh_page)
                     self.logger.info("✅ 已重新启用URL监控和页面刷新")
-
         except NoSuchElementException:
             # 未找到登录按钮，可能已经登录
-            pass
-            
+            pass          
         finally:
             # 每15秒检查一次登录状态
             self.login_check_timer = self.root.after(15000, self.start_login_monitoring)
 
+    def find_accept_button(self):
+        """查找 ACCEPT_BUTTON"""
+        try:
+            self.accept_button = self.driver.find_element(By.XPATH, XPathConfig.ACCEPT_BUTTON[0])
+        except (NoSuchElementException, StaleElementReferenceException):
+            self.accept_button = self._find_element_with_retry(XPathConfig.ACCEPT_BUTTON, timeout=2, silent=True)
+
+        if accept_button:
+            self.logger.info("✅ 已发现ACCEPT按钮")
+            return True
+        else:
+            self.logger.info("❌ 未发现ACCEPT按钮")
+            return False
+
+    def entry_accept(self):
+        """敲击回车键"""
+        try:
+            self.accept_button.click()
+            self.logger.info("✅ 已通过敲击 ENTRY 按键,敲击了ACCEPT按钮")
+            self.root.after(1000, self.driver.refresh())
+        except Exception as e:
+            self.logger.info(f"❌ 敲击 ENTRY 按键失败,重新点击ACCEPT按钮")
+            self.click_accept()
+            self.root.after(2000, self.driver.refresh())
+            self.logger.info("✅ 已使用 坐标法 鼠标点击ACCEPT按钮成功")
+
     def click_accept(self):
         """点击ACCEPT按钮"""
         self.logger.info("开始执行点击ACCEPT按钮")
-
-        #点击 AMOUNT 按钮,输入 1,然后点击 CONFIRM 按钮
-        self.amount_yes1_button.event_generate('<Button-1>')
-        
-        time.sleep(0.5)
-        self.buy_confirm_button.invoke()
-        time.sleep(0.5)
-
         try:
             screen_width, screen_height = pyautogui.size()
             
@@ -1709,6 +1680,9 @@ class CryptoTrader:
                         self.amount_yes1_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
+                        if self.find_accept_button():
+                            self.entry_accept()
+                            self.buy_confirm_button.invoke()
 
                         time.sleep(2)
                         if self.Verify_buy_yes():
@@ -1772,6 +1746,10 @@ class CryptoTrader:
                         self.amount_no1_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
+                        if self.find_accept_button():
+                            self.entry_accept()
+                            self.buy_confirm_button.invoke()
+
                         time.sleep(0.5)
                         self.buy_yes_button.invoke()
                         time.sleep(2)
@@ -1849,6 +1827,9 @@ class CryptoTrader:
                         self.amount_yes2_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
+                        if self.find_accept_button():
+                            self.entry_accept()
+                            self.buy_confirm_button.invoke()
 
                         time.sleep(2)
                         if self.Verify_buy_yes():
@@ -1906,6 +1887,9 @@ class CryptoTrader:
                         self.amount_no2_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
+                        if self.find_accept_button():
+                            self.entry_accept()
+                            self.buy_confirm_button.invoke()
 
                         # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
                         self.buy_yes_button.invoke() 
@@ -1980,6 +1964,9 @@ class CryptoTrader:
                         self.amount_yes3_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
+                        if self.find_accept_button():
+                            self.entry_accept()
+                            self.buy_confirm_button.invoke()
 
                         time.sleep(2)
                         if self.Verify_buy_yes():
@@ -2040,7 +2027,10 @@ class CryptoTrader:
                         self.amount_no3_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
-
+                        if self.find_accept_button():
+                            self.entry_accept()
+                            self.buy_confirm_button.invoke()
+                            
                         # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
                         self.buy_yes_button.invoke()
                         time.sleep(2)
@@ -2117,7 +2107,10 @@ class CryptoTrader:
                         self.amount_yes4_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
-                        
+                        if self.find_accept_button():
+                            self.entry_accept()
+                            self.buy_confirm_button.invoke()
+                            
                         time.sleep(2)
                         if self.Verify_buy_yes():
                             self.yes4_amount = float(self.yes4_amount_entry.get())
@@ -2167,7 +2160,10 @@ class CryptoTrader:
                         self.amount_no4_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
-
+                        if self.find_accept_button():
+                            self.entry_accept()
+                            self.buy_confirm_button.invoke()
+                            
                         # 点击 BUY_YES 按钮,目的是刷新页面,否则实时价格就不对了
                         self.buy_yes_button.invoke()
 
@@ -2262,6 +2258,10 @@ class CryptoTrader:
                             time.sleep(0.5)
                             # 第三步:点击sell_confirm_button
                             self.sell_confirm_button.invoke()
+                            if self.find_accept_button():
+                                self.entry_accept()
+                                self.sell_confirm_button.invoke()
+
                             time.sleep(0.5)
                             # 第四步:刷新页面
                             self.driver.refresh()
@@ -2341,6 +2341,10 @@ class CryptoTrader:
                             time.sleep(0.5)
                             # 第三步:点击sell_confirm_button
                             self.sell_confirm_button.invoke()
+                            if self.find_accept_button():
+                                self.entry_accept()
+                                self.sell_confirm_button.invoke()
+
                             time.sleep(0.5)
                             # 第四步:刷新页面
                             self.driver.refresh()
@@ -2414,6 +2418,9 @@ class CryptoTrader:
                             time.sleep(0.5)
                             # 第三步:点击sell_confirm_button
                             self.sell_confirm_button.invoke()
+                            if self.find_accept_button():
+                                self.entry_accept()
+                                self.sell_confirm_button.invoke()
                             time.sleep(0.5)
                             # 第四步:刷新页面
                             self.driver.refresh()
@@ -2487,6 +2494,9 @@ class CryptoTrader:
                             time.sleep(0.5)
                             # 第三步:点击sell_confirm_button
                             self.sell_confirm_button.invoke()
+                            if self.find_accept_button():
+                                self.entry_accept()
+                                self.sell_confirm_button.invoke()
                             time.sleep(0.5)
                             # 第四步:刷新页面
                             self.driver.refresh()
@@ -2631,6 +2641,9 @@ class CryptoTrader:
                             time.sleep(0.5)
                             # 第三步:点击sell_confirm_button
                             self.sell_confirm_button.invoke()
+                            if self.find_accept_button():
+                                self.entry_accept()
+                                self.sell_confirm_button.invoke()
                             time.sleep(0.5)
                             # 第四步:刷新页面
                             self.driver.refresh()
@@ -2708,6 +2721,9 @@ class CryptoTrader:
                             time.sleep(0.5)
                             # 第三步:点击sell_confirm_button
                             self.sell_confirm_button.invoke()
+                            if self.find_accept_button():
+                                self.entry_accept()
+                                self.sell_confirm_button.invoke()
                             time.sleep(0.5)
                             # 第四步:刷新页面
                             self.driver.refresh()
@@ -2779,6 +2795,9 @@ class CryptoTrader:
                             time.sleep(0.5)
                             # 第三步:点击sell_confirm_button
                             self.sell_confirm_button.invoke()
+                            if self.find_accept_button():
+                                self.entry_accept()
+                                self.sell_confirm_button.invoke()
                             time.sleep(0.5)
                             # 第四步:刷新页面
                             self.driver.refresh()
@@ -2850,6 +2869,9 @@ class CryptoTrader:
                             time.sleep(0.5)
                             # 第三步:点击sell_confirm_button
                             self.sell_confirm_button.invoke()
+                            if self.find_accept_button():
+                                self.entry_accept()
+                                self.sell_confirm_button.invoke()
                             time.sleep(0.5)
                             # 第四步:刷新页面
                             self.driver.refresh()
@@ -2955,6 +2977,9 @@ class CryptoTrader:
         time.sleep(0.5)
         self.sell_confirm_button.invoke()
         time.sleep(0.5)
+        if self.find_accept_button():
+            self.entry_accept()
+            self.sell_confirm_button.invoke()
 
         if self._verify_trade('Sold', 'Up')[0]:
              # 增加卖出计数
@@ -2983,6 +3008,9 @@ class CryptoTrader:
         time.sleep(0.5)
         self.sell_confirm_button.invoke()
         time.sleep(0.5)
+        if self.find_accept_button():
+            self.entry_accept()
+            self.sell_confirm_button.invoke()
 
         if self._verify_trade('Sold', 'Down')[0]:
             # 增加卖出计数
@@ -3519,18 +3547,18 @@ class CryptoTrader:
                 portfolio_value = "无法获取"
             
             content = f"""
-    🚨 Chrome浏览器异常警报 🚨
+            🚨 Chrome浏览器异常警报 🚨
 
-    异常时间: {current_time}
-    主机名称: {hostname}
-    交易币对: {trading_pair}
-    当前买入次数: {self.trade_count}
-    当前卖出次数: {self.sell_count}
-    重启次数: {self.reset_trade_count}
-    当前 CASH 值: {cash_value}
-    当前 PORTFOLIO 值: {portfolio_value}
+            异常时间: {current_time}
+            主机名称: {hostname}
+            交易币对: {trading_pair}
+            当前买入次数: {self.trade_count}
+            当前卖出次数: {self.sell_count}
+            重启次数: {self.reset_trade_count}
+            当前 CASH 值: {cash_value}
+            当前 PORTFOLIO 值: {portfolio_value}
 
-    ⚠️  请立即手动检查并介入处理！
+            ⚠️  请立即手动检查并介入处理！
             """
             
             msg.attach(MIMEText(content, 'plain', 'utf-8'))
