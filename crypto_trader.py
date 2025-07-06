@@ -3087,7 +3087,7 @@ class CryptoTrader:
         try:
             for attempt in range(2):
                 self.logger.info(f"开始第{attempt + 1}次验证尝试（基于次数重试）")
-                # 重试6次,每次等待1秒检查交易记录
+                # 重试4次,每次等待1秒检查交易记录
                 max_retries = 4  # 最大重试次数
                 wait_interval = 1  # 检查间隔
                 
@@ -3141,13 +3141,13 @@ class CryptoTrader:
                         
                         time.sleep(wait_interval)
                     
-                # 6次重试结束，刷新页面
-                self.logger.info(f"第{attempt + 1}次尝试的6次重试结束,刷新页面")
+                # 4次重试结束，刷新页面
+                self.logger.info(f"第{attempt + 1}次尝试的4次重试结束,刷新页面")
                 self.driver.refresh()
                 time.sleep(2)  # 刷新后等待页面加载
             
             # 超时未找到匹配的交易记录
-            self.logger.warning(f"❌ 交易验证失败: 未找到 {action_type} {direction} (已尝试3轮,每轮6次重试)")
+            self.logger.warning(f"❌ 交易验证失败: 未找到 {action_type} {direction} (已尝试2轮,每轮4次重试)")
             return False, 0, 0
                 
         except Exception as e:
