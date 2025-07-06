@@ -3790,7 +3790,7 @@ class CryptoTrader:
         
         # 设置定时器
         self.set_yes1_no1_default_target_price_timer = self.root.after(int(wait_time), lambda: self.set_yes1_no1_default_target_price())
-        self.logger.info(f"✅ \033[34m{round(wait_time_hours,2)}\033[0m小时后({selected_time}:02),开始执行价格设置")
+        self.logger.info(f"✅ \033[34m{round(wait_time_hours,2)}\033[0m小时后开始设置 YES1/NO1 价格为52")
 
     def on_auto_find_time_changed(self, event=None):
         """当时间选择改变时的处理函数"""
