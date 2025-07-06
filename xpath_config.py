@@ -112,7 +112,7 @@ class XPathConfig:
 
     # 19.History-交易记录长期有效
     HISTORY = [
-        '//*[normalize-space(.)="History"]/following-sibling::div[1]',
+        '//h3[contains(., "History")]/parent::div/following-sibling::div[1]',
         '(//div[@class="PJLV PJLV-ihovmxi-css"])[1]',
         '(//div[@class="PJLV PJLV-ihovmxi-css"]//p)[1]' 
     ]
