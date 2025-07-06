@@ -1558,7 +1558,7 @@ class CryptoTrader:
         except (NoSuchElementException, StaleElementReferenceException):
             self.accept_button = self._find_element_with_retry(XPathConfig.ACCEPT_BUTTON, timeout=2, silent=True)
 
-        if accept_button:
+        if self.accept_button:
             self.logger.info("✅ 已发现ACCEPT按钮")
             return True
         else:
