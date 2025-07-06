@@ -3087,7 +3087,7 @@ class CryptoTrader:
         try:
             for attempt in range(2):
                 self.logger.info(f"开始第{attempt + 1}次验证尝试（基于次数重试）")
-                # 重试4次,每次等待1秒检查交易记录
+                # 检查 4次,每次等待1秒检查交易记录
                 max_retries = 4  # 最大重试次数
                 wait_interval = 1  # 检查间隔
                 
