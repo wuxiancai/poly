@@ -3769,7 +3769,7 @@ class CryptoTrader:
         # 设置定时器
         selected_coin = self.coin_combobox.get()
         self.schedule_auto_find_coin_timer = self.root.after(int(wait_time), lambda: self.find_54_coin(selected_coin))
-        self.logger.info(f"✅ \033[34m{round(wait_time_hours,2)}\033[0m小时后({selected_time}),开始自动找币")
+        self.logger.info(f"✅ \033[34m{round(wait_time_hours,2)}\033[0m小时后,开始自动找币")
 
     def schedule_price_setting(self):
         """安排每天指定时间执行价格设置"""
