@@ -768,7 +768,7 @@ class CryptoTrader:
         self.url_check_timer = self.root.after(8000, self.start_url_monitoring)
 
         # 启动零点 CASH 监控
-        self.get_zero_time_cash_timer = self.root.after(12000, self.get_zero_time_cash)
+        self.get_zero_time_cash_timer = self.root.after(3000, self.get_zero_time_cash)
 
         # 启动币安零点时价格监控
         self.get_binance_zero_time_price_timer = self.root.after(14000, self.get_binance_zero_time_price)
@@ -780,7 +780,7 @@ class CryptoTrader:
         self.comparison_binance_price_timer = self.root.after(20000, self.comparison_binance_price)
 
         # 启动自动找币
-        self.schedule_auto_find_coin_timer = self.root.after(30000, self.schedule_auto_find_coin)
+        self.root.after(30000, self.schedule_auto_find_coin)
 
         # 启动页面刷新
         self.refresh_page_timer = self.root.after(40000, self.refresh_page)
@@ -1314,7 +1314,7 @@ class CryptoTrader:
 
             if yes1_amount and yes1_amount != '0':
                 # 延迟5秒设置价格
-                self.root.after(5000, lambda: self.set_yes1_no1_default_target_price())
+                self.root.after(8000, lambda: self.set_yes1_no1_default_target_price())
                 
             else:
                 if current_retry < 15:  # 最多重试15次
@@ -3433,18 +3433,6 @@ class CryptoTrader:
             # 如果窗口操作失败，可能是浏览器会话已失效，不需要重启浏览器
             # 因为调用此方法的上层代码通常会处理浏览器重启
 
-    def set_default_price(self, price):
-        """设置默认目标价格"""
-        try:
-            self.default_target_price = float(price)
-            self.yes1_price_entry.delete(0, tk.END)
-            self.yes1_price_entry.insert(0, str(self.default_target_price))
-            self.no1_price_entry.delete(0, tk.END)
-            self.no1_price_entry.insert(0, str(self.default_target_price))
-            self.logger.info(f"默认目标价格已更新为: {price}")
-        except ValueError:
-            self.logger.error("价格设置无效，请输入有效数字")
-
     def send_trade_email(self, trade_type, price, amount, shares, trade_count,
                          cash_value, portfolio_value):
         """发送交易邮件"""
@@ -3758,12 +3746,8 @@ class CryptoTrader:
         """安排每天指定时间执行自动找币"""
         now = datetime.now()
         
-        # 从GUI获取选择的时间
-        selected_time = self.auto_find_time_combobox.get()
-        hour = int(selected_time.split(':')[0])
-        
         # 计算下一个指定时间的时间点
-        next_run = now.replace(hour=hour, minute=2, second=0, microsecond=0)
+        next_run = now.replace(hour=0, minute=5, second=0, microsecond=0)
         if now >= next_run:
             next_run += timedelta(days=1)
         
@@ -3776,22 +3760,50 @@ class CryptoTrader:
         self.schedule_auto_find_coin_timer = self.root.after(int(wait_time), lambda: self.find_54_coin(selected_coin))
         self.logger.info(f"✅ \033[34m{round(wait_time_hours,2)}\033[0m小时后({selected_time}),开始自动找币")
 
+    def schedule_price_setting(self):
+        """安排每天指定时间执行价格设置"""
+        now = datetime.now()
+        
+        # 从GUI获取选择的时间
+        selected_time = self.auto_find_time_combobox.get()
+        hour = int(selected_time.split(':')[0])
+        
+        # 计算下一个指定时间的时间点（在选择时间的02分执行）
+        next_run = now.replace(hour=hour, minute=2, second=0, microsecond=0)
+        if now >= next_run:
+            next_run += timedelta(days=1)
+        
+        # 计算等待时间(毫秒)
+        wait_time = (next_run - now).total_seconds() * 1000
+        wait_time_hours = wait_time / 3600000
+        
+        # 设置定时器
+        self.set_yes1_no1_default_target_price_timer = self.root.after(int(wait_time), lambda: self.set_yes1_no1_default_target_price())
+        self.logger.info(f"✅ \033[34m{round(wait_time_hours,2)}\033[0m小时后({selected_time}:02),开始执行价格设置")
+
     def on_auto_find_time_changed(self, event=None):
-        """当自动找币时间选择改变时的处理函数"""
+        """当时间选择改变时的处理函数"""
         # 保存新的时间设置到配置文件
         self.save_config()
         
-        if hasattr(self, 'schedule_auto_find_coin_timer') and self.schedule_auto_find_coin_timer:
+        if hasattr(self, 'set_yes1_no1_default_target_price_timer') and self.set_yes1_no1_default_target_price_timer:
             # 取消当前的定时器
-            self.root.after_cancel(self.schedule_auto_find_coin_timer)
-            self.logger.info("🔄 自动找币时间已更改，重新安排定时任务")
-            
-            # 重新安排定时任务
-            self.schedule_auto_find_coin()
+            self.root.after_cancel(self.set_yes1_no1_default_target_price_timer)
+            self.logger.info("🔄 设置 YES1/NO1 价格时间已更改，重新安排定时任务")
+            self.schedule_price_setting()
 
     def find_54_coin(self, coin_type, retry_count=0):
         """自动找币"""
         self.logger.info("✅ 开始自动找币")
+
+        # 设置 YES1/NO1价格为 0
+        self.yes1_price_entry.configure(foreground='black')
+        self.yes1_price_entry.delete(0, tk.END)
+        self.yes1_price_entry.insert(0, "0")
+        self.no1_price_entry.configure(foreground='black')
+        self.no1_price_entry.delete(0, tk.END)
+        self.no1_price_entry.insert(0, "0")
+
         if retry_count > 0:
             self.logger.info(f"这是第 {retry_count}/5 次重试")
             
@@ -4173,15 +4185,16 @@ class CryptoTrader:
             self.zero_time_cash_label.config(text=f"{self.zero_time_cash_value}")
             self.logger.info(f"✅ 获取到原始CASH值:\033[34m${self.zero_time_cash_value}\033[0m")
 
-            # 设置 YES/NO 金额,延迟2秒确保数据稳定
-            self.root.after(2000, self.schedule_update_amount)
+            # 设置 YES/NO 金额,延迟5秒确保数据稳定
+            self.root.after(5000, self.schedule_update_amount)
             self.logger.info("✅ 设置 YES/NO 金额成功!")
+           
         except Exception as e:
             self.logger.error(f"获取零点CASH值时发生错误: {str(e)}")
         finally:
             # 计算下一个00:10的时间
             now = datetime.now()
-            tomorrow = now.replace(hour=0, minute=10, second=0, microsecond=0) + timedelta(days=1)
+            tomorrow = now.replace(hour=0, minute=3, second=0, microsecond=0) + timedelta(days=1)
             seconds_until_midnight = (tomorrow - now).total_seconds()
 
             # 取消已有的定时器（如果存在）
