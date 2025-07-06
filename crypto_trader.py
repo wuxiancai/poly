@@ -793,6 +793,9 @@ class CryptoTrader:
         # 启动自动找币
         self.root.after(30000, self.schedule_auto_find_coin)
 
+        # 启动设置 YES1/NO1价格为 52
+        self.schedule_price_setting_timer = self.root.after(36000, self.schedule_price_setting)
+        
         # 启动页面刷新
         self.refresh_page_timer = self.root.after(40000, self.refresh_page)
         self.logger.info("\033[34m✅ 40秒后启动页面刷新!\033[0m")
