@@ -190,7 +190,8 @@ class CryptoTrader:
                     'Down5': {'target_price': 0, 'amount': 0}
                 },
                 'url_history': [],
-                'auto_find_time': '3:00'  # 默认2点自动找币
+                'auto_find_time': '3:00',  # 默认2点自动找币
+                'selected_coin': 'BTC'  # 默认选择的币种
             }
             
             try:
@@ -271,6 +272,10 @@ class CryptoTrader:
             # 保存自动找币时间设置
             if hasattr(self, 'auto_find_time_combobox'):
                 self.config['auto_find_time'] = self.auto_find_time_combobox.get()
+            
+            # 保存币种选择设置
+            if hasattr(self, 'coin_combobox'):
+                self.config['selected_coin'] = self.coin_combobox.get()
             
             # 保存配置到文件，使用indent=4确保格式化
             with open('config.json', 'w', encoding='utf-8') as f:
@@ -465,7 +470,13 @@ class CryptoTrader:
         ttk.Label(main_controls, text="Coin:", style='Black.TLabel').pack(side=tk.LEFT, padx=(2, 2))
         self.coin_combobox = ttk.Combobox(main_controls, values=['BTC', 'ETH', 'SOL', 'XRP'], width=3)
         self.coin_combobox.pack(side=tk.LEFT, padx=2)
-        self.coin_combobox.set('BTC')
+        
+        # 从配置文件加载保存的币种选择
+        saved_coin = self.config.get('selected_coin', 'BTC')
+        self.coin_combobox.set(saved_coin)
+        
+        # 绑定币种选择变化事件
+        self.coin_combobox.bind('<<ComboboxSelected>>', self.on_coin_changed)
         
         # CASH 显示
         ttk.Label(main_controls, text="Cash:", style='Black.TLabel').pack(side=tk.LEFT, padx=(0, 2))
@@ -3791,6 +3802,13 @@ class CryptoTrader:
             self.root.after_cancel(self.set_yes1_no1_default_target_price_timer)
             self.logger.info("🔄 设置 YES1/NO1 价格时间已更改，重新安排定时任务")
             self.schedule_price_setting()
+    
+    def on_coin_changed(self, event=None):
+        """当币种选择改变时的处理函数"""
+        # 保存新的币种选择到配置文件
+        self.save_config()
+        selected_coin = self.coin_combobox.get()
+        self.logger.info(f"💰 币种选择已更改为: {selected_coin}")
 
     def find_54_coin(self, coin_type, retry_count=0):
         """自动找币"""
