@@ -3099,7 +3099,7 @@ class CryptoTrader:
             for attempt in range(2):
                 self.logger.info(f"开始第{attempt + 1}次验证尝试（基于次数重试）")
                 # 检查 4次,每次等待1秒检查交易记录
-                max_retries = 4  # 最大重试次数
+                max_retries = 3  # 最大重试次数
                 wait_interval = 1  # 检查间隔
                 
                 for retry in range(max_retries):
@@ -3153,7 +3153,7 @@ class CryptoTrader:
                         time.sleep(wait_interval)
                     
                 # 4次重试结束，刷新页面
-                self.logger.info(f"第{attempt + 1}次尝试的4次重试结束,刷新页面")
+                # self.logger.info(f"第{attempt + 1}次尝试的4次重试结束,刷新页面")
                 self.driver.refresh()
                 time.sleep(2)  # 刷新后等待页面加载
             
