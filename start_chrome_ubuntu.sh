@@ -201,7 +201,7 @@ if command -v google-chrome-stable &> /dev/null; then
         --disable-notifications \
         --test-type \
         --user-data-dir="$HOME/ChromeDebug" \
-        about:blank
+        https://polymarket.com/crypto
 else
     echo -e "${RED}Chrome 未找到，请确保已安装 google-chrome-stable${NC}"
     exit 1
