@@ -1314,30 +1314,11 @@ class CryptoTrader:
         """尝试设置金额"""
         try:
             self.set_amount_button.invoke()
-            self.root.after(1000, lambda: self.check_amount_and_set_price(current_retry))
+            
         except Exception as e:
             self.logger.error(f"更新金额操作失败 (尝试 {current_retry + 1}/15): {str(e)}")
             # 如果失败，安排下一次重试
             self.schedule_update_amount(current_retry + 1)
-
-    def check_amount_and_set_price(self, current_retry):
-        """检查金额是否设置成功,成功后设置价格"""
-        try:
-            # 检查yes金额是否为非0值
-            yes1_amount = self.yes1_amount_entry.get().strip()
-
-            if yes1_amount and yes1_amount != '0':
-                # 延迟5秒设置价格
-                self.root.after(8000, lambda: self.set_yes1_no1_default_target_price())
-                
-            else:
-                if current_retry < 15:  # 最多重试15次
-                    self.logger.info("\033[31m❌ 金额未成功设置,2秒后重试\033[0m")
-                    self.root.after(2000, lambda: self.check_amount_and_set_price(current_retry))
-                else:
-                    self.logger.warning("金额设置超时")
-        except Exception as e:
-            self.logger.error(f"检查金额设置状态失败: {str(e)}")
 
     def set_yes1_no1_default_target_price(self):
         """设置默认目标价格52"""
