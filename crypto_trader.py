@@ -3813,6 +3813,8 @@ class CryptoTrader:
                             pair = re.search(r'event/([^?]+)', new_url)
                             self.trading_pair_label.config(text=pair.group(1))
                             self.logger.info(f"\033[34m✅ 新URL已插入到主界面上: {new_url} \033[0m")
+                            self.trade_count = 0
+                            self.sell_count = 0
                     save_new_url(new_url)
 
                 except Exception as e:
