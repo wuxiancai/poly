@@ -4360,7 +4360,7 @@ class CryptoTrader:
         seconds_until_next_run = (next_run_time - now).total_seconds()
         # 取消已有的定时器（如果存在）
         if hasattr(self, 'comparison_binance_price_timer') and self.comparison_binance_price_timer:
-            self.comparison_binance_price_timer.cancel()
+            self.root.after_cancel(self.comparison_binance_price_timer)
 
         # 设置下一次执行的定时器
         if self.running and not self.stop_event.is_set():
