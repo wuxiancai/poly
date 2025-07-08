@@ -914,7 +914,6 @@ class CryptoTrader:
         except Exception as e:
             if not self.stop_event.is_set():
                 self.logger.error(f"加载页面失败: {str(e)}")
-            self.stop_monitoring()
     
     def restart_browser(self,force_restart=True):
         """统一的浏览器重启/重连函数
@@ -1104,7 +1103,11 @@ class CryptoTrader:
                 self.root.after_cancel(self.refresh_page_timer)     
             self.refresh_page()
 
-            
+            # 重启设置 YES1/NO1 价格为 52
+            if hasattr(self,'schedule_price_setting_timer') and self.schedule_price_setting_timer:
+                self.root.after_cancel(self.schedule_price_setting_timer)
+            self.schedule_price_setting()
+
             # 6.重新开始价格比较
             if hasattr(self,'comparison_binance_price_timer') and self.comparison_binance_price_timer:
                 self.root.after_cancel(self.comparison_binance_price_timer)
@@ -3568,49 +3571,6 @@ class CryptoTrader:
         except Exception as e:
             self.logger.error(f"发送Chrome异常警报邮件时出错: {str(e)}")
 
-    def stop_monitoring(self):
-        """停止监控"""
-        try:
-            self.running = False
-            self.stop_event.set()  # 设置停止事件
-            # 取消所有定时器
-            for timer in [self.url_check_timer, self.login_check_timer, self.refresh_timer]:
-                if timer:
-                    self.root.after_cancel(timer)
-            # 停止URL监控
-            if self.url_check_timer:
-                self.root.after_cancel(self.url_check_timer)
-                self.url_check_timer = None
-            # 停止登录状态监控
-            if self.login_check_timer:
-                self.root.after_cancel(self.login_check_timer)
-                self.login_check_timer = None
-            
-            self.start_button['state'] = 'normal'
-            
-            self.set_amount_button['state'] = 'disabled'  # 禁用更新金额按钮
-            
-            # 恢复"开始监控"文字为蓝色
-            self.start_button.configure(style='Black.TButton')
-            if self.driver:
-                self.driver.quit()
-                self.driver = None
-            # 记录最终交易次数
-            final_trade_count = self.trade_count
-            self.logger.info(f"本次监控共执行 {final_trade_count} 次交易")
-
-            # 取消页面刷新定时器
-            if self.refresh_timer:
-                self.root.after_cancel(self.refresh_timer)
-                self.refresh_timer = None
-
-            if hasattr(self, 'monitor_prices_timer'):
-                self.root.after_cancel(self.monitor_prices_timer)  # 取消定时器
-                self.monitor_prices_timer = None
-
-        except Exception as e:
-            self.logger.error(f"停止监控失败: {str(e)}")
-
     def retry_operation(self, operation, *args, **kwargs):
         """通用重试机制"""
         for attempt in range(self.retry_count):
@@ -4358,6 +4318,8 @@ class CryptoTrader:
     def _perform_price_comparison(self):
         """执行价格比较"""
         try:
+            # 获取当前选择的币种
+            selected_coin = self.coin_combobox.get()
             # 获取0点当天的币安价格
             zero_time_price = round(float(self.binance_zero_price_label.cget('text').replace('$', '')),2)
             # 获取当前价格
@@ -4367,9 +4329,9 @@ class CryptoTrader:
             # 比较价格
             if 0 <= price_change <= 0.01 or -0.01 <= price_change <= 0:
                 price_change = f"{round(price_change,3)}%"
-                self.logger.info(f"✅ \033[34m{self.selected_coin}USDT当前价格上涨或下跌幅度小于{price_change},请立即关注\033[0m")
+                self.logger.info(f"✅ \033[34m{selected_coin}USDT当前价格上涨或下跌幅度小于{price_change},请立即关注\033[0m")
                 self.send_trade_email(
-                                trade_type=f"{self.selected_coin}USDT当前价格上涨或下跌幅度小于{price_change}",
+                                trade_type=f"{selected_coin}USDT当前价格上涨或下跌幅度小于{price_change}",
                                 price=zero_time_price,
                                 amount=now_price,
                                 trade_count=price_change,
@@ -4396,16 +4358,17 @@ class CryptoTrader:
             next_run_time = target_time_today + timedelta(days=1)
 
         seconds_until_next_run = (next_run_time - now).total_seconds()
-            # 取消已有的定时器（如果存在）
-        if hasattr(self, 'comparison_binance_pric') and self.comparison_binance_price_timer:
+        # 取消已有的定时器（如果存在）
+        if hasattr(self, 'comparison_binance_price_timer') and self.comparison_binance_price_timer:
             self.comparison_binance_price_timer.cancel()
 
-            # 设置下一次执行的定时器
-            if self.running and not self.stop_event.is_set():
+        # 设置下一次执行的定时器
+        if self.running and not self.stop_event.is_set():
+                selected_coin = self.coin_combobox.get()
                 self.comparison_binance_price_timer = threading.Timer(seconds_until_next_run, self._perform_price_comparison)
                 self.comparison_binance_price_timer.daemon = True
                 self.comparison_binance_price_timer.start()
-                self.logger.info(f"\033[34m{round(seconds_until_next_run / 3600,2)}\033[0m小时后比较\033[34m{self.selected_coin}USDT\033[0m币安价格")
+                self.logger.info(f"\033[34m{round(seconds_until_next_run / 3600,2)}\033[0m小时后比较\033[34m{selected_coin}USDT\033[0m币安价格")
 
 if __name__ == "__main__":
     try:
