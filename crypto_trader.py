@@ -1228,7 +1228,7 @@ class CryptoTrader:
                 if not self.trading:
                     self.First_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
                     self.Second_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
-                    #self.Third_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
+                    self.Third_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
                     self.Forth_trade(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
                     self.Sell_yes(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
                     self.Sell_no(up_price_val, down_price_val, asks_shares_val, bids_shares_val)
