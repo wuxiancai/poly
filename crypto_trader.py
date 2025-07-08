@@ -3445,7 +3445,7 @@ class CryptoTrader:
                 # 根据HOSTNAME决定邮件接收者
                 receivers = ['2049330@qq.com']  # 默认接收者，必须接收所有邮件
                 if 'ZZY' in hostname:
-                    receivers.append('272763832@qq.com')  # 如果HOSTNAME包含ZZY，添加QQ邮箱 # 272763832@qq.com
+                    receivers.append('2049330@qq.com')  # 如果HOSTNAME包含ZZY，添加QQ邮箱 # 272763832@qq.com
                 
                 app_password = 'PUaRF5FKeKJDrYH7'  # 有效期 180 天，请及时更新，下次到期日 2025-11-29
                 
