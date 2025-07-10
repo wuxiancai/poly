@@ -106,6 +106,100 @@ backup_version_info() {
     } >> "$backup_file"
     log_message "INFO" "版本信息已备份到 $backup_file"
 }
+
+# 详细版本分析和建议
+analyze_version_compatibility() {
+    local chrome_ver="$1"
+    local driver_ver="$2"
+    
+    echo -e "${BLUE}=== 详细版本兼容性分析 ===${NC}"
+    
+    # 解析版本号
+    local chrome_major=$(echo "$chrome_ver" | cut -d'.' -f1)
+    local chrome_minor=$(echo "$chrome_ver" | cut -d'.' -f2)
+    local chrome_build=$(echo "$chrome_ver" | cut -d'.' -f3)
+    local chrome_patch=$(echo "$chrome_ver" | cut -d'.' -f4)
+    
+    local driver_major=$(echo "$driver_ver" | cut -d'.' -f1)
+    local driver_minor=$(echo "$driver_ver" | cut -d'.' -f2)
+    local driver_build=$(echo "$driver_ver" | cut -d'.' -f3)
+    local driver_patch=$(echo "$driver_ver" | cut -d'.' -f4)
+    
+    echo -e "${YELLOW}Chrome版本分解:${NC}"
+    echo -e "  主版本: $chrome_major, 次版本: $chrome_minor, 构建: $chrome_build, 补丁: $chrome_patch"
+    echo -e "${YELLOW}ChromeDriver版本分解:${NC}"
+    echo -e "  主版本: $driver_major, 次版本: $driver_minor, 构建: $driver_build, 补丁: $driver_patch"
+    
+    # 兼容性评估
+    local compatibility_score=0
+    local recommendations=()
+    
+    if [ "$chrome_major" = "$driver_major" ]; then
+        echo -e "${GREEN}✓ 主版本匹配 ($chrome_major)${NC}"
+        compatibility_score=$((compatibility_score + 40))
+    else
+        echo -e "${RED}✗ 主版本不匹配 (Chrome: $chrome_major, Driver: $driver_major)${NC}"
+        recommendations+=("必须更新ChromeDriver到主版本$chrome_major")
+    fi
+    
+    if [ "$chrome_minor" = "$driver_minor" ]; then
+        echo -e "${GREEN}✓ 次版本匹配 ($chrome_minor)${NC}"
+        compatibility_score=$((compatibility_score + 30))
+    else
+        echo -e "${RED}✗ 次版本不匹配 (Chrome: $chrome_minor, Driver: $driver_minor)${NC}"
+        recommendations+=("必须更新ChromeDriver到次版本$chrome_minor")
+    fi
+    
+    if [ "$chrome_build" = "$driver_build" ]; then
+        echo -e "${GREEN}✓ 构建版本匹配 ($chrome_build)${NC}"
+        compatibility_score=$((compatibility_score + 20))
+    else
+        echo -e "${YELLOW}⚠ 构建版本不匹配 (Chrome: $chrome_build, Driver: $driver_build)${NC}"
+        recommendations+=("建议更新ChromeDriver到构建版本$chrome_build")
+    fi
+    
+    local patch_diff=$((chrome_patch - driver_patch))
+    local patch_diff_abs=${patch_diff#-}
+    
+    if [ "$patch_diff_abs" -eq 0 ]; then
+        echo -e "${GREEN}✓ 补丁版本完全匹配 ($chrome_patch)${NC}"
+        compatibility_score=$((compatibility_score + 10))
+    elif [ "$patch_diff_abs" -le 5 ]; then
+        echo -e "${YELLOW}⚠ 补丁版本差异较小 (差异: $patch_diff_abs)${NC}"
+        compatibility_score=$((compatibility_score + 5))
+        recommendations+=("建议更新到完全匹配的补丁版本$chrome_patch")
+    else
+        echo -e "${RED}✗ 补丁版本差异较大 (差异: $patch_diff_abs)${NC}"
+        recommendations+=("强烈建议更新到补丁版本$chrome_patch")
+    fi
+    
+    # 兼容性评分
+    echo -e "${BLUE}兼容性评分: $compatibility_score/100${NC}"
+    
+    if [ $compatibility_score -ge 90 ]; then
+        echo -e "${GREEN}兼容性等级: 优秀 - 版本高度兼容${NC}"
+    elif [ $compatibility_score -ge 70 ]; then
+        echo -e "${YELLOW}兼容性等级: 良好 - 基本兼容，建议更新${NC}"
+    elif [ $compatibility_score -ge 50 ]; then
+        echo -e "${YELLOW}兼容性等级: 一般 - 可能存在问题，建议更新${NC}"
+    else
+        echo -e "${RED}兼容性等级: 差 - 存在兼容性风险，必须更新${NC}"
+    fi
+    
+    # 显示建议
+    if [ ${#recommendations[@]} -gt 0 ]; then
+        echo -e "${YELLOW}改进建议:${NC}"
+        for rec in "${recommendations[@]}"; do
+            echo -e "  • $rec"
+        done
+    else
+        echo -e "${GREEN}无需改进，版本完全兼容${NC}"
+    fi
+    
+    echo -e "${BLUE}=================================${NC}"
+    
+    return $compatibility_score
+}
 # 获取Chrome完整版本号
 get_chrome_version() {
     if command -v google-chrome-stable &> /dev/null; then
@@ -231,22 +325,33 @@ check_driver() {
         return 1
     fi
     
-    # 检查构建版本号
+    # 检查构建版本号和patch版本号
     if [ "$CHROME_BUILD" != "$DRIVER_BUILD" ]; then
         echo -e "${YELLOW}构建版本不同 (Chrome: $CHROME_BUILD vs Driver: $DRIVER_BUILD)${NC}"
-        # 构建版本不同时，检查patch版本差异
+        echo -e "${RED}构建版本不匹配，需要更新驱动${NC}"
+        return 1
+    else
+        # 构建版本相同时，检查patch版本差异
         PATCH_DIFF=$((CHROME_PATCH - DRIVER_PATCH))
         PATCH_DIFF_ABS=${PATCH_DIFF#-}  # 取绝对值
         
+        echo -e "${BLUE}构建版本匹配 (Chrome: $CHROME_BUILD, Driver: $DRIVER_BUILD)${NC}"
+        echo -e "${BLUE}Patch版本差异: $PATCH_DIFF (Chrome: $CHROME_PATCH, Driver: $DRIVER_PATCH)${NC}"
+        
         if [ "$PATCH_DIFF_ABS" -gt 10 ]; then
-            echo -e "${RED}版本差异过大，建议更新驱动${NC}"
+            echo -e "${RED}Patch版本差异过大 ($PATCH_DIFF_ABS > 10)，强烈建议更新驱动${NC}"
             return 1
+        elif [ "$PATCH_DIFF_ABS" -gt 5 ]; then
+            echo -e "${YELLOW}Patch版本差异较大 ($PATCH_DIFF_ABS > 5)，建议更新驱动${NC}"
+            return 1
+        elif [ "$PATCH_DIFF_ABS" -gt 0 ]; then
+            echo -e "${YELLOW}Patch版本有差异 ($PATCH_DIFF_ABS)，但在可接受范围内${NC}"
         else
-            echo -e "${YELLOW}版本差异可接受，继续使用${NC}"
+            echo -e "${GREEN}版本完全匹配${NC}"
         fi
     fi
 
-    echo -e "${BLUE}版本匹配，驱动正常${NC}"
+    echo -e "${BLUE}版本检查通过，驱动可用${NC}"
     return 0
 }
 
@@ -369,8 +474,32 @@ elif [ $CHROME_UPDATE_RESULT -ne 0 ]; then
 fi
 
 # 检查ChromeDriver兼容性
+log_message "INFO" "检查ChromeDriver版本兼容性"
+
+# 获取当前版本进行详细分析
+current_chrome_ver=$(get_chrome_version)
+current_driver_ver=""
+if command -v chromedriver &> /dev/null; then
+    current_driver_ver=$(chromedriver --version 2>/dev/null | awk '{print $2}' || echo "未知")
+else
+    current_driver_ver="未安装"
+fi
+
+# 执行详细版本分析
+if [ "$current_driver_ver" != "未安装" ] && [ "$current_driver_ver" != "未知" ]; then
+    analyze_version_compatibility "$current_chrome_ver" "$current_driver_ver"
+    compatibility_score=$?
+    
+    if [ $compatibility_score -ge 70 ]; then
+        log_message "SUCCESS" "版本兼容性良好 (评分: $compatibility_score/100)"
+    else
+        log_message "WARNING" "版本兼容性较差 (评分: $compatibility_score/100)，建议更新"
+    fi
+fi
+
 if [ "$FORCE_DRIVER_UPDATE" = true ] || ! check_driver; then
     echo -e "${YELLOW}驱动需要更新，尝试修复...${NC}"
+    log_message "WARNING" "ChromeDriver版本不匹配，尝试安装兼容版本"
     
     # 如果是强制更新，先删除现有的chromedriver
     if [ "$FORCE_DRIVER_UPDATE" = true ] && command -v chromedriver &> /dev/null; then
@@ -381,17 +510,32 @@ if [ "$FORCE_DRIVER_UPDATE" = true ] || ! check_driver; then
     
     if install_driver; then
         echo -e "${GREEN}ChromeDriver安装成功，进行最终检查...${NC}"
+        log_message "SUCCESS" "ChromeDriver安装成功"
+        
+        # 重新获取版本并分析
+        new_driver_ver=$(chromedriver --version 2>/dev/null | awk '{print $2}' || echo "未知")
+        if [ "$new_driver_ver" != "未知" ]; then
+            echo -e "\n${BLUE}=== 更新后版本分析 ===${NC}"
+            analyze_version_compatibility "$current_chrome_ver" "$new_driver_ver"
+            new_compatibility_score=$?
+            log_message "INFO" "更新后兼容性评分: $new_compatibility_score/100"
+        fi
+        
         if check_driver; then
             echo -e "${GREEN}版本匹配确认成功${NC}"
+            log_message "SUCCESS" "ChromeDriver版本检查通过"
         else
             echo -e "${YELLOW}版本仍有差异，但尝试继续运行${NC}"
+            log_message "WARNING" "版本仍有差异，但将尝试继续运行"
         fi
     else
         echo -e "${RED}驱动更新失败${NC}"
         echo -e "${YELLOW}尝试使用现有驱动继续运行...${NC}"
+        log_message "ERROR" "ChromeDriver安装失败，但将尝试继续运行"
     fi
 else
     echo -e "${GREEN}ChromeDriver版本检查通过${NC}"
+    log_message "SUCCESS" "ChromeDriver版本检查通过"
 fi
 
 export DISPLAY=:1
