@@ -190,7 +190,6 @@ class CryptoTrader:
                     'Down5': {'target_price': 0, 'amount': 0}
                 },
                 'url_history': [],
-                'auto_find_time': '3:00',  # 默认2点自动找币
                 'selected_coin': 'BTC'  # 默认选择的币种
             }
             
@@ -1322,18 +1321,6 @@ class CryptoTrader:
             self.logger.error(f"更新金额操作失败 (尝试 {current_retry + 1}/15): {str(e)}")
             # 如果失败，安排下一次重试
             self.schedule_update_amount(current_retry + 1)
-
-    def set_yes1_no1_default_target_price(self):
-        """设置默认目标价格52"""
-        self.yes1_price_entry.delete(0, tk.END)
-        self.yes1_price_entry.insert(0, "52")
-        self.yes1_price_entry.configure(foreground='red')
-
-        self.no1_price_entry.delete(0, tk.END)
-        self.no1_price_entry.insert(0, "52")
-        self.no1_price_entry.configure(foreground='red')
-        self.logger.info(f"\033[34m✅ 设置买入价格52成功\033[0m")
-        self.close_windows()
 
     def set_yes_no_cash(self):
         """设置 Yes/No 各级金额"""
@@ -3697,24 +3684,6 @@ class CryptoTrader:
                 raise
         return None
 
-    def schedule_auto_find_coin(self):
-        """安排每天指定时间执行自动找币"""
-        now = datetime.now()
-        
-        # 计算下一个指定时间的时间点
-        next_run = now.replace(hour=0, minute=5, second=0, microsecond=0)
-        if now >= next_run:
-            next_run += timedelta(days=1)
-        
-        # 计算等待时间(毫秒)
-        wait_time = (next_run - now).total_seconds() * 1000
-        wait_time_hours = wait_time / 3600000
-        
-        # 设置定时器
-        selected_coin = self.coin_combobox.get()
-        self.schedule_auto_find_coin_timer = self.root.after(int(wait_time), lambda: self.find_54_coin(selected_coin))
-        self.logger.info(f"✅ \033[34m{round(wait_time_hours,2)}\033[0m小时后,开始自动找币")
-
     def schedule_price_setting(self):
         """安排每天指定时间执行价格设置"""
         now = datetime.now()
@@ -3747,6 +3716,22 @@ class CryptoTrader:
             self.logger.info("🔄 设置 YES1/NO1 价格时间已更改，重新安排定时任务")
             self.schedule_price_setting()
     
+    def set_yes1_no1_default_target_price(self):
+        """设置默认目标价格52"""
+        self.yes1_price_entry.delete(0, tk.END)
+        self.yes1_price_entry.insert(0, "52")
+        self.yes1_price_entry.configure(foreground='red')
+
+        self.no1_price_entry.delete(0, tk.END)
+        self.no1_price_entry.insert(0, "52")
+        self.no1_price_entry.configure(foreground='red')
+        self.logger.info(f"\033[34m✅ 设置买入价格52成功\033[0m")
+        self.close_windows()
+        
+        # 价格设置完成后，重新安排下一次的价格设置定时任务
+        self.logger.info("🔄 价格设置完成，重新安排下一次定时任务")
+        self.schedule_price_setting()
+        
     def on_coin_changed(self, event=None):
         """当币种选择改变时的处理函数"""
         # 保存新的币种选择到配置文件
@@ -3754,6 +3739,25 @@ class CryptoTrader:
         selected_coin = self.coin_combobox.get()
         self.logger.info(f"💰 币种选择已更改为: {selected_coin}")
 
+    def schedule_auto_find_coin(self):
+        """安排每天指定时间执行自动找币"""
+        now = datetime.now()
+        self.logger.info(f"当前时间: {now}")
+        # 计算下一个指定时间的时间点
+        next_run = now.replace(hour=0, minute=6, second=0, microsecond=0)
+        self.logger.info(f"下次执行时间: {next_run}")
+        if now >= next_run:
+            next_run += timedelta(days=1)
+        
+        # 计算等待时间(毫秒)
+        wait_time = (next_run - now).total_seconds() * 1000
+        wait_time_hours = wait_time / 3600000
+        
+        # 设置定时器
+        selected_coin = self.coin_combobox.get()
+        self.schedule_auto_find_coin_timer = self.root.after(int(wait_time), lambda: self.find_54_coin(selected_coin))
+        self.logger.info(f"✅ \033[34m{round(wait_time_hours,2)}\033[0m小时后,开始自动找币")
+        
     def find_54_coin(self, coin_type, retry_count=0):
         """自动找币"""
         self.logger.info("✅ 开始自动找币")
@@ -3824,6 +3828,10 @@ class CryptoTrader:
             self.start_url_monitoring()
             self.refresh_page()
             
+            # 自动找币完成后，重新安排下一次的自动找币定时任务
+            self.logger.info("🔄 自动找币完成，重新安排下一次定时任务")
+            self.schedule_auto_find_coin()
+            
         except Exception as e:
             self.logger.error(f"自动找币异常: {str(e)}")
             # 避免无限递归，使用延迟重试而不是直接递归调用
@@ -3833,6 +3841,9 @@ class CryptoTrader:
                 self.root.after(retry_delay * 1000, lambda: self.find_54_coin(coin_type, retry_count + 1))
             else:
                 self.logger.critical(f"自动找币已达到最大重试次数(10次)，停止重试")
+                # 即使重试失败，也要重新安排下一次的自动找币定时任务
+                self.logger.info("🔄 重试失败，但仍重新安排下一次定时任务")
+                self.schedule_auto_find_coin()
                 
     def find_new_weekly_url(self, coin, retry_count=0):
         """在Polymarket市场搜索指定币种的合约地址,只返回URL"""
