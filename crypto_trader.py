@@ -123,11 +123,11 @@ class CryptoTrader:
         self.is_restarting = False  # 重启状态标志
 
         # 初始化本金
-        self.initial_amount = 1.2
-        self.first_rebound = 255
-        self.n_rebound = 145
-        self.profit_rate = 1
-        self.doubling_weeks = 70
+        self.initial_amount = 2.2
+        self.first_rebound = 265
+        self.n_rebound = 140
+        self.profit_rate = 2
+        self.doubling_weeks = 35
 
         # 默认买价
         self.default_target_price = 57 # 不修改
