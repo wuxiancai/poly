@@ -1130,7 +1130,7 @@ class CryptoTrader:
             # 只在合理的时间范围内恢复零点价格定时器
             if seconds_until_next_run > 0:
                 self.get_binance_zero_time_price_timer = self.root.after(seconds_until_next_run, self.get_binance_zero_time_price)
-                self.logger.info(f"✅ 恢复零点价格定时器，{round(seconds_until_next_run / 3600000, 2)} 小时后执行")
+                self.logger.info(f"✅ 恢复获取币安零点价格定时器，{round(seconds_until_next_run / 3600000, 2)} 小时后执行")
             
             # 9. zero_cash_timer: 类似的计算逻辑
             # 现金监控可以稍微提前一点，比如在23:59:30开始
@@ -1142,7 +1142,7 @@ class CryptoTrader:
             
             if seconds_until_cash_run > 0:
                 self.get_zero_time_cash_timer = self.root.after(seconds_until_cash_run, self.get_zero_time_cash)
-                self.logger.info(f"✅ 恢复零点现金定时器，{round(seconds_until_cash_run / 3600000, 2)} 小时后执行")
+                self.logger.info(f"✅ 恢复获取零点 CASH定时器,{round(seconds_until_cash_run / 3600000, 2)} 小时后执行")
             
             self.logger.info("✅ 监控状态恢复完成")
             
@@ -3745,7 +3745,7 @@ class CryptoTrader:
         self.logger.info(f"当前时间: {now}")
         # 计算下一个指定时间的时间点
         next_run = now.replace(hour=0, minute=6, second=0, microsecond=0)
-        self.logger.info(f"下次执行时间: {next_run}")
+        self.logger.info(f"自动找币下次执行时间: {next_run}")
         if now >= next_run:
             next_run += timedelta(days=1)
         
