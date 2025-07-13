@@ -33,6 +33,7 @@ from xpath_config import XPathConfig
 import random
 import websocket
 
+
 class Logger:
     def __init__(self, name):
         self.logger = logging.getLogger(name)
@@ -1077,6 +1078,84 @@ class CryptoTrader:
             with self.restart_lock:
                 self.is_restarting = False
 
+    def restart_brower_after_auto_find_coin(self):
+        """重连浏览器后自动检查并更新URL中的日期"""
+        try:
+            # 从GUI获取当前监控的URL
+            current_url = self.url_entry.get().strip()
+            if not current_url:
+                self.logger.info("📅 URL为空,跳过日期检查")
+                return
+            
+            self.logger.info(f"📅 检查URL中的日期: {current_url}")
+            
+            # 从URL中提取日期 (例如: july-13)
+            date_pattern = r'(january|february|march|april|may|june|july|august|september|october|november|december)-(\d{1,2})'
+            match = re.search(date_pattern, current_url.lower())
+            
+            if not match:
+                self.logger.info("📅 URL中未找到日期格式,跳过日期检查")
+                return
+            
+            url_month = match.group(1)
+            url_day = int(match.group(2))
+            
+            # 获取当前日期并格式化为相同格式
+            current_date = datetime.now()
+            current_month = current_date.strftime("%B").lower()  # 获取完整月份名称并转小写
+            current_day = current_date.day
+            
+            current_date_str = f"{current_month}-{current_day}"
+            url_date_str = f"{url_month}-{url_day}"
+            
+            self.logger.info(f"📅 URL日期: {url_date_str}, 当前日期: {current_date_str}")
+            
+            # 比较日期
+            if url_date_str == current_date_str:
+                self.logger.info("📅 日期匹配,无需更新URL")
+                return
+            
+            # 日期不匹配，需要更新URL
+            self.logger.info(f"📅 日期不匹配,更新URL中的日期从 {url_date_str} 到 {current_date_str}")
+            
+            # 替换URL中的日期
+            old_date_pattern = f"{url_month}-{url_day}"
+            new_date_pattern = f"{current_month}-{current_day}"
+            updated_url = current_url.replace(old_date_pattern, new_date_pattern)
+            
+            # 更新GUI中的URL
+            self.url_entry.delete(0, 'end')
+            self.url_entry.insert(0, updated_url)
+            
+            # 保存到配置文件
+            if 'website' not in self.config:
+                self.config['website'] = {}
+            self.config['website']['url'] = updated_url
+            
+            # 更新URL历史记录
+            if 'url_history' not in self.config:
+                self.config['url_history'] = []
+            if updated_url not in self.config['url_history']:
+                self.config['url_history'].insert(0, updated_url)
+                # 保持历史记录不超过10条
+                self.config['url_history'] = self.config['url_history'][:10]
+                self.url_entry['values'] = self.config['url_history']
+            
+            self.save_config()
+            
+            self.logger.info(f"✅ URL已更新为: {updated_url}")
+            
+            # 如果浏览器已经打开，导航到新URL
+            if self.driver:
+                try:
+                    self.driver.get(updated_url)
+                    self.logger.info(f"✅ 浏览器已导航到新URL")
+                except Exception as e:
+                    self.logger.error(f"导航到新URL失败: {e}")
+            
+        except Exception as e:
+            self.logger.error(f"日期检查和更新失败: {e}")
+
     def _restore_monitoring_state(self):
         """恢复监控状态 - 重新同步监控逻辑，确保所有监控功能正常工作"""
         try:
@@ -1085,8 +1164,10 @@ class CryptoTrader:
             # 确保运行状态正确
             self.running = True
             
-            # 重新启动各种监控功能（不是重新创建定时器，而是确保监控逻辑正常）
+            # 重连浏览器后自动检查并更新URL中的日期
+            self.restart_brower_after_auto_find_coin()
             
+            # 重新启动各种监控功能（不是重新创建定时器，而是确保监控逻辑正常）
             # 1. 重新启动登录监控（如果当前没有运行）
             if hasattr(self, 'login_check_timer') and self.login_check_timer:
                 self.root.after_cancel(self.login_check_timer)
