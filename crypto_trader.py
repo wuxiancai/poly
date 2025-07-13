@@ -1078,7 +1078,7 @@ class CryptoTrader:
             with self.restart_lock:
                 self.is_restarting = False
 
-    def restart_brower_after_auto_find_coin(self):
+    def restart_browser_after_auto_find_coin(self):
         """重连浏览器后自动检查并更新URL中的日期"""
         try:
             # 从GUI获取当前监控的URL
@@ -1165,7 +1165,7 @@ class CryptoTrader:
             self.running = True
             
             # 重连浏览器后自动检查并更新URL中的日期
-            self.restart_brower_after_auto_find_coin()
+            self.restart_browser_after_auto_find_coin()
             
             # 重新启动各种监控功能（不是重新创建定时器，而是确保监控逻辑正常）
             # 1. 重新启动登录监控（如果当前没有运行）
@@ -3912,7 +3912,9 @@ class CryptoTrader:
             # 自动找币完成后，重新安排下一次的自动找币定时任务
             self.logger.info("🔄 自动找币完成，重新安排下一次定时任务")
             self.schedule_auto_find_coin()
-            
+            # 检查 URL 是否是当天的
+            self.restart_browser_after_auto_find_coin()
+
         except Exception as e:
             self.logger.error(f"自动找币异常: {str(e)}")
             # 避免无限递归，使用延迟重试而不是直接递归调用
