@@ -1108,7 +1108,7 @@ class CryptoTrader:
             current_date_str = f"{current_month}-{current_day}"
             url_date_str = f"{url_month}-{url_day}"
             
-            self.logger.info(f"📅 URL日期: {url_date_str}, 当前日期: {current_date_str}")
+            self.logger.info(f"URL日期: {url_date_str}, 当前日期: {current_date_str}")
             
             # 比较日期
             if url_date_str == current_date_str:
@@ -1116,7 +1116,7 @@ class CryptoTrader:
                 return
             
             # 日期不匹配，需要更新URL
-            self.logger.info(f"📅 日期不匹配,更新URL中的日期从 {url_date_str} 到 {current_date_str}")
+            self.logger.info(f"\033[31m日期不匹配,更新URL中的日期从 {url_date_str} 到 {current_date_str}\033[0m")
             
             # 替换URL中的日期
             old_date_pattern = f"{url_month}-{url_day}"
@@ -1143,13 +1143,13 @@ class CryptoTrader:
             
             self.save_config()
             
-            self.logger.info(f"✅ URL已更新为: {updated_url}")
+            self.logger.info(f"✅ \033[34mURL已更新为: {updated_url}\033[0m")
             
             # 如果浏览器已经打开，导航到新URL
             if self.driver:
                 try:
                     self.driver.get(updated_url)
-                    self.logger.info(f"✅ 浏览器已导航到新URL")
+                    self.logger.info(f"✅ \033[34m浏览器已导航到新URL\033[0m")
                 except Exception as e:
                     self.logger.error(f"导航到新URL失败: {e}")
             
