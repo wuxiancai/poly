@@ -621,9 +621,7 @@ class CryptoTrader:
         
         # Up 配置项
         up_configs = [
-            ("Up1", "yes1_price_entry", "yes1_amount_entry", 
-             str(self.config['trading']['Yes1']['target_price']), 
-             str(self.config['trading']['Yes1']['amount'])),
+            ("Up1", "yes1_price_entry", "yes1_amount_entry", "0", "0"),
             ("Up2", "yes2_price_entry", "yes2_amount_entry", "0", "0"),
             ("Up3", "yes3_price_entry", "yes3_amount_entry", "0", "0"),
             ("Up4", "yes4_price_entry", "yes4_amount_entry", "0", "0"),
@@ -655,9 +653,7 @@ class CryptoTrader:
 
         # Down 配置项
         down_configs = [
-            ("Down1", "no1_price_entry", "no1_amount_entry", 
-             str(self.config['trading']['No1']['target_price']), 
-             str(self.config['trading']['No1']['amount'])),
+            ("Down1", "no1_price_entry", "no1_amount_entry", "0", "0"),
             ("Down2", "no2_price_entry", "no2_amount_entry", "0", "0"),
             ("Down3", "no3_price_entry", "no3_amount_entry", "0", "0"),
             ("Down4", "no4_price_entry", "no4_amount_entry", "0", "0"),
@@ -1762,6 +1758,7 @@ class CryptoTrader:
                             self.no1_price_entry.configure(foreground='black')
                             self.no1_price_entry.delete(0, tk.END)
                             self.no1_price_entry.insert(0, "0")
+                            self.logger.info("\033[34m✅ Yes1和No1价格已重置为{self.yes1_price_entry.get()}和{self.no1_price_entry.get()}\033[0m")
                             # 设置No2价格为默认值
                             self.no2_price_entry = self.no_frame.grid_slaves(row=2, column=1)[0]
                             self.no2_price_entry.delete(0, tk.END)
@@ -1776,6 +1773,7 @@ class CryptoTrader:
                             self.no5_price_entry.delete(0, tk.END)
                             self.no5_price_entry.insert(0, str(self.default_normal_sell_price))
                             self.no5_price_entry.configure(foreground='red')
+                            self.logger.info("\033[34m✅ Yes5和No5价格已重置为{self.yes5_price_entry.get()}和{self.no5_price_entry.get()}\033[0m")
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Up1",
@@ -1830,11 +1828,13 @@ class CryptoTrader:
                             self.no1_price_entry.delete(0, tk.END)
                             self.no1_price_entry.insert(0, "0")
                             self.no1_price_entry.configure(foreground='black')
+                            self.logger.info("\033[34m✅ Yes1和No1价格已重置为{self.yes1_price_entry.get()}和{self.no1_price_entry.get()}\033[0m")
                             # 设置Yes2价格为默认值
                             self.yes2_price_entry = self.yes_frame.grid_slaves(row=2, column=1)[0]
                             self.yes2_price_entry.delete(0, tk.END)
                             self.yes2_price_entry.insert(0, str(self.default_target_price))
                             self.yes2_price_entry.configure(foreground='red')
+                            self.logger.info("\033[34m✅ Yes2价格已重置为{self.yes2_price_entry.get()}\033[0m")
                             # 设置 Yes5和No5价格为99
                             self.yes5_price_entry = self.yes_frame.grid_slaves(row=8, column=1)[0]
                             self.yes5_price_entry.delete(0, tk.END)
@@ -1844,6 +1844,7 @@ class CryptoTrader:
                             self.no5_price_entry.delete(0, tk.END)
                             self.no5_price_entry.insert(0, str(self.default_normal_sell_price))
                             self.no5_price_entry.configure(foreground='red')
+                            self.logger.info("\033[34m✅ Yes5和No5价格已重置为{self.yes5_price_entry.get()}和{self.no5_price_entry.get()}\033[0m")
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Down1",
@@ -3775,7 +3776,10 @@ class CryptoTrader:
         
         # 计算下一个指定时间的时间点（在选择时间的02分执行）
         next_run = now.replace(hour=hour, minute=2, second=0, microsecond=0)
-        if now >= next_run:
+        
+        # 如果当前时间已经超过了今天的指定时间，则直接安排到明天
+        # 为了确保绝对不会在同一天重复执行，我们检查当前时间是否已经过了指定的小时
+        if now.hour >= hour:
             next_run += timedelta(days=1)
         
         # 计算等待时间(毫秒)
@@ -3795,6 +3799,7 @@ class CryptoTrader:
             # 取消当前的定时器
             self.root.after_cancel(self.set_yes1_no1_default_target_price_timer)
             self.logger.info("🔄 设置 YES1/NO1 价格时间已更改，重新安排定时任务")
+            # 使用新的时间设置重新安排定时任务，确保使用正确的时间计算
             self.schedule_price_setting()
     
     def set_yes1_no1_default_target_price(self):
@@ -3810,6 +3815,7 @@ class CryptoTrader:
         self.close_windows()
         
         # 价格设置完成后，重新安排下一次的价格设置定时任务
+        # 使用schedule_price_setting确保与GUI时间选择保持一致
         self.logger.info("🔄 价格设置完成，重新安排下一次定时任务")
         self.schedule_price_setting()
         
@@ -4246,7 +4252,12 @@ class CryptoTrader:
             # 设置 YES/NO 金额,延迟5秒确保数据稳定
             self.root.after(5000, self.schedule_update_amount)
             self.logger.info("✅ 设置 YES/NO 金额成功!")
-           
+            # 设置 YES1/NO1价格为 0
+            self.yes1_price_entry.delete(0, tk.END)
+            self.yes1_price_entry.insert(0, "0")
+            self.no1_price_entry.delete(0, tk.END)
+            self.no1_price_entry.insert(0, "0")
+            
         except Exception as e:
             self.logger.error(f"获取零点CASH值时发生错误: {str(e)}")
         finally:
