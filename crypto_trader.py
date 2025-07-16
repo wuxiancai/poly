@@ -1737,7 +1737,7 @@ class CryptoTrader:
                 # 检查Yes1价格匹配
                 if 0 <= round((up_price - yes1_price), 2) <= self.price_premium and (up_shares > self.asks_shares) and up_price > 50:
                     for retry in range(3):
-                        self.logger.info(f"✅ \033[32mUp 1: {up_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
+                        self.logger.info(f"✅ \033[32mUp 1: {up_price}¢\033[0m 价格匹配,执行自动买入,第{retry+1}次尝试")
                         self.amount_yes1_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
@@ -1803,7 +1803,7 @@ class CryptoTrader:
                         )
                 elif 0 <= round((down_price - no1_price), 2) <= self.price_premium and (down_shares > self.bids_shares) and down_price > 50:
                     for retry in range(3):
-                        self.logger.info(f"✅ \033[31mDown 1: {down_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
+                        self.logger.info(f"✅ \033[31mDown 1: {down_price}¢\033[0m 价格匹配,执行自动买入,第{retry+1}次尝试")
                         self.buy_no_button.invoke()
                         time.sleep(0.5)
                         self.amount_no1_button.event_generate('<Button-1>')
@@ -1889,7 +1889,7 @@ class CryptoTrader:
                 # 检查Yes2价格匹配
                 if 0 <= round((up_price - yes2_price), 2) <= self.price_premium and (up_shares > self.asks_shares) and up_price > 50:
                     for retry in range(3):
-                        self.logger.info(f"✅  \033[32mUp 2: {up_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
+                        self.logger.info(f"✅  \033[32mUp 2: {up_price}¢\033[0m 价格匹配,执行自动买入,第{retry+1}次尝试")
                         self.amount_yes2_button.event_generate('<Button-1>')
                         time.sleep(0.5)
                         self.buy_confirm_button.invoke()
@@ -1947,7 +1947,7 @@ class CryptoTrader:
                 # 检查No2价格匹配
                 elif 0 <= round((down_price - no2_price), 2) <= self.price_premium and (down_shares > self.bids_shares) and down_price > 50:
                     for retry in range(3):
-                        self.logger.info(f"✅ \033[31mDown 2: {down_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
+                        self.logger.info(f"✅ \033[31mDown 2: {down_price}¢\033[0m 价格匹配,执行自动买入,第{retry+1}次尝试")
                         self.buy_no_button.invoke()
                         time.sleep(0.5)
                         self.amount_no2_button.event_generate('<Button-1>')
@@ -2025,7 +2025,7 @@ class CryptoTrader:
                 # 检查Yes3价格匹配
                 if 0 <= round((up_price - yes3_price), 2) <= self.price_premium and (up_shares > self.asks_shares) and up_price > 50:
                     for retry in range(3):
-                        self.logger.info(f"✅ \033[32mUp 3: {up_price}¢\033[0m 价格匹配,执行自动交易")
+                        self.logger.info(f"✅ \033[32mUp 3: {up_price}¢\033[0m 价格匹配,执行自动买入,第{retry+1}次尝试")
                         # 执行交易操作
                         self.amount_yes3_button.event_generate('<Button-1>')
                         time.sleep(0.5)
@@ -2086,7 +2086,7 @@ class CryptoTrader:
                 # 检查No3价格匹配
                 elif 0 <= round((down_price - no3_price), 2) <= self.price_premium and (down_shares > self.bids_shares) and down_price > 50:
                     for retry in range(3):
-                        self.logger.info(f"✅ \033[31mDown 3: {down_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
+                        self.logger.info(f"✅ \033[31mDown 3: {down_price}¢\033[0m 价格匹配,执行自动买入,第{retry+1}次尝试")
                         # 执行交易操作
                         self.buy_no_button.invoke()
                         time.sleep(0.5)
@@ -2168,7 +2168,7 @@ class CryptoTrader:
                 # 检查Yes4价格匹配
                 if 0 <= round((up_price - yes4_price), 2) <= self.price_premium and (up_shares > self.asks_shares) and up_price > 50:
                     for retry in range(3):
-                        self.logger.info(f"✅ \033[32mUp 4: {up_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
+                        self.logger.info(f"✅ \033[32mUp 4: {up_price}¢\033[0m 价格匹配,执行自动买入,第{retry+1}次尝试")
                         # 执行交易操作
                         self.amount_yes4_button.event_generate('<Button-1>')
                         time.sleep(0.5)
@@ -2219,7 +2219,7 @@ class CryptoTrader:
                 # 检查No4价格匹配
                 elif 0 <= round((down_price - no4_price), 2) <= self.price_premium and (down_shares > self.bids_shares) and down_price > 50:
                     for retry in range(3):
-                        self.logger.info(f"✅ \033[31mDown 4: {down_price}¢\033[0m 价格匹配,执行自动交易,第{retry+1}次尝试")
+                        self.logger.info(f"✅ \033[31mDown 4: {down_price}¢\033[0m 价格匹配,执行自动买入,第{retry+1}次尝试")
                         # 执行交易操作
                         self.buy_no_button.invoke()
                         time.sleep(0.5)
@@ -2303,7 +2303,7 @@ class CryptoTrader:
                     self.logger.info(f"✅ \033[31mUp 1: {up_price}¢\033[0m 价格匹配,执行自动卖出")
 
                     for retry in range(3):
-                        self.logger.info(f"执行自动卖出UP1==99,第{retry+1}次尝试")
+                        self.logger.info(f"✅ 执行自动卖出UP1,第{retry+1}次尝试")
                         try:
                             # 卖出 UP1 的shares
                             self.position_sell_yes_button.invoke()
