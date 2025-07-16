@@ -1179,11 +1179,6 @@ class CryptoTrader:
                 self.root.after_cancel(self.refresh_page_timer)     
             self.refresh_page()
 
-            # 重启设置 YES1/NO1 价格为 52
-            if hasattr(self,'schedule_price_setting_timer') and self.schedule_price_setting_timer:
-                self.root.after_cancel(self.schedule_price_setting_timer)
-            self.schedule_price_setting()
-
             # 6.重新开始价格比较
             if hasattr(self,'comparison_binance_price_timer') and self.comparison_binance_price_timer:
                 self.root.after_cancel(self.comparison_binance_price_timer)
