@@ -3826,7 +3826,7 @@ class CryptoTrader:
         now = datetime.now()
         self.logger.info(f"当前时间: {now}")
         # 计算下一个指定时间的时间点
-        next_run = now.replace(hour=0, minute=6, second=0, microsecond=0)
+        next_run = now.replace(hour=0, minute=1, second=0, microsecond=0)
         self.logger.info(f"自动找币下次执行时间: {next_run}")
         if now >= next_run:
             next_run += timedelta(days=1)
