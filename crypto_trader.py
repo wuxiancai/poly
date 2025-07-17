@@ -1753,12 +1753,13 @@ class CryptoTrader:
                             self.no1_price_entry.configure(foreground='black')
                             self.no1_price_entry.delete(0, tk.END)
                             self.no1_price_entry.insert(0, "0")
-                            self.logger.info("\033[34m✅ Yes1和No1价格已重置为{self.yes1_price_entry.get()}和{self.no1_price_entry.get()}\033[0m")
+                            self.logger.info("\033[34m✅ Yes1和No1价格已重置为0\033[0m")
                             # 设置No2价格为默认值
                             self.no2_price_entry = self.no_frame.grid_slaves(row=2, column=1)[0]
                             self.no2_price_entry.delete(0, tk.END)
                             self.no2_price_entry.insert(0, str(self.default_target_price))
                             self.no2_price_entry.configure(foreground='red')
+                            self.logger.info(f"\033[34m✅ No2价格已重置为默认值{self.default_target_price}\033[0m")
                             # 设置 Yes5和No5价格为99
                             self.yes5_price_entry = self.yes_frame.grid_slaves(row=8, column=1)[0]
                             self.yes5_price_entry.delete(0, tk.END)
@@ -1768,7 +1769,7 @@ class CryptoTrader:
                             self.no5_price_entry.delete(0, tk.END)
                             self.no5_price_entry.insert(0, str(self.default_normal_sell_price))
                             self.no5_price_entry.configure(foreground='red')
-                            self.logger.info("\033[34m✅ Yes5和No5价格已重置为{self.yes5_price_entry.get()}和{self.no5_price_entry.get()}\033[0m")
+                            self.logger.info("\033[34m✅ Yes5和No5价格已重置为{self.default_normal_sell_price}\033[0m")
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Up1",
@@ -1823,13 +1824,13 @@ class CryptoTrader:
                             self.no1_price_entry.delete(0, tk.END)
                             self.no1_price_entry.insert(0, "0")
                             self.no1_price_entry.configure(foreground='black')
-                            self.logger.info("\033[34m✅ Yes1和No1价格已重置为{self.yes1_price_entry.get()}和{self.no1_price_entry.get()}\033[0m")
+                            self.logger.info("\033[34m✅ Yes1和No1价格已重置为0\033[0m")
                             # 设置Yes2价格为默认值
                             self.yes2_price_entry = self.yes_frame.grid_slaves(row=2, column=1)[0]
                             self.yes2_price_entry.delete(0, tk.END)
                             self.yes2_price_entry.insert(0, str(self.default_target_price))
                             self.yes2_price_entry.configure(foreground='red')
-                            self.logger.info("\033[34m✅ Yes2价格已重置为{self.yes2_price_entry.get()}\033[0m")
+                            self.logger.info(f"\033[34m✅ Yes2价格已重置为{self.default_target_price}\033[0m")
                             # 设置 Yes5和No5价格为99
                             self.yes5_price_entry = self.yes_frame.grid_slaves(row=8, column=1)[0]
                             self.yes5_price_entry.delete(0, tk.END)
@@ -1839,7 +1840,7 @@ class CryptoTrader:
                             self.no5_price_entry.delete(0, tk.END)
                             self.no5_price_entry.insert(0, str(self.default_normal_sell_price))
                             self.no5_price_entry.configure(foreground='red')
-                            self.logger.info("\033[34m✅ Yes5和No5价格已重置为{self.yes5_price_entry.get()}和{self.no5_price_entry.get()}\033[0m")
+                            self.logger.info(f"\033[34m✅ Yes5和No5价格已重置为{self.default_normal_sell_price}\033[0m")
                             # 发送交易邮件
                             self.send_trade_email(
                                 trade_type="Buy Down1",
@@ -1903,13 +1904,15 @@ class CryptoTrader:
                             self.no2_price_entry.delete(0, tk.END)
                             self.no2_price_entry.insert(0, "0")
                             self.no2_price_entry.configure(foreground='black')
-                            
+                            self.logger.info(f"\033[34m✅ Yes2和No2价格已重置为0\033[0m")
                             # 设置No3价格为默认值
                             self.no3_price_entry = self.no_frame.grid_slaves(row=4, column=1)[0]
                             self.no3_price_entry.delete(0, tk.END)
                             self.no3_price_entry.insert(0, str(self.default_target_price))
                             self.no3_price_entry.configure(foreground='red')  # 添加红色设置
-                            
+                            no3_price = float(self.no3_price_entry.get())
+                            self.logger.info(f"✅ No3价格已重置为{self.default_target_price}")
+
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
@@ -1966,13 +1969,14 @@ class CryptoTrader:
                             self.no2_price_entry.delete(0, tk.END)
                             self.no2_price_entry.insert(0, "0")
                             self.no2_price_entry.configure(foreground='black')
-                            
+                            self.logger.info(f"\033[34m✅ Yes2和No2价格已重置为0\033[0m")
                             # 设置YES3价格为默认值
                             self.yes3_price_entry = self.yes_frame.grid_slaves(row=4, column=1)[0]
                             self.yes3_price_entry.delete(0, tk.END)
                             self.yes3_price_entry.insert(0, str(self.default_target_price))
                             self.yes3_price_entry.configure(foreground='red')  # 添加红色设置
-                            
+                            yes3_price = float(self.yes3_price_entry.get())
+                            self.logger.info(f"✅ Yes3价格已重置为{self.default_target_price}")
                             # 增加交易次数
                             self.trade_count += 1
                             self.send_trade_email(
@@ -2041,13 +2045,14 @@ class CryptoTrader:
                             self.no3_price_entry.delete(0, tk.END)
                             self.no3_price_entry.insert(0, "0")
                             self.no3_price_entry.configure(foreground='black')
-                            
+                            self.logger.info(f"\033[34m✅ Yes3和No3价格已重置为0\033[0m")
                             # 设置No4价格为默认值
                             self.no4_price_entry = self.no_frame.grid_slaves(row=6, column=1)[0]
                             self.no4_price_entry.delete(0, tk.END)
                             self.no4_price_entry.insert(0, str(self.default_target_price))
                             self.no4_price_entry.configure(foreground='red')  # 添加红色设置
-
+                            no4_price = float(self.no4_price_entry.get())
+                            self.logger.info(f"✅ No4价格已重置为{self.default_target_price}")
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
@@ -2106,13 +2111,14 @@ class CryptoTrader:
                             self.no3_price_entry.delete(0, tk.END)
                             self.no3_price_entry.insert(0, "0")
                             self.no3_price_entry.configure(foreground='black')
-                            
+                            self.logger.info(f"\033[34m✅ Yes3和No3价格已重置为0\033[0m")
                             # 设置Yes4价格为默认值
                             self.yes4_price_entry = self.yes_frame.grid_slaves(row=6, column=1)[0]
                             self.yes4_price_entry.delete(0, tk.END)
                             self.yes4_price_entry.insert(0, str(self.default_target_price))
                             self.yes4_price_entry.configure(foreground='red')  # 添加红色设置
-
+                            yes4_price = float(self.yes4_price_entry.get())
+                            self.logger.info(f"✅ Yes4价格已重置为{self.default_target_price}")
                             # 增加交易次数
                             self.trade_count += 1
                             # 发送交易邮件
@@ -2180,6 +2186,8 @@ class CryptoTrader:
                             self.yes4_price_entry.delete(0, tk.END)
                             self.yes4_price_entry.insert(0, str(self.default_sell_price_backwater)) # 设置为反水卖出价格也就是 46
                             self.yes4_price_entry.configure(foreground='red')
+                            yes4_price = float(self.yes4_price_entry.get())
+                            self.logger.info(f"✅ Yes4价格已重置为{self.default_sell_price_backwater}")
 
                             # 增加交易次数
                             self.trade_count += 1
@@ -2236,6 +2244,8 @@ class CryptoTrader:
                             self.no4_price_entry.delete(0, tk.END)
                             self.no4_price_entry.insert(0, str(self.default_sell_price_backwater)) # 设置为反水卖出价格也就是 46
                             self.no4_price_entry.configure(foreground='red')
+                            no4_price = float(self.no4_price_entry.get())
+                            self.logger.info(f"✅ No4价格已重置为{self.default_sell_price_backwater}")
 
                             # 增加交易次数
                             self.trade_count += 1
@@ -2338,16 +2348,18 @@ class CryptoTrader:
                                     self.yes1_price_entry.delete(0, tk.END)
                                     self.yes1_price_entry.insert(0, "0")
                                     self.yes1_price_entry.configure(foreground='black')
-
+                                    self.logger.info(f"✅ Yes1价格已重置为0")
                                     # 设置 YES5 价格为 0  
                                     self.yes5_price_entry.delete(0, tk.END)
                                     self.yes5_price_entry.insert(0, "0")
                                     self.yes5_price_entry.configure(foreground='black')
+                                    self.logger.info(f"✅ Yes5价格已重置为0")
 
                                     # 设置 NO5 价格为 0  
                                     self.no5_price_entry.delete(0, tk.END)
                                     self.no5_price_entry.insert(0, "0")
                                     self.no5_price_entry.configure(foreground='black')
+                                    self.logger.info(f"✅ No5价格已重置为0")
 
                                     # 发送交易邮件
                                     self.send_trade_email(
@@ -2420,7 +2432,7 @@ class CryptoTrader:
                                     self.no1_price_entry.delete(0, tk.END)
                                     self.no1_price_entry.insert(0, str(self.default_sell_price_backwater))
                                     self.no1_price_entry.configure(foreground='red')  # 添加红色设置
-                                    
+                                    self.logger.info(f"✅ No1价格已重置为反水卖出价格{self.default_sell_price_backwater}")
                                     # 设置 YES2 价格为0
                                     self.yes2_price_entry.delete(0, tk.END)
                                     self.yes2_price_entry.insert(0, "0")
@@ -2496,7 +2508,7 @@ class CryptoTrader:
                                     self.no2_price_entry.delete(0, tk.END)
                                     self.no2_price_entry.insert(0, str(self.default_sell_price_backwater))
                                     self.no2_price_entry.configure(foreground='red')  # 添加红色设置
-                                    
+                                    self.logger.info(f"✅ No2价格已重置为反水卖出价格{self.default_sell_price_backwater}")
                                     # 设置 YES3 价格为0
                                     self.yes3_price_entry.delete(0, tk.END)
                                     self.yes3_price_entry.insert(0, "0")
@@ -2573,11 +2585,12 @@ class CryptoTrader:
                                     self.no3_price_entry.delete(0, tk.END)
                                     self.no3_price_entry.insert(0, str(self.default_sell_price_backwater))
                                     self.no3_price_entry.configure(foreground='red')  # 添加红色设置
-                                    
+                                    self.logger.info(f"✅ No3价格已重置为反水卖出价格{self.default_sell_price_backwater}")
                                     # 设置 YES4 价格为0
                                     self.yes4_price_entry.delete(0, tk.END)
                                     self.yes4_price_entry.insert(0, "0")
                                     self.yes4_price_entry.configure(foreground='black')  
+                                    self.logger.info(f"✅ Yes4价格已重置为0")
 
                                     # 发送交易邮件
                                     self.send_trade_email(
@@ -2718,16 +2731,19 @@ class CryptoTrader:
                                     self.no1_price_entry.delete(0, tk.END)
                                     self.no1_price_entry.insert(0, "0")
                                     self.no1_price_entry.configure(foreground='black')  
+                                    self.logger.info(f"✅ No1价格已重置为0")
 
                                     # 设置 NO5 价格为 0  
                                     self.no5_price_entry.delete(0, tk.END)
                                     self.no5_price_entry.insert(0, "0")
                                     self.no5_price_entry.configure(foreground='black')
+                                    self.logger.info(f"✅ No5价格已重置为0")
 
                                     # 设置 YES5 价格为 0  
                                     self.yes5_price_entry.delete(0, tk.END)
                                     self.yes5_price_entry.insert(0, "0")
                                     self.yes5_price_entry.configure(foreground='black')
+                                    self.logger.info(f"✅ Yes5价格已重置为0")
 
                                     # 发送交易邮件
                                     self.send_trade_email(
@@ -2798,11 +2814,12 @@ class CryptoTrader:
                                     self.yes1_price_entry.delete(0, tk.END)
                                     self.yes1_price_entry.insert(0, str(self.default_sell_price_backwater))
                                     self.yes1_price_entry.configure(foreground='red')  # 添加红色设置
-                                    
+                                    self.logger.info(f"✅ Yes1价格已重置为反水卖出价格{self.default_sell_price_backwater}")
                                     # 设置 NO2 价格为0
                                     self.no2_price_entry.delete(0, tk.END)
                                     self.no2_price_entry.insert(0, "0")
                                     self.no2_price_entry.configure(foreground='black')  
+                                    self.logger.info(f"✅ No2价格已重置为0")
                                     # 发送交易邮件
                                     self.send_trade_email(
                                         trade_type="Sell No2",
@@ -2872,11 +2889,12 @@ class CryptoTrader:
                                     self.yes2_price_entry.delete(0, tk.END)
                                     self.yes2_price_entry.insert(0, str(self.default_sell_price_backwater))
                                     self.yes2_price_entry.configure(foreground='red')  # 添加红色设置
-                                    
+                                    self.logger.info(f"✅ Yes2价格已重置为反水卖出价格{self.default_sell_price_backwater}")
                                     # 设置 NO3 价格为0
                                     self.no3_price_entry.delete(0, tk.END)
                                     self.no3_price_entry.insert(0, "0")
                                     self.no3_price_entry.configure(foreground='black')  
+                                    self.logger.info(f"✅ No3价格已重置为0")
                                     # 发送交易邮件
                                     self.send_trade_email(
                                         trade_type="Sell No3",
@@ -2947,11 +2965,12 @@ class CryptoTrader:
                                     self.yes3_price_entry.delete(0, tk.END)
                                     self.yes3_price_entry.insert(0, str(self.default_sell_price_backwater))
                                     self.yes3_price_entry.configure(foreground='red')  # 添加红色设置
-                                    
+                                    self.logger.info(f"✅ Yes3价格已重置为反水卖出价格{self.default_sell_price_backwater}")
                                     # 设置 NO4 价格为0
                                     self.no4_price_entry.delete(0, tk.END)
                                     self.no4_price_entry.insert(0, "0")
                                     self.no4_price_entry.configure(foreground='black')  
+                                    self.logger.info(f"✅ No4价格已重置为0")
                                     # 发送交易邮件
                                     self.send_trade_email(
                                         trade_type="Sell No4",
