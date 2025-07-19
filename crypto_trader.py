@@ -2387,7 +2387,7 @@ class CryptoTrader:
                             cash_value=self.cash_value,
                             portfolio_value=self.portfolio_value
                         )
-
+                        self.driver.refresh()
                 # 增加一个当 YES2==46 时,自动卖出 YES2 的shares
                 elif (10 <= up2_price <= 46) and (-2 <= up_price - up2_price <= 1) and (up_shares > self.asks_shares):
                     self.logger.info(f"✅ \033[31mUp 2: {up_price}¢\033[0m 价格匹配,执行自动卖出")
@@ -2464,7 +2464,7 @@ class CryptoTrader:
                             cash_value=self.cash_value,
                             portfolio_value=self.portfolio_value
                         )
-
+                        self.driver.refresh()
                 # 增加一个当 YES3==46 时,自动卖出 YES3 的shares
                 elif (10 <= up3_price <= 46) and (-2 <= up_price - up3_price <= 1) and (up_shares > self.asks_shares):
                     self.logger.info(f"✅ \033[31mUp 3: {up_price}¢\033[0m 价格匹配,执行自动卖出")
@@ -2540,7 +2540,7 @@ class CryptoTrader:
                             cash_value=self.cash_value,
                             portfolio_value=self.portfolio_value
                         )
-
+                        self.driver.refresh()
                 # 增加一个当 YES4==46 时,自动卖出 YES4 的shares
                 elif (10 <= up4_price <= 46) and (-2 <= up_price - up4_price <= 1) and (up_shares > self.asks_shares):
                     self.logger.info(f"✅ \033[31mUp 4: {up_price}¢\033[0m 价格匹配,执行自动卖出")
@@ -2618,7 +2618,7 @@ class CryptoTrader:
                             cash_value=self.cash_value,
                             portfolio_value=self.portfolio_value
                         )
-
+                        self.driver.refresh()
                 elif up5_price >= 70 and 0 <= price_diff <= 1 and (up_shares > self.asks_shares):
                     self.logger.info(f"✅ \033[32mUp 5: {up_price}¢\033[0m 价格匹配,执行自动卖出")
    
@@ -2666,7 +2666,7 @@ class CryptoTrader:
                             cash_value=self.cash_value,
                             portfolio_value=self.portfolio_value
                         )
-                    
+                        self.driver.refresh()
         except Exception as e:
             self.logger.error(f"❌ Sell_yes执行失败: {str(e)}")
             
@@ -2771,7 +2771,7 @@ class CryptoTrader:
                             cash_value=self.cash_value,
                             portfolio_value=self.portfolio_value
                         )
-            
+                        self.driver.refresh()
                 # 增加一个当 NO1==46 时,自动卖出 NO1 的金额 
                 elif (10 <= down2_price <= 46) and (-2 <= down_price - down2_price <= 1) and (down_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 2: {down_price}¢\033[0m 价格匹配,执行自动卖出")
@@ -2846,7 +2846,7 @@ class CryptoTrader:
                             cash_value=self.cash_value,
                             portfolio_value=self.portfolio_value
                         )
-
+                        self.driver.refresh()
                 # 增加一个当 NO3==46 时,自动卖出 NO3 的金额 
                 elif (10 <= down3_price <= 46) and (-2 <= down_price - down3_price <= 1) and (down_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 3: {down_price}¢\033[0m 价格匹配,执行自动卖出")
@@ -2921,7 +2921,7 @@ class CryptoTrader:
                             cash_value=self.cash_value,
                             portfolio_value=self.portfolio_value
                         )
-
+                        self.driver.refresh()
                 # 增加一个当 NO4==46 时,自动卖出 NO4 的金额 
                 elif (10 <= down4_price <= 46) and (-2 <= down_price - down4_price <= 1) and (down_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 4: {down_price}¢\033[0m 价格匹配,执行自动卖出")
@@ -2997,7 +2997,7 @@ class CryptoTrader:
                             cash_value=self.cash_value,
                             portfolio_value=self.portfolio_value
                         )
-                
+                        self.driver.refresh()
                 elif down5_price >= 70 and (0 <= price_diff <= 1) and (down_shares > self.bids_shares):
                     self.logger.info(f"✅ \033[31mDown 5: {down_price}¢\033[0m 价格匹配,执行自动卖出")
                     
@@ -3043,7 +3043,7 @@ class CryptoTrader:
                             cash_value=self.cash_value,
                             portfolio_value=self.portfolio_value
                         )
-                
+                        self.driver.refresh()
         except Exception as e:
             self.logger.error(f"❌ Sell_no执行失败: {str(e)}")
             
@@ -4469,7 +4469,7 @@ class CryptoTrader:
         """设置定时器以在每天23点比较币安价格和当前价格"""
         now = datetime.now()
         # 设置目标时间为当天的23点
-        target_time_today = now.replace(hour=23, minute=0, second=0, microsecond=0)
+        target_time_today = now.replace(hour=23, minute=30, second=0, microsecond=0)
 
         if now < target_time_today:
             # 如果当前时间早于今天的23点，则在今天的23点执行
